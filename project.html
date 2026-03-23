@@ -1583,119 +1583,730 @@ removePart5Contractor(idx) {
       }
 
       // --- ฟังก์ชันแสดงผลหน้าหลัก (ดึงมาจากไฟล์ 1,500 บรรทัดของคุณ) ---
-      renderDashboard() {
-        const filtered = this.projects.filter(p => 
-          p.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-          (p.customerName && p.customerName.toLowerCase().includes(this.searchQuery.toLowerCase()))
-        );
+    renderDashboard() {
+      const filtered = this.projects
+        .filter(p => {
+          const matchesSearch = 
+            (p.part1.projectName || '').toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+            (p.part1.customerName || '').toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+            (p.part1.companyName || '').toLowerCase().includes(this.searchQuery.toLowerCase());
+          
+          const matchesStatus = this.filterStatus === 'ทั้งหมด' || p.status === this.filterStatus;
+          const matchesDate = !this.filterDate || p.createdAt.startsWith(this.filterDate);
 
-        return `
-          <div class="max-w-7xl mx-auto p-4 md:p-8 fade-in">
-            <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-              <div>
-                <h1 class="text-3xl font-black text-gray-900 tracking-tight">โครงการ JES</h1>
-                <p class="text-gray-500 mt-1">จัดการข้อมูลแบบ Real-time (Cloud Storage)</p>
-              </div>
-              <div class="flex flex-col sm:flex-row w-full md:w-auto gap-3">
-                <div class="relative w-full sm:w-64">
-                  <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"></i>
-                  <input type="text" placeholder="ค้นหาโครงการ..." 
-                         class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
-                         value="${this.searchQuery}" oninput="appManager.handleSearch(event)">
+          return matchesSearch && matchesStatus && matchesDate;
+        })
+        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+      const statusCounts = {
+        'กำลังดำเนินการ': filtered.filter(p => p.status === 'กำลังดำเนินการ').length,
+        'กำลังแก้ไข': filtered.filter(p => p.status === 'กำลังแก้ไข').length,
+        'ส่งข้อมูลให้ลูกค้าแล้ว': filtered.filter(p => p.status === 'ส่งข้อมูลให้ลูกค้าแล้ว').length,
+        'กำลังติดตั้ง': filtered.filter(p => p.status === 'กำลังติดตั้ง').length,
+        'ได้งานแล้ว': filtered.filter(p => p.status === 'ได้งานแล้ว').length,
+        'ไม่ได้งาน': filtered.filter(p => p.status === 'ไม่ได้งาน').length
+      };
+
+      const statusOptions = ['ทั้งหมด', 'กำลังดำเนินการ', 'กำลังแก้ไข', 'ส่งข้อมูลให้ลูกค้าแล้ว', 'กำลังติดตั้ง', 'ได้งานแล้ว', 'ไม่ได้งาน'];
+
+      const html = `
+        <div class="min-h-screen bg-white p-4 md:p-8 font-sans w-full overflow-auto">
+          <div class="max-w-7xl mx-auto">
+            <!-- Header -->
+            <div class="mb-10">
+              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+                <div>
+                  <h1 class="text-4xl md:text-5xl font-black text-slate-900 flex items-center gap-3 mb-2">
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-2xl">
+                      <i data-lucide="layout-dashboard" style="width:32px;height:32px" class="text-white"></i>
+                    </div>
+                    Project for SaleTeam
+                  </h1>
+                  <p class="text-slate-500 text-sm md:text-base">จัดการ ${this.projects.length} โปรเจกต์ • ${filtered.length} ตรงกับตัวกรอง</p>
                 </div>
-                <button onclick="appManager.createNewProject()" class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-bold transition-all shadow-sm">
-                  <i data-lucide="plus" class="w-5 h-5"></i>
-                  <span>สร้างโครงการ</span>
+                <button onclick="app.createNewProject()" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 transition-all w-full md:w-auto justify-center text-lg">
+                  <i data-lucide="plus" style="width:24px;height:24px"></i> เพิ่มงานใหม่
                 </button>
               </div>
-            </header>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              ${filtered.map(p => `
-                <div onclick="appManager.openProject('${p.id}')" class="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group">
-                  <div class="flex justify-between items-start mb-4">
-                    <div class="p-3 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                      <i data-lucide="folder" class="w-6 h-6"></i>
+
+              <!-- Stats Cards -->
+              <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="app.filterStatus = 'กำลังดำเนินการ'; app.render()">
+                  <div class="flex items-center gap-3">
+                    <div class="bg-blue-500/10 p-2 rounded-lg group-hover:bg-blue-500/20 transition-colors">
+                      <i data-lucide="zap" style="width:20px;height:20px" class="text-blue-600"></i>
+                    </div>
+                    <div>
+                      <div class="text-2xl font-black text-blue-900">${statusCounts['กำลังดำเนินการ']}</div>
+                      <div class="text-[10px] text-blue-600 font-bold">กำลังดำเนินการ</div>
                     </div>
                   </div>
-                  <h3 class="text-xl font-bold text-gray-900 mb-2">${p.name}</h3>
-                  <div class="flex items-center gap-2 text-gray-500 text-sm mb-4">
-                    <i data-lucide="user" class="w-4 h-4"></i>
-                    <span class="line-clamp-1">${p.customerName || 'ยังไม่ระบุลูกค้า'}</span>
+                </div>
+                <div class="bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="app.filterStatus = 'กำลังแก้ไข'; app.render()">
+                  <div class="flex items-center gap-3">
+                    <div class="bg-amber-500/10 p-2 rounded-lg group-hover:bg-amber-500/20 transition-colors">
+                      <i data-lucide="edit" style="width:20px;height:20px" class="text-amber-600"></i>
+                    </div>
+                    <div>
+                      <div class="text-2xl font-black text-amber-900">${statusCounts['กำลังแก้ไข']}</div>
+                      <div class="text-[10px] text-amber-600 font-bold">กำลังแก้ไข</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="app.filterStatus = 'ส่งข้อมูลให้ลูกค้าแล้ว'; app.render()">
+                  <div class="flex items-center gap-3">
+                    <div class="bg-indigo-500/10 p-2 rounded-lg group-hover:bg-indigo-500/20 transition-colors">
+                      <i data-lucide="send" style="width:20px;height:20px" class="text-indigo-600"></i>
+                    </div>
+                    <div>
+                      <div class="text-2xl font-black text-indigo-900">${statusCounts['ส่งข้อมูลให้ลูกค้าแล้ว']}</div>
+                      <div class="text-[10px] text-indigo-600 font-bold">ส่งข้อมูล</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="app.filterStatus = 'กำลังติดตั้ง'; app.render()">
+                  <div class="flex items-center gap-3">
+                    <div class="bg-orange-500/10 p-2 rounded-lg group-hover:bg-orange-500/20 transition-colors">
+                      <i data-lucide="wrench" style="width:20px;height:20px" class="text-orange-600"></i>
+                    </div>
+                    <div>
+                      <div class="text-2xl font-black text-orange-900">${statusCounts['กำลังติดตั้ง']}</div>
+                      <div class="text-[10px] text-orange-600 font-bold">ติดตั้ง</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="app.filterStatus = 'ได้งานแล้ว'; app.render()">
+                  <div class="flex items-center gap-3">
+                    <div class="bg-green-500/10 p-2 rounded-lg group-hover:bg-green-500/20 transition-colors">
+                      <i data-lucide="check-circle" style="width:20px;height:20px" class="text-green-600"></i>
+                    </div>
+                    <div>
+                      <div class="text-2xl font-black text-green-900">${statusCounts['ได้งานแล้ว']}</div>
+                      <div class="text-[10px] text-green-600 font-bold">สำเร็จ</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="app.filterStatus = 'ไม่ได้งาน'; app.render()">
+                  <div class="flex items-center gap-3">
+                    <div class="bg-red-500/10 p-2 rounded-lg group-hover:bg-red-500/20 transition-colors">
+                      <i data-lucide="x-circle" style="width:20px;height:20px" class="text-red-600"></i>
+                    </div>
+                    <div>
+                      <div class="text-2xl font-black text-red-900">${statusCounts['ไม่ได้งาน']}</div>
+                      <div class="text-[10px] text-red-600 font-bold">ไม่ได้งาน</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Filters Bar -->
+            <div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl shadow-sm mb-8 flex flex-wrap items-end gap-4">
+              <div class="flex-1 min-w-[240px]">
+                <label class="text-[11px] font-black text-slate-600 uppercase mb-2 block ml-1">ค้นหาโครงการ</label>
+                <div class="relative">
+                  <i data-lucide="search" style="width:16px;height:16px" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+				<input 
+				  type="text" 
+				  placeholder="พิมพ์ชื่อโครงการ, ลูกค้า..."
+				  class="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all"
+				  id="searchInput"
+				  value="${this.searchQuery}"
+				  autofocus
+				  oninput="
+				    this.setSelectionRange(this.value.length, this.value.length);
+				    app.searchQuery = this.value; 
+				    app.render(); 
+				    const input = document.getElementById('searchInput');
+				    input.focus();
+				    input.setSelectionRange(input.value.length, input.value.length);
+				  "
+				/>
+                </div>
+              </div>
+              <div class="w-full md:w-48">
+                <label class="text-[11px] font-black text-slate-600 uppercase mb-2 block ml-1">สถานะ</label>
+                <select 
+                  class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 outline-none cursor-pointer focus:ring-2 focus:ring-blue-500/50"
+                  id="filterStatus"
+                  onchange="app.filterStatus = this.value; app.render()"
+                >
+                  ${statusOptions.map(s => `<option value="${s}" class="bg-white">${s}</option>`).join('')}
+                </select>
+              </div>
+              <div class="w-full md:w-48 relative" id="monthPickerContainer">
+                <label class="text-[11px] font-black text-slate-600 uppercase mb-2 block ml-1">เดือน/ปี</label>
+                <button 
+                  class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 outline-none cursor-pointer focus:ring-2 focus:ring-blue-500/50 flex items-center justify-between hover:border-slate-300 transition-all"
+                  id="monthPickerBtn"
+                  onclick="app.toggleMonthPicker()"
+                >
+                  <span id="monthPickerDisplay">เลือกเดือน/ปี</span>
+                  <i data-lucide="calendar" style="width:16px;height:16px" class="text-slate-400"></i>
+                </button>
+                <div 
+                  class="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-lg p-4 hidden z-50 min-w-[280px]"
+                  id="monthPickerDropdown"
+                >
+                  <div class="flex items-center justify-between mb-4">
+                    <button onclick="app.previousMonthYear()" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors">
+                      <i data-lucide="chevron-left" style="width:18px;height:18px"></i>
+                    </button>
+                    <div class="text-center flex-1">
+                      <div class="text-sm font-black text-slate-900" id="monthPickerYearDisplay">2024</div>
+                    </div>
+                    <button onclick="app.nextMonthYear()" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors">
+                      <i data-lucide="chevron-right" style="width:18px;height:18px"></i>
+                    </button>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2" id="monthGrid">
+                    <!-- Generated by JavaScript -->
+                  </div>
+                  <button 
+                    onclick="app.filterDate = ''; app.closeMonthPicker(); document.getElementById('monthPickerDisplay').textContent = 'เลือกเดือน/ปี'; app.render();"
+                    class="w-full mt-4 px-3 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all"
+                  >
+                    ล้างการเลือก
+                  </button>
+                </div>
+              </div>
+              <button 
+                onclick="app.searchQuery = ''; app.filterStatus = 'ทั้งหมด'; app.filterDate = ''; document.getElementById('searchInput').value = ''; document.getElementById('filterStatus').value = 'ทั้งหมด'; document.getElementById('monthPickerDisplay').textContent = 'เลือกเดือน/ปี'; app.render();"
+                class="px-5 py-3 text-slate-700 hover:text-slate-900 text-sm font-bold flex items-center gap-2 hover:bg-slate-100 rounded-xl transition-all"
+              >
+                <i data-lucide="rotate-ccw" style="width:16px;height:16px"></i> รีเซ็ต
+              </button>
+            </div>
+
+            <!-- Projects List -->
+            <div class="space-y-4">
+              ${filtered.length === 0 ? `
+                <div class="bg-slate-50 border border-dashed border-slate-200 rounded-3xl p-20 flex flex-col items-center justify-center text-center">
+                  <div class="bg-slate-100 p-4 rounded-full mb-4">
+                    <i data-lucide="inbox" style="width:48px;height:48px" class="text-slate-400"></i>
+                  </div>
+                  <h3 class="font-black text-slate-700 text-lg">ไม่พบโปรเจกต์</h3>
+                  <p class="text-slate-500 text-sm mt-1">ลองเปลี่ยนการค้นหาหรือสร้างโปรเจกต์ใหม่</p>
+                </div>
+              ` : filtered.map(p => `
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 hover:border-slate-300 hover:shadow-md transition-all group shadow-sm fade-in">
+                  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-start gap-3 mb-2">
+                        <div class="pt-0.5">
+                          <div class="w-2 h-2 rounded-full ${
+                            p.status === 'ได้งานแล้ว' ? 'bg-green-500' :
+                            p.status === 'ไม่ได้งาน' ? 'bg-red-500' :
+                            p.status === 'กำลังติดตั้ง' ? 'bg-orange-500' :
+                            p.status === 'กำลังแก้ไข' ? 'bg-amber-500' :
+                            p.status === 'ส่งข้อมูลให้ลูกค้าแล้ว' ? 'bg-indigo-500' :
+                            'bg-blue-500'
+                          }"></div>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                          <h3 class="font-black text-slate-900 text-lg truncate">${p.part1.projectName || "ไม่ระบุชื่อโครงการ"}</h3>
+                          <div class="flex flex-wrap items-center gap-2 mt-1">
+                            <span class="text-xs text-slate-500">${p.part1.customerName || "ลูกค้า"}</span>
+                            <span class="text-xs text-slate-400">•</span>
+                            <span class="text-xs text-slate-500">${p.part1.companyName || "บริษัท"}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="px-3 py-1.5 rounded-full border text-[10px] font-black w-fit mt-2 ${this.getStatusStyle(p.status)}">
+                        ${p.status}
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2 md:ml-auto">
+                      <div class="text-right hidden sm:block">
+                        <div class="text-xs text-slate-500">อัปเดต</div>
+                        <div class="text-xs font-bold text-slate-700">${this.formatDisplayTime(p.updatedAt).split(' ')[0]}</div>
+                      </div>
+                      <button onclick="app.openProject('${p.id}')" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 hover:shadow-md transition-all flex items-center gap-2">
+                        <i data-lucide="edit-3" style="width:16px;height:16px"></i> แก้ไข
+                      </button>
+                      <button onclick="app.deleteProject('${p.id}')" class="p-2.5 text-slate-400 hover:text-red-600 hover:bg-slate-100 rounded-lg transition-all">
+                        <i data-lucide="trash-2" style="width:18px;height:18px"></i>
+                      </button>
+                    </div>
                   </div>
                 </div>
               `).join('')}
             </div>
-          </div>`;
-      }
+          </div>
+        </div>
+      `;
+      return html;
+    }
 
       // --- ฟังก์ชันแสดงรายละเอียด (ดึงมาจากไฟล์ 1,500 บรรทัดของคุณ) ---
-      renderProjectDetail() {
-        const project = this.projects.find(p => p.id === this.activeProjectId);
-        if (!project) return '';
+    renderProjectDetail() {
+      const p = this.projects.find(proj => proj.id === this.activeProjectId);
+      if (!p) return '';
 
-        return `
-          <div class="max-w-5xl mx-auto p-4 md:p-8 fade-in">
-            <nav class="flex justify-between items-center mb-8">
-              <button onclick="appManager.closeProject()" class="flex items-center gap-2 text-gray-500 hover:text-gray-900 font-bold transition-colors">
-                <i data-lucide="arrow-left" class="w-5 h-5"></i> กลับหน้าหลัก
+      const warranty = this.getWarrantyStatus(p.part7.startDate, p.part7.durationMonths);
+      const isDisabled = p.status === 'ไม่ได้งาน';
+      this.activeTab = this.activeTab || 'part1';
+
+      const html = `
+        <div class="min-h-screen bg-slate-50 pb-20 font-sans w-full flex flex-col">
+          <div class="bg-white border-b sticky top-0 z-50 px-4 md:px-6 py-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <button onclick="app.closeProject()" class="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors shrink-0">
+                <i data-lucide="arrow-left" style="width:20px;height:20px"></i>
               </button>
-              <button onclick="appManager.deleteProject('${project.id}')" class="flex items-center gap-2 text-red-500 hover:bg-red-50 px-4 py-2 rounded-xl transition-all">
-                <i data-lucide="trash-2" class="w-5 h-5"></i> ลบโครงการ
-              </button>
-            </nav>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div class="lg:col-span-2 space-y-8">
-                <section class="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
-                  <h2 class="text-xl font-black text-gray-900 mb-6 flex items-center gap-2">
-                    <i data-lucide="info" class="text-blue-600"></i> ข้อมูลเบื้องต้น
-                  </h2>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                      <label class="text-sm font-bold text-gray-500 ml-1">ชื่อโครงการ</label>
-                      <input type="text" value="${project.name}" onchange="appManager.updateProjectField('name', this.value)" 
-                             class="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none font-medium">
-                    </div>
-                    <div class="space-y-2">
-                      <label class="text-sm font-bold text-gray-500 ml-1">ชื่อลูกค้า</label>
-                      <input type="text" value="${project.customerName}" onchange="appManager.updateProjectField('customerName', this.value)" 
-                             class="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none font-medium">
-                    </div>
+              <div class="min-w-0">
+                <h2 class="font-black text-slate-800 text-lg md:text-xl leading-tight truncate">${p.part1.projectName || "ระบุชื่อโครงการ"}</h2>
+                <div class="flex flex-wrap items-center gap-2 mt-2">
+                  <div class="px-3 py-1 rounded-full border-2 text-[10px] md:text-xs font-black tracking-wide shadow-sm ${this.getStatusStyle(p.status)}">
+                    ${p.status}
                   </div>
-                </section>
-
-                <section class="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
-                  <h2 class="text-xl font-black text-gray-900 mb-6 flex items-center gap-2">
-                    <i data-lucide="shield-check" class="text-emerald-600"></i> ข้อมูลการรับประกัน
-                  </h2>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                      <label class="text-sm font-bold text-gray-500 ml-1">วันที่เริ่มรับประกัน</label>
-                      <input type="date" value="${project.warranty?.start || ''}" onchange="appManager.updateWarranty('start', this.value)" 
-                             class="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none font-medium">
-                    </div>
-                    <div class="space-y-2">
-                      <label class="text-sm font-bold text-gray-500 ml-1">ระยะเวลา (ปี)</label>
-                      <select onchange="appManager.updateWarranty('years', this.value)" 
-                              class="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none font-medium">
-                        <option value="1" ${project.warranty?.years == 1 ? 'selected' : ''}>1 ปี</option>
-                        <option value="2" ${project.warranty?.years == 2 ? 'selected' : ''}>2 ปี</option>
-                        <option value="3" ${project.warranty?.years == 3 ? 'selected' : ''}>3 ปี</option>
-                        <option value="5" ${project.warranty?.years == 5 ? 'selected' : ''}>5 ปี</option>
-                      </select>
-                    </div>
-                  </div>
-                  ${project.warranty?.expiry ? `
-                    <div class="mt-6 p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex justify-between items-center">
-                      <span class="text-emerald-700 font-bold">วันสิ้นสุดการรับประกัน:</span>
-                      <span class="text-emerald-700 font-black text-lg">${project.warranty.expiry}</span>
-                    </div>
-                  ` : ''}
-                </section>
+                  <button onclick="app.toggleLostJob('${p.id}')" class="text-[10px] font-bold text-slate-500 hover:text-red-600 px-3 py-1 rounded-xl transition-all border border-slate-200 bg-white">
+                    ${p.status === 'ไม่ได้งาน' ? "นำกลับมาทำต่อ" : "แจ้งไม่ได้งาน"}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>`;
-      }
+            <button onclick="app.closeProject()" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md hover:bg-blue-700 transition-all w-full md:w-auto">
+              ${this.isSaving ? "กำลังบันทึก..." : "บันทึกและออก"}
+            </button>
+          </div>
+
+          <!-- Tab Navigation -->
+          <div class="bg-white border-b sticky top-16 z-40 px-4 md:px-6 overflow-x-auto">
+            <div class="flex gap-1">
+              ${['part1', 'part2', 'part3', 'part4', 'part5', 'part6', 'part7'].map(tab => {
+                const tabLabels = {
+                  part1: '1. การรับงาน',
+                  part2: '2. การดำเนินการ',
+                  part3: '3. การแก้ไข',
+                  part4: '4. การส่งข้อมูล',
+                  part5: '5. การติดตั้ง',
+                  part6: '6. การส่งมอบงาน',
+                  part7: '7. การรับประกัน'
+                };
+                return `
+                  <button onclick="app.activeTab = '${tab}'; app.render()" class="px-4 py-3 font-bold text-sm border-b-2 transition-all whitespace-nowrap ${this.activeTab === tab ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-600 hover:text-slate-800'}">
+                    ${tabLabels[tab]}
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <div class="flex-1 overflow-auto max-w-4xl mx-auto p-4 md:p-6 w-full">
+            <div class="space-y-8">
+              ${this.validationError ? `
+                <div class="bg-red-50 border-2 border-red-200 p-4 rounded-2xl flex items-center gap-3 text-red-700 animate-bounce">
+                  <i data-lucide="alert-circle"></i>
+                  <div class="text-sm font-bold">กรุณากรอกข้อมูลในส่วนที่ 1 ให้ครบถ้วนก่อนทำการบันทึก (ชื่อเซลล์, ช่องทาง, ชื่อลูกค้า, บริษัท, และชื่อโครงการ)</div>
+                </div>
+              ` : ''}
+
+	${this.activeTab === 'part1' ? `
+              <section class="bg-white rounded-3xl p-6 md:p-8 border shadow-sm transition-colors ${this.validationError ? 'border-red-300 bg-red-50/10' : 'border-slate-200'} fade-in">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 text-emerald-600 mb-6">
+                  <i data-lucide="check-circle-2" style="width:20px;height:20px"></i> ส่วนที่ 1: การรับงาน
+                </h3>
+                <div class="mt-6">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100/50">
+                      <div class="flex items-center gap-3 mb-4">
+                        <button onclick="app.updateProject(proj => ({...proj, part1: {...proj.part1, received: !proj.part1.received, receivedDate: !proj.part1.received ? app.getCurrentTimestamp() : '' }}))" class="flex-shrink-0">
+                          <i data-lucide="${p.part1.received ? 'check-circle-2' : 'circle'}" style="width:24px;height:24px" class="${p.part1.received ? 'text-emerald-500' : 'text-slate-300'}"></i>
+                        </button>
+                        <span class="font-bold text-slate-700">รับงานแล้ว</span>
+                        ${p.part1.receivedDate ? `<span class="text-[10px] text-emerald-600 font-medium italic ml-auto">${this.formatDisplayTime(p.part1.receivedDate)}</span>` : ''}
+                      </div>
+                      <div class="space-y-4">
+                        <div>
+                          <label class="text-[10px] font-bold text-slate-400 mb-1 block uppercase tracking-wider">ชื่อเซลล์ผู้รับผิดชอบ</label>
+                          <input type="text" placeholder="ระบุชื่อเซลล์ *" class="w-full bg-transparent border-b text-sm py-1 outline-none transition-colors ${this.validationError && !p.part1.salesName ? 'border-red-400 placeholder-red-300' : 'border-emerald-200 focus:border-emerald-500'}" value="${p.part1.salesName}" 
+                            onchange="app.updateProject(proj => ({...proj, part1: {...proj.part1, salesName: this.value}}))" />
+                        </div>
+                        <div>
+                           <label class="text-[10px] font-bold text-slate-400 mb-1 block uppercase tracking-wider">ช่องทางการขาย</label>
+                           <select onchange="app.updateProject(proj => ({...proj, part1: {...proj.part1, channel: this.value}}))" class="w-full bg-transparent border-b border-emerald-200 text-sm py-1 outline-none focus:border-emerald-500 cursor-pointer">
+                             <option ${p.part1.channel === 'Facebook' ? 'selected' : ''}>Facebook</option>
+                             <option ${p.part1.channel === 'Line' ? 'selected' : ''}>Line</option>
+                             <option ${p.part1.channel === 'Phone' ? 'selected' : ''}>Phone</option>
+                             <option ${p.part1.channel === 'Walk-in' ? 'selected' : ''}>Walk-in</option>
+                             <option ${p.part1.channel === 'อื่นๆ' ? 'selected' : ''}>อื่นๆ</option>
+                           </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="space-y-4">
+                      <div class="group">
+                        <label class="text-[10px] font-bold text-slate-400 block mb-1">ชื่อลูกค้า *</label>
+                        <input type="text" placeholder="ระบุชื่อลูกค้า" class="w-full border-b text-sm py-2 outline-none transition-colors ${this.validationError && !p.part1.customerName ? 'border-red-400 placeholder-red-300' : 'border-slate-200 focus:border-emerald-500'}" value="${p.part1.customerName}" 
+                          onchange="app.updateProject(proj => ({...proj, part1: {...proj.part1, customerName: this.value}}))" />
+                      </div>
+                      <div class="group">
+                        <label class="text-[10px] font-bold text-slate-400 block mb-1">บริษัทลูกค้า *</label>
+                        <input type="text" placeholder="ระบุบริษัท" class="w-full border-b text-sm py-2 outline-none transition-colors ${this.validationError && !p.part1.companyName ? 'border-red-400 placeholder-red-300' : 'border-slate-200 focus:border-emerald-500'}" value="${p.part1.companyName}" 
+                          onchange="app.updateProject(proj => ({...proj, part1: {...proj.part1, companyName: this.value}}))" />
+                      </div>
+                      <div class="group">
+                        <label class="text-[10px] font-bold text-emerald-600 block mb-1">ชื่อโครงการ *</label>
+                        <input type="text" placeholder="ระบุชื่อโครงการ" class="w-full border-b text-sm py-2 font-bold outline-none transition-colors ${this.validationError && !p.part1.projectName ? 'border-red-400 placeholder-red-300 text-red-600' : 'border-emerald-200 text-emerald-700 focus:border-emerald-500'}" value="${p.part1.projectName}" 
+                          onchange="app.updateProject(proj => ({...proj, part1: {...proj.part1, projectName: this.value}}))" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              ` : ''}
+
+	${this.activeTab === 'part2' ? `
+              <section class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm fade-in">
+                <div class="flex justify-between items-center mb-6">
+                  <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 text-emerald-600">
+                    <i data-lucide="rotate-ccw" style="width:20px;height:20px"></i> ส่วนที่ 2: การดำเนินการ
+                  </h3>
+                  <button onclick="app.addPart2Item()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-emerald-100 transition-all active:scale-95">+ เพิ่มหัวข้อหลัก</button>
+                </div>
+                <div class="space-y-6">
+                  ${p.part2.items.map((item, idx) => `
+                    <div class="border border-emerald-50 rounded-2xl p-5 bg-slate-50 relative group shadow-sm">
+                      <div class="flex flex-wrap items-center gap-3 mb-4">
+                        <button onclick="app.togglePart2Item(${idx})" class="flex-shrink-0">
+                          <i data-lucide="${item.checked ? 'check-circle-2' : 'circle'}" style="width:24px;height:24px" class="${item.checked ? 'text-emerald-500' : 'text-slate-300'}"></i>
+                        </button>
+                        <div class="relative flex-1 group">
+                          <input 
+                            type="text" 
+                            class="w-full px-3 py-1.5 text-sm font-bold bg-white border border-slate-200 rounded-lg shadow-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all outline-none"
+                            value="${item.docType}"
+                            placeholder="เลือกหรือพิมพ์เอกสาร..."
+                            onchange="app.updatePart2DocType(${idx}, this.value)"
+                            oninput="app.showPart2Suggestions(${idx}, this.value)"
+                            onblur="setTimeout(() => app.hidePart2Suggestions(${idx}), 200)"
+                            onfocus="app.showPart2Suggestions(${idx}, this.value)"
+                            data-part2-input="${idx}"
+                          />
+                          <div id="suggestions-part2-${idx}" class="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-lg mt-1 max-h-40 overflow-y-auto hidden z-50">
+                            ${this.sharedDocOptions.map((opt, i) => `
+                              <div class="flex items-center justify-between px-3 py-2 hover:bg-emerald-50 group text-sm">
+                                <div class="cursor-pointer flex-1" onclick="app.selectPart2Doc(${idx}, '${opt}')">
+                                  ${opt}
+                                </div>
+                                <button onclick="app.deleteDocOption('${opt}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all p-1">
+                                  <i data-lucide="x" style="width:14px;height:14px"></i>
+                                </button>
+                              </div>
+                            `).join('')}
+                            <div class="border-t border-slate-100 px-3 py-2 bg-emerald-50/30 hover:bg-emerald-50 cursor-pointer text-sm font-bold text-emerald-600" onclick="app.addNewDocOption('part2', ${idx})">
+                              + เพิ่มตัวเลือกใหม่
+                            </div>
+                          </div>
+                        </div>
+                        <span class="text-[10px] text-slate-400 flex items-center gap-1 ml-auto"><i data-lucide="clock" style="width:12px;height:12px"></i> อัปเดตเมื่อ: ${this.formatDisplayTime(item.lastUpdated)}</span>
+                      </div>
+                      <textarea placeholder="รายละเอียดงานหรือความต้องการลูกค้า..." class="w-full text-xs p-3 bg-white border border-slate-100 rounded-xl mb-4 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-50 transition-all" 
+                        onchange="app.updatePart2Requirement(${idx}, this.value)">${item.customerRequirement}</textarea>
+
+                      <div class="ml-4 md:ml-8 space-y-4 border-l-2 border-emerald-100 pl-4 md:pl-6">
+                        <div class="space-y-2">
+                          <div class="flex items-center gap-2">
+                            <button onclick="app.togglePart2Self(${idx})" class="flex-shrink-0">
+                              <i data-lucide="${item.isSelf?.checked ? 'check-circle-2' : 'circle'}" style="width:20px;height:20px" class="${item.isSelf?.checked ? 'text-emerald-500' : 'text-slate-300'}"></i>
+                            </button>
+                            <span class="text-sm font-bold text-slate-600">ทำภายในทีม</span>
+                          </div>
+                          ${item.isSelf?.checked ? `
+                            <div class="space-y-2 fade-in">
+                               <input type="text" placeholder="ระบุชื่อผู้รับงาน (Staff)..." class="w-full text-xs p-2 bg-white border border-emerald-100 rounded-lg outline-none font-bold focus:border-emerald-400" value="${item.isSelf?.staffName || ''}" 
+                                 onchange="app.updatePart2SelfStaff(${idx}, this.value)" />
+                               <textarea placeholder="รายละเอียดการดำเนินงานภายใน..." class="w-full text-xs p-2 bg-white border border-emerald-100 rounded-lg outline-none focus:border-emerald-400" 
+                                 onchange="app.updatePart2SelfDetail(${idx}, this.value)">${item.isSelf?.detail || ''}</textarea>
+                            </div>
+                          ` : ''}
+                        </div>
+                        <div class="space-y-2">
+                          <div class="flex items-center gap-2">
+                            <button onclick="app.togglePart2Forward(${idx})" class="flex-shrink-0">
+                              <i data-lucide="${item.isForward?.checked ? 'check-circle-2' : 'circle'}" style="width:20px;height:20px" class="${item.isForward?.checked ? 'text-emerald-500' : 'text-slate-300'}"></i>
+                            </button>
+                            <span class="text-sm font-bold text-slate-600">ส่งต่อ</span>
+                          </div>
+                          ${item.isForward?.checked ? `
+                            <div class="space-y-2 fade-in">
+                              <input type="text" placeholder="ระบุชื่อผู้รับงาน..." class="w-full text-xs p-2 bg-white border border-emerald-100 rounded-lg outline-none font-bold focus:border-emerald-400" value="${item.isForward?.targetName || ''}" 
+                                onchange="app.updatePart2ForwardName(${idx}, this.value)" />
+                              <textarea placeholder="รายละเอียดการส่งงาน..." class="w-full text-xs p-2 bg-white border border-emerald-100 rounded-lg outline-none focus:border-emerald-400" 
+                                onchange="app.updatePart2ForwardDetail(${idx}, this.value)">${item.isForward?.detail || ''}</textarea>
+                            </div>
+                          ` : ''}
+                        </div>
+                      </div>
+                      <button onclick="app.removePart2Item(${idx})" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                        <i data-lucide="trash-2" style="width:16px;height:16px"></i>
+                      </button>
+                    </div>
+                  `).join('')}
+                </div>
+              </section>
+              ` : ''}
+			  
+	${this.activeTab === 'part3' ? `
+              <section class="bg-white rounded-3xl p-6 md:p-8 border border-emerald-200 relative shadow-sm fade-in">
+                <div class="flex justify-between items-center mb-6">
+                  <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 text-emerald-600">
+                    <i data-lucide="history" style="width:20px;height:20px"></i> ส่วนที่ 3: การแก้ไข
+                  </h3>
+                  <button onclick="app.addPart3Item()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-emerald-100 transition-all active:scale-95">+ เพิ่มประวัติแก้ไข</button>
+                </div>
+                <div class="space-y-6">
+                  ${p.part3.items.map((item, index) => `
+                    <div class="bg-white border border-emerald-100 rounded-2xl p-5 shadow-sm group relative fade-in">
+                      <div class="flex items-center gap-3 mb-4">
+                        <div class="bg-emerald-100 text-emerald-700 text-[10px] px-2 py-0.5 rounded-md font-black italic">REV #${index + 1}</div>
+                        <div class="relative flex-1 group">
+                          <input 
+                            type="text" 
+                            class="w-full px-3 py-1.5 text-sm font-bold bg-slate-50 border border-slate-100 rounded-lg shadow-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all outline-none"
+                            value="${item.docType}"
+                            placeholder="เลือกหรือพิมพ์เอกสาร..."
+                            onchange="app.updatePart3DocType(${index}, this.value)"
+                            oninput="app.showPart3Suggestions(${index}, this.value)"
+                            onblur="setTimeout(() => app.hidePart3Suggestions(${index}), 200)"
+                            onfocus="app.showPart3Suggestions(${index}, this.value)"
+                            data-part3-input="${index}"
+                          />
+                          <div id="suggestions-part3-${index}" class="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-lg mt-1 max-h-40 overflow-y-auto hidden z-50">
+                            ${this.sharedDocOptions.map((opt, i) => `
+                              <div class="flex items-center justify-between px-3 py-2 hover:bg-emerald-50 group text-sm">
+                                <div class="cursor-pointer flex-1" onclick="app.selectPart3Doc(${index}, '${opt}')">
+                                  ${opt}
+                                </div>
+                                <button onclick="app.deleteDocOption('${opt}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all p-1">
+                                  <i data-lucide="x" style="width:14px;height:14px"></i>
+                                </button>
+                              </div>
+                            `).join('')}
+                            <div class="border-t border-slate-100 px-3 py-2 bg-emerald-50/30 hover:bg-emerald-50 cursor-pointer text-sm font-bold text-emerald-600" onclick="app.addNewDocOption('part3', ${index})">
+                              + เพิ่มตัวเลือกใหม่
+                            </div>
+                          </div>
+                        </div>
+                        <span class="text-[10px] text-slate-400 ml-auto flex items-center gap-1"><i data-lucide="clock" style="width:12px;height:12px"></i> ${this.formatDisplayTime(item.timestamp)}</span>
+                      </div>
+                      <textarea placeholder="สาเหตุหรือจุดที่ต้องแก้ไข..." class="w-full text-xs p-3 bg-slate-50 border border-slate-100 rounded-xl mb-4 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-50 transition-all" 
+                        onchange="app.updatePart3Description(${index}, this.value)">${item.description}</textarea>
+                      
+                      <div class="ml-4 md:ml-8 space-y-4 border-l-2 border-emerald-200 pl-4 md:pl-6 mb-2">
+                        <div class="space-y-2">
+                          <div class="flex items-center gap-2">
+                            <button onclick="app.togglePart3Self(${index})" class="flex-shrink-0">
+                              <i data-lucide="${item.isSelf?.checked ? 'check-circle-2' : 'circle'}" style="width:20px;height:20px" class="${item.isSelf?.checked ? 'text-emerald-500' : 'text-slate-300'}"></i>
+                            </button>
+                            <span class="text-sm font-bold text-slate-600">ทำภายในทีม</span>
+                          </div>
+                          ${item.isSelf?.checked ? `
+                            <div class="space-y-2 fade-in">
+                               <input type="text" placeholder="ระบุชื่อผู้แก้ไข (Staff)..." class="w-full text-xs p-2 bg-slate-50 border border-emerald-100 rounded-lg outline-none font-bold focus:border-emerald-400" value="${item.isSelf?.staffName || ''}" 
+                                 onchange="app.updatePart3SelfStaff(${index}, this.value)" />
+                               <textarea placeholder="รายละเอียดการแก้ไขภายใน..." class="w-full text-xs p-2 bg-slate-50 border border-emerald-100 rounded-lg outline-none focus:border-emerald-400" 
+                                 onchange="app.updatePart3SelfDetail(${index}, this.value)">${item.isSelf?.detail || ''}</textarea>
+                            </div>
+                          ` : ''}
+                        </div>
+                        <div class="space-y-2">
+                          <div class="flex items-center gap-2">
+                            <button onclick="app.togglePart3Forward(${index})" class="flex-shrink-0">
+                              <i data-lucide="${item.isForward?.checked ? 'check-circle-2' : 'circle'}" style="width:20px;height:20px" class="${item.isForward?.checked ? 'text-emerald-500' : 'text-slate-300'}"></i>
+                            </button>
+                            <span class="text-sm font-bold text-slate-600">ส่งต่อ</span>
+                          </div>
+                          ${item.isForward?.checked ? `
+                            <div class="space-y-2 fade-in">
+                              <input type="text" placeholder="ระบุชื่อผู้รับแก้ไข..." class="w-full text-xs p-2 bg-slate-50 border border-emerald-100 rounded-lg outline-none font-bold focus:border-emerald-400" value="${item.isForward?.targetName || ''}" 
+                                onchange="app.updatePart3ForwardName(${index}, this.value)" />
+                              <textarea placeholder="รายละเอียดการส่งแก้ไข..." class="w-full text-xs p-2 bg-slate-50 border border-emerald-100 rounded-lg outline-none focus:border-emerald-400" 
+                                onchange="app.updatePart3ForwardDetail(${index}, this.value)">${item.isForward?.detail || ''}</textarea>
+                            </div>
+                          ` : ''}
+                        </div>
+                      </div>
+
+                      <button onclick="app.removePart3Item(${index})" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <i data-lucide="trash-2" style="width:16px;height:16px"></i>
+                      </button>
+                    </div>
+                  `).join('')}
+                </div>
+              </section>
+              ` : ''}
+
+	${this.activeTab === 'part4' ? `
+              <section class="bg-emerald-50/30 rounded-3xl p-6 md:p-8 border border-emerald-100 shadow-sm fade-in">
+                <div class="flex justify-between items-center mb-6">
+                  <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 text-emerald-600">
+                    <i data-lucide="send" style="width:20px;height:20px"></i> ส่วนที่ 4: การส่งข้อมูลให้ลูกค้า
+                  </h3>
+                  <button onclick="app.addPart4Item()" class="text-xs font-bold bg-emerald-600 text-white px-4 py-2 rounded-xl hover:bg-emerald-700 shadow-md shadow-emerald-100 transition-all active:scale-95">+ เพิ่มรายการส่งงาน</button>
+                </div>
+                <div class="space-y-3">
+                  ${p.part4.items.map((item, idx) => `
+                    <div class="flex items-center gap-4 bg-white p-4 rounded-2xl border border-emerald-100 group shadow-sm hover:border-emerald-300 transition-colors">
+                      <button onclick="app.togglePart4Item(${idx})" class="flex-shrink-0">
+                        <i data-lucide="${item.checked ? 'check-circle-2' : 'circle'}" style="width:22px;height:22px" class="${item.checked ? 'text-emerald-500' : 'text-slate-300'}"></i>
+                      </button>
+                      <div class="relative flex-1">
+                        <input 
+                          type="text" 
+                          class="w-full px-3 py-1.5 text-sm font-bold bg-slate-50 border border-slate-100 rounded-lg shadow-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all outline-none"
+                          value="${item.docType}"
+                          placeholder="เลือกหรือพิมพ์เอกสาร..."
+                          onchange="app.updatePart4DocType(${idx}, this.value)"
+                          oninput="app.showPart4Suggestions(${idx}, this.value)"
+                          onblur="setTimeout(() => app.hidePart4Suggestions(${idx}), 200)"
+                          onfocus="app.showPart4Suggestions(${idx}, this.value)"
+                          data-part4-input="${idx}"
+                        />
+                        <div id="suggestions-part4-${idx}" class="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-lg mt-1 max-h-40 overflow-y-auto hidden z-50">
+                          ${this.sharedDocOptions.map((opt, i) => `
+                            <div class="flex items-center justify-between px-3 py-2 hover:bg-emerald-50 group text-sm">
+                              <div class="cursor-pointer flex-1" onclick="app.selectPart4Doc(${idx}, '${opt}')">
+                                ${opt}
+                              </div>
+                              <button onclick="app.deleteDocOption('${opt}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all p-1">
+                                <i data-lucide="x" style="width:14px;height:14px"></i>
+                              </button>
+                            </div>
+                          `).join('')}
+                          <div class="border-t border-slate-100 px-3 py-2 bg-emerald-50/30 hover:bg-emerald-50 cursor-pointer text-sm font-bold text-emerald-600" onclick="app.addNewDocOption('part4', ${idx})">
+                            + เพิ่มตัวเลือกใหม่
+                          </div>
+                        </div>
+                      </div>
+                      <span class="text-[10px] text-slate-400 ml-auto flex items-center gap-1"><i data-lucide="clock" style="width:10px;height:10px"></i> ${this.formatDisplayTime(item.timestamp)}</span>
+                      <button onclick="app.removePart4Item(${idx})" class="text-slate-300 hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                        <i data-lucide="trash-2" style="width:16px;height:16px"></i>
+                      </button>
+                    </div>
+                  `).join('')}
+                </div>
+              </section>
+              ` : ''}
+
+	${this.activeTab === 'part5' ? `
+              <section class="bg-white rounded-3xl p-6 md:p-8 border border-emerald-200 shadow-sm fade-in">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 text-emerald-600 mb-6">
+                  <i data-lucide="truck" style="width:20px;height:20px"></i> ส่วนที่ 5: การติดตั้ง
+                </h3>
+                <div class="space-y-6">
+                  <div class="bg-white border border-emerald-100 p-5 rounded-2xl shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                       <div class="flex items-center gap-2 font-bold text-slate-700"><i data-lucide="users" style="width:18px;height:18px" class="text-emerald-500"></i> ติดตั้งโดยทีมงานภายใน</div>
+                       <button onclick="app.addPart5InternalStaff()" class="text-[10px] bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-black hover:bg-emerald-200 transition-colors">+ เพิ่มรายชื่อ</button>
+                    </div>
+                    <div class="space-y-4">
+                      ${p.part5.internalStaff.map((staff, idx) => `
+                        <div class="p-3 bg-slate-50 rounded-xl border border-emerald-50 group relative">
+                          <div class="flex gap-2 mb-2">
+                            <input type="text" placeholder="ระบุชื่อพนักงานติดตั้ง..." class="flex-1 p-2 bg-white border border-slate-100 rounded-lg text-xs outline-none font-bold focus:border-emerald-400" value="${staff.name}" 
+                              onchange="app.updatePart5InternalStaffName(${idx}, this.value)" />
+                            <button onclick="app.removePart5InternalStaff(${idx})" class="text-slate-300 hover:text-red-500 transition-colors">
+                              <i data-lucide="trash-2" style="width:16px;height:16px"></i>
+                            </button>
+                          </div>
+                          <textarea placeholder="รายละเอียดการดำเนินงานภายใน..." class="w-full p-2 bg-white border border-slate-100 rounded-lg text-xs outline-none focus:border-emerald-400" 
+                            onchange="app.updatePart5InternalStaffDetail(${idx}, this.value)">${staff.detail}</textarea>
+                        </div>
+                      `).join('')}
+                    </div>
+                  </div>
+                  <div class="bg-white border border-emerald-100 p-5 rounded-2xl shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                       <div class="flex items-center gap-2 font-bold text-slate-700"><i data-lucide="truck" style="width:18px;height:18px" class="text-emerald-500"></i> ติดตั้งโดยผู้รับเหมาภายนอก</div>
+                       <button onclick="app.addPart5Contractor()" class="text-[10px] bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-black hover:bg-emerald-200 transition-colors">+ เพิ่มผู้รับเหมา</button>
+                    </div>
+                    <div class="space-y-4">
+                      ${p.part5.contractors.map((contractor, idx) => `
+                        <div class="p-3 bg-slate-50 rounded-xl border border-emerald-50 group relative">
+                          <div class="flex gap-2 mb-2">
+                            <input type="text" placeholder="ชื่อผู้รับเหมา / บริษัท" class="flex-1 p-2 bg-white border border-slate-100 rounded-lg text-xs outline-none font-bold focus:border-emerald-400" value="${contractor.name}" 
+                              onchange="app.updatePart5ContractorName(${idx}, this.value)" />
+                            <button onclick="app.removePart5Contractor(${idx})" class="text-slate-300 hover:text-red-500 transition-colors">
+                              <i data-lucide="trash-2" style="width:16px;height:16px"></i>
+                            </button>
+                          </div>
+                          <textarea placeholder="รายละเอียดการสั่งงาน..." class="w-full p-2 bg-white border border-slate-100 rounded-lg text-xs outline-none focus:border-emerald-400" 
+                            onchange="app.updatePart5ContractorDetail(${idx}, this.value)">${contractor.detail}</textarea>
+                        </div>
+                      `).join('')}
+                    </div>
+                  </div>
+                  <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm">
+                    <label class="text-[10px] font-black text-emerald-600 uppercase mb-2 block tracking-widest">กำหนดการติดตั้ง</label>
+                    <input type="date" class="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all" value="${p.part5.installDate}"
+                      onchange="app.updateProject(proj => ({...proj, part5: {...proj.part5, installDate: this.value}}))" />
+                  </div>
+                </div>
+              </section>
+              ` : ''}
+
+              <!-- Part 6: การส่งมอบ -->
+              ${this.activeTab === 'part6' ? `
+              <section class="bg-green-50/50 rounded-3xl p-6 md:p-8 border border-green-200 shadow-sm fade-in">
+                <h3 class="text-lg font-bold text-green-700 flex items-center gap-2 mb-6">
+                  <i data-lucide="package-check" style="width:20px;height:20px"></i> ส่วนที่ 6: การส่งมอบงาน
+                </h3>
+                <div class="bg-white p-6 rounded-2xl border border-green-100 shadow-sm">
+                  <label class="text-[10px] font-black text-green-600 uppercase ml-1 block mb-2">วันที่ส่งมอบงานสำเร็จ</label>
+                  <input type="date" class="w-full p-3 bg-slate-50 border border-green-100 rounded-xl text-sm outline-none" value="${p.part6.deliveryDate}"
+                    onchange="app.updateProject(proj => ({...proj, part6: {...proj.part6, deliveryDate: this.value}}))" />
+                </div>
+              </section>
+              ` : ''}
+
+	${this.activeTab === 'part7' ? `
+              <section class="bg-white rounded-3xl p-6 md:p-8 border border-emerald-100 shadow-sm relative overflow-hidden fade-in">
+                <div class="absolute top-0 right-0 w-48 h-48 bg-emerald-500 rounded-full blur-[80px] opacity-5 -mr-20 -mt-20"></div>
+                <h3 class="text-lg font-bold flex items-center gap-2 text-emerald-600 relative z-10 mb-8">
+                  <i data-lucide="shield-check" style="width:20px;height:20px"></i> ส่วนที่ 7: การรับประกัน
+                </h3>
+                <div class="relative z-10">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                      <div>
+                        <label class="text-[10px] text-slate-400 uppercase font-bold ml-1 mb-2 block tracking-wider">วันที่เริ่มการรับประกัน</label>
+                        <input type="date" class="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none text-slate-700 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all" value="${p.part7.startDate}" 
+                          onchange="app.updateProject(proj => ({...proj, part7: {...proj.part7, startDate: this.value}}))" />
+                      </div>
+                      <div>
+                        <label class="text-[10px] text-slate-400 uppercase font-bold ml-1 mb-2 block tracking-wider">ระยะเวลารับประกัน (จำนวนเดือน)</label>
+                        <div class="flex gap-2 items-center mb-3">
+                          <input type="number" placeholder="ตัวอย่าง: 12" class="flex-1 p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none text-slate-700 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all" value="${p.part7.durationMonths}" 
+                            onchange="app.updateProject(proj => ({...proj, part7: {...proj.part7, durationMonths: this.value}}))" />
+                          <span class="text-slate-500 font-bold text-sm">เดือน</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                          ${['6','12','24','36'].map(m => `
+                            <button onclick="app.updateProject(proj => ({...proj, part7: {...proj.part7, durationMonths: '${m}'}}))" 
+                              class="text-[10px] px-4 py-1.5 rounded-lg border font-black transition-all ${p.part7.durationMonths === m ? 'bg-emerald-500 border-emerald-500 text-white shadow-md shadow-emerald-100' : 'border-slate-200 text-slate-400 hover:border-emerald-300 hover:text-emerald-500 bg-white'}">
+                              ${m} ด.
+                            </button>
+                          `).join('')}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="bg-emerald-50/50 backdrop-blur-sm p-6 rounded-2xl border border-emerald-100 flex flex-col items-center justify-center text-center">
+                      <div class="px-4 py-1.5 rounded-full text-[10px] font-black mb-4 uppercase tracking-widest ${warranty.color.replace('blue', 'emerald').replace('red', 'red').replace('slate', 'slate')}">${warranty.text}</div>
+                      <div class="text-[10px] text-slate-400 mb-1 font-bold uppercase tracking-tighter">วันหมดอายุประกัน</div>
+                      <div class="text-3xl text-emerald-600 font-black tracking-tight">${warranty.expiry}</div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+      return html;
+    }
 
       render() {
         const appElement = document.getElementById('app');
