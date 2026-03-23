@@ -414,6 +414,86 @@
       }
     }
 
+    // --- ส่วนที่ 3: ลบรายการ (พร้อม Confirm & Undo) ---
+    removePart3Item(idx) {
+      const item = this.projects.find(p => p.id === this.activeProjectId).part3.items[idx];
+      if (confirm(`ยืนยันการลบการแก้ไข: "${item.docType}" ใช่หรือไม่?`)) {
+        this.updateProject(p => {
+          this.recentlyDeletedItem = { type: 'part3', data: p.part3.items[idx], index: idx };
+          p.part3.items.splice(idx, 1);
+          return p;
+        });
+        this.showUndoToast("ลบรายการในส่วนที่ 3 แล้ว");
+      }
+    }
+
+    // --- ส่วนที่ 4: ลบรายการ (พร้อม Confirm & Undo) ---
+    removePart4Item(idx) {
+      const item = this.projects.find(p => p.id === this.activeProjectId).part4.items[idx];
+      if (confirm(`ยืนยันการลบการส่งงาน: "${item.docType}" ใช่หรือไม่?`)) {
+        this.updateProject(p => {
+          this.recentlyDeletedItem = { type: 'part4', data: p.part4.items[idx], index: idx };
+          p.part4.items.splice(idx, 1);
+          return p;
+        });
+        this.showUndoToast("ลบรายการในส่วนที่ 4 แล้ว");
+      }
+    }
+
+    // --- ส่วนที่ 5: ลบรายชื่อทีมงาน (พร้อม Confirm & Undo) ---
+    removePart5InternalStaff(idx) {
+      const staff = this.projects.find(p => p.id === this.activeProjectId).part5.internalStaff[idx];
+      if (confirm(`ยืนยันการลบรายชื่อ: "${staff.name || 'ไม่ระบุชื่อ'}" ใช่หรือไม่?`)) {
+        this.updateProject(p => {
+          this.recentlyDeletedItem = { type: 'part5Staff', data: p.part5.internalStaff[idx], index: idx };
+          p.part5.internalStaff.splice(idx, 1);
+          return p;
+        });
+        this.showUndoToast("ลบรายชื่อพนักงานแล้ว");
+      }
+    }
+
+    removePart5Contractor(idx) {
+      const contractor = this.projects.find(p => p.id === this.activeProjectId).part5.contractors[idx];
+      if (confirm(`ยืนยันการลบผู้รับเหมา: "${contractor.name || 'ไม่ระบุชื่อ'}" ใช่หรือไม่?`)) {
+        this.updateProject(p => {
+          this.recentlyDeletedItem = { type: 'part5Contractor', data: p.part5.contractors[idx], index: idx };
+          p.part5.contractors.splice(idx, 1);
+          return p;
+        });
+        this.showUndoToast("ลบรายชื่อผู้รับเหมาแล้ว");
+      }
+    }
+
+    // --- ระบบ Undo เฉพาะสำหรับรายการย่อย ---
+    showUndoToast(message) {
+      this.undoMessage = message;
+      this.render();
+      if (this.undoTimer) clearTimeout(this.undoTimer);
+      this.undoTimer = setTimeout(() => {
+        this.recentlyDeletedItem = null;
+        this.undoMessage = null;
+        this.render();
+      }, 8000); // แสดงปุ่ม Undo นาน 8 วินาที
+    }
+
+    undoItemDelete() {
+      if (this.recentlyDeletedItem) {
+        const { type, data, index } = this.recentlyDeletedItem;
+        this.updateProject(p => {
+          if (type === 'part2') p.part2.items.splice(index, 0, data);
+          if (type === 'part3') p.part3.items.splice(index, 0, data);
+          if (type === 'part4') p.part4.items.splice(index, 0, data);
+          if (type === 'part5Staff') p.part5.internalStaff.splice(index, 0, data);
+          if (type === 'part5Contractor') p.part5.contractors.splice(index, 0, data);
+          return p;
+        });
+        this.recentlyDeletedItem = null;
+        this.undoMessage = null;
+        this.render();
+      }
+    }
+
     // Part 3 Methods
     addPart3Item() {
       this.updateProject(p => ({
