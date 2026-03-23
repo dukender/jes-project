@@ -401,11 +401,17 @@
       });
     }
 
+// --- ส่วนที่ 2: ลบรายการ (พร้อม Confirm & Undo) ---
     removePart2Item(idx) {
-      this.updateProject(p => {
-        p.part2.items.splice(idx, 1);
-        return p;
-      });
+      const item = this.projects.find(p => p.id === this.activeProjectId).part2.items[idx];
+      if (confirm(`ยืนยันการลบรายการ: "${item.docType}" ใช่หรือไม่?`)) {
+        this.updateProject(p => {
+          this.recentlyDeletedItem = { type: 'part2', data: p.part2.items[idx], index: idx }; // เก็บสำรอง
+          p.part2.items.splice(idx, 1);
+          return p;
+        });
+        this.showUndoToast("ลบรายการในส่วนที่ 2 แล้ว");
+      }
     }
 
     // Part 3 Methods
