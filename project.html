@@ -786,14 +786,22 @@
                 <label class="text-[11px] font-black text-slate-600 uppercase mb-2 block ml-1">ค้นหาโครงการ</label>
                 <div class="relative">
                   <i data-lucide="search" style="width:16px;height:16px" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-				  <input 
-					  type="text" 
-					  placeholder="พิมพ์ชื่อโครงการ, ลูกค้า..."
-					  class="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all"
-					  id="searchInput"
-					  value="${this.searchQuery}"
-					  oninput="app.searchQuery = this.value; app.render(); document.getElementById('searchInput').focus();"
-				  />
+				<input 
+				  type="text" 
+				  placeholder="พิมพ์ชื่อโครงการ, ลูกค้า..."
+				  class="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all"
+				  id="searchInput"
+				  value="${this.searchQuery}"
+				  autofocus
+				  oninput="
+				    this.setSelectionRange(this.value.length, this.value.length);
+				    app.searchQuery = this.value; 
+				    app.render(); 
+				    const input = document.getElementById('searchInput');
+				    input.focus();
+				    input.setSelectionRange(input.value.length, input.value.length);
+				  "
+				/>
                 </div>
               </div>
               <div class="w-full md:w-48">
