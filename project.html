@@ -148,12 +148,23 @@
 
       this.projects.unshift(newProject);
       this.saveProjects();
+
+      // --- ส่วนที่แก้ไข: ให้เปิดไปที่โครงการใหม่และขยายส่วนที่ 1 ทันที ---
+      this.activeProjectId = newProject.id; // เปิดหน้า Detail ของโครงการที่เพิ่งสร้าง
       
-      // --- ส่วนที่เพิ่ม/แก้ไข ---
-      this.activeProjectId = newProject.id; // กำหนดให้โปรเจกต์นี้เป็นโปรเจกต์ที่กำลังใช้งาน
-      this.validationError = false;         // ล้างสถานะแจ้งเตือนข้อผิดพลาด
-      this.expandedSections.part1 = true;   // สั่งให้ขยายส่วนที่ 1 รอไว้เลย
-      // -----------------------
+      // รีเซ็ตการขยายทุกส่วน และสั่งให้ส่วนที่ 1 กางออก (true) ส่วนอื่นปิด (false)
+      this.expandedSections = {
+        part1: true,
+        part2: false,
+        part3: false,
+        part4: false,
+        part5: false,
+        part6: false,
+        part7: false
+      };
+      
+      this.validationError = false; // ล้างสถานะการแจ้งเตือน Error เดิม
+      // ---------------------------------------------------------
 
       this.render();
     }
