@@ -279,7 +279,7 @@
         const isSelected = this.filterDate === dateStr;
         return `
           <button 
-            onclick="app.selectMonth(${idx}, ${this.monthPickerYear})"
+            onclick="appManager.selectMonth(${idx}, ${this.monthPickerYear})"
             class="py-2 px-2 rounded-lg text-xs font-bold transition-all ${isSelected ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-50 text-slate-700 hover:bg-blue-100'}"
           >
             ${month}
@@ -790,14 +790,14 @@ removePart5Contractor(idx) {
                   </h1>
                   <p class="text-slate-500 text-sm md:text-base">จัดการ ${this.projects.length} โปรเจกต์ • ${filtered.length} ตรงกับตัวกรอง</p>
                 </div>
-                <button onclick="app.createNewProject()" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 transition-all w-full md:w-auto justify-center text-lg">
+                <button onclick="appManager.createNewProject()" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 transition-all w-full md:w-auto justify-center text-lg">
                   <i data-lucide="plus" style="width:24px;height:24px"></i> เพิ่มงานใหม่
                 </button>
               </div>
 
               <!-- Stats Cards -->
               <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="app.filterStatus = 'กำลังดำเนินการ'; app.render()">
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="appManager.filterStatus = 'กำลังดำเนินการ'; appManager.render()">
                   <div class="flex items-center gap-3">
                     <div class="bg-blue-500/10 p-2 rounded-lg group-hover:bg-blue-500/20 transition-colors">
                       <i data-lucide="zap" style="width:20px;height:20px" class="text-blue-600"></i>
@@ -808,7 +808,7 @@ removePart5Contractor(idx) {
                     </div>
                   </div>
                 </div>
-                <div class="bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="app.filterStatus = 'กำลังแก้ไข'; app.render()">
+                <div class="bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="appManager.filterStatus = 'กำลังแก้ไข'; appManager.render()">
                   <div class="flex items-center gap-3">
                     <div class="bg-amber-500/10 p-2 rounded-lg group-hover:bg-amber-500/20 transition-colors">
                       <i data-lucide="edit" style="width:20px;height:20px" class="text-amber-600"></i>
@@ -819,7 +819,7 @@ removePart5Contractor(idx) {
                     </div>
                   </div>
                 </div>
-                <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="app.filterStatus = 'ส่งข้อมูลให้ลูกค้าแล้ว'; app.render()">
+                <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="appManager.filterStatus = 'ส่งข้อมูลให้ลูกค้าแล้ว'; appManager.render()">
                   <div class="flex items-center gap-3">
                     <div class="bg-indigo-500/10 p-2 rounded-lg group-hover:bg-indigo-500/20 transition-colors">
                       <i data-lucide="send" style="width:20px;height:20px" class="text-indigo-600"></i>
@@ -830,7 +830,7 @@ removePart5Contractor(idx) {
                     </div>
                   </div>
                 </div>
-                <div class="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="app.filterStatus = 'กำลังติดตั้ง'; app.render()">
+                <div class="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="appManager.filterStatus = 'กำลังติดตั้ง'; appManager.render()">
                   <div class="flex items-center gap-3">
                     <div class="bg-orange-500/10 p-2 rounded-lg group-hover:bg-orange-500/20 transition-colors">
                       <i data-lucide="wrench" style="width:20px;height:20px" class="text-orange-600"></i>
@@ -841,7 +841,7 @@ removePart5Contractor(idx) {
                     </div>
                   </div>
                 </div>
-                <div class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="app.filterStatus = 'ได้งานแล้ว'; app.render()">
+                <div class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="appManager.filterStatus = 'ได้งานแล้ว'; appManager.render()">
                   <div class="flex items-center gap-3">
                     <div class="bg-green-500/10 p-2 rounded-lg group-hover:bg-green-500/20 transition-colors">
                       <i data-lucide="check-circle" style="width:20px;height:20px" class="text-green-600"></i>
@@ -852,7 +852,7 @@ removePart5Contractor(idx) {
                     </div>
                   </div>
                 </div>
-                <div class="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="app.filterStatus = 'ไม่ได้งาน'; app.render()">
+                <div class="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="appManager.filterStatus = 'ไม่ได้งาน'; appManager.render()">
                   <div class="flex items-center gap-3">
                     <div class="bg-red-500/10 p-2 rounded-lg group-hover:bg-red-500/20 transition-colors">
                       <i data-lucide="x-circle" style="width:20px;height:20px" class="text-red-600"></i>
@@ -881,8 +881,8 @@ removePart5Contractor(idx) {
 				  autofocus
 				  oninput="
 				    this.setSelectionRange(this.value.length, this.value.length);
-				    app.searchQuery = this.value; 
-				    app.render(); 
+				    appManager.searchQuery = this.value; 
+				    appManager.render(); 
 				    const input = document.getElementById('searchInput');
 				    input.focus();
 				    input.setSelectionRange(input.value.length, input.value.length);
@@ -895,7 +895,7 @@ removePart5Contractor(idx) {
                 <select 
                   class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 outline-none cursor-pointer focus:ring-2 focus:ring-blue-500/50"
                   id="filterStatus"
-                  onchange="app.filterStatus = this.value; app.render()"
+                  onchange="appManager.filterStatus = this.value; appManager.render()"
                 >
                   ${statusOptions.map(s => `<option value="${s}" class="bg-white">${s}</option>`).join('')}
                 </select>
@@ -905,7 +905,7 @@ removePart5Contractor(idx) {
                 <button 
                   class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 outline-none cursor-pointer focus:ring-2 focus:ring-blue-500/50 flex items-center justify-between hover:border-slate-300 transition-all"
                   id="monthPickerBtn"
-                  onclick="app.toggleMonthPicker()"
+                  onclick="appManager.toggleMonthPicker()"
                 >
                   <span id="monthPickerDisplay">เลือกเดือน/ปี</span>
                   <i data-lucide="calendar" style="width:16px;height:16px" class="text-slate-400"></i>
@@ -915,13 +915,13 @@ removePart5Contractor(idx) {
                   id="monthPickerDropdown"
                 >
                   <div class="flex items-center justify-between mb-4">
-                    <button onclick="app.previousMonthYear()" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors">
+                    <button onclick="appManager.previousMonthYear()" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors">
                       <i data-lucide="chevron-left" style="width:18px;height:18px"></i>
                     </button>
                     <div class="text-center flex-1">
                       <div class="text-sm font-black text-slate-900" id="monthPickerYearDisplay">2024</div>
                     </div>
-                    <button onclick="app.nextMonthYear()" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors">
+                    <button onclick="appManager.nextMonthYear()" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors">
                       <i data-lucide="chevron-right" style="width:18px;height:18px"></i>
                     </button>
                   </div>
@@ -929,7 +929,7 @@ removePart5Contractor(idx) {
                     <!-- Generated by JavaScript -->
                   </div>
                   <button 
-                    onclick="app.filterDate = ''; app.closeMonthPicker(); document.getElementById('monthPickerDisplay').textContent = 'เลือกเดือน/ปี'; app.render();"
+                    onclick="appManager.filterDate = ''; appManager.closeMonthPicker(); document.getElementById('monthPickerDisplay').textContent = 'เลือกเดือน/ปี'; appManager.render();"
                     class="w-full mt-4 px-3 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all"
                   >
                     ล้างการเลือก
@@ -937,7 +937,7 @@ removePart5Contractor(idx) {
                 </div>
               </div>
               <button 
-                onclick="app.searchQuery = ''; app.filterStatus = 'ทั้งหมด'; app.filterDate = ''; document.getElementById('searchInput').value = ''; document.getElementById('filterStatus').value = 'ทั้งหมด'; document.getElementById('monthPickerDisplay').textContent = 'เลือกเดือน/ปี'; app.render();"
+                onclick="appManager.searchQuery = ''; appManager.filterStatus = 'ทั้งหมด'; appManager.filterDate = ''; document.getElementById('searchInput').value = ''; document.getElementById('filterStatus').value = 'ทั้งหมด'; document.getElementById('monthPickerDisplay').textContent = 'เลือกเดือน/ปี'; appManager.render();"
                 class="px-5 py-3 text-slate-700 hover:text-slate-900 text-sm font-bold flex items-center gap-2 hover:bg-slate-100 rounded-xl transition-all"
               >
                 <i data-lucide="rotate-ccw" style="width:16px;height:16px"></i> รีเซ็ต
@@ -987,10 +987,10 @@ removePart5Contractor(idx) {
                         <div class="text-xs text-slate-500">อัปเดต</div>
                         <div class="text-xs font-bold text-slate-700">${this.formatDisplayTime(p.updatedAt).split(' ')[0]}</div>
                       </div>
-                      <button onclick="app.openProject('${p.id}')" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 hover:shadow-md transition-all flex items-center gap-2">
+                      <button onclick="appManager.openProject('${p.id}')" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 hover:shadow-md transition-all flex items-center gap-2">
                         <i data-lucide="edit-3" style="width:16px;height:16px"></i> แก้ไข
                       </button>
-                      <button onclick="app.deleteProject('${p.id}')" class="p-2.5 text-slate-400 hover:text-red-600 hover:bg-slate-100 rounded-lg transition-all">
+                      <button onclick="appManager.deleteProject('${p.id}')" class="p-2.5 text-slate-400 hover:text-red-600 hover:bg-slate-100 rounded-lg transition-all">
                         <i data-lucide="trash-2" style="width:18px;height:18px"></i>
                       </button>
                     </div>
@@ -1016,7 +1016,7 @@ removePart5Contractor(idx) {
         <div class="min-h-screen bg-slate-50 pb-20 font-sans w-full flex flex-col">
           <div class="bg-white border-b sticky top-0 z-50 px-4 md:px-6 py-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="flex items-center gap-4">
-              <button onclick="app.closeProject()" class="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors shrink-0">
+              <button onclick="appManager.closeProject()" class="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors shrink-0">
                 <i data-lucide="arrow-left" style="width:20px;height:20px"></i>
               </button>
               <div class="min-w-0">
@@ -1025,13 +1025,13 @@ removePart5Contractor(idx) {
                   <div class="px-3 py-1 rounded-full border-2 text-[10px] md:text-xs font-black tracking-wide shadow-sm ${this.getStatusStyle(p.status)}">
                     ${p.status}
                   </div>
-                  <button onclick="app.toggleLostJob('${p.id}')" class="text-[10px] font-bold text-slate-500 hover:text-red-600 px-3 py-1 rounded-xl transition-all border border-slate-200 bg-white">
+                  <button onclick="appManager.toggleLostJob('${p.id}')" class="text-[10px] font-bold text-slate-500 hover:text-red-600 px-3 py-1 rounded-xl transition-all border border-slate-200 bg-white">
                     ${p.status === 'ไม่ได้งาน' ? "นำกลับมาทำต่อ" : "แจ้งไม่ได้งาน"}
                   </button>
                 </div>
               </div>
             </div>
-            <button onclick="app.closeProject()" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md hover:bg-blue-700 transition-all w-full md:w-auto">
+            <button onclick="appManager.closeProject()" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md hover:bg-blue-700 transition-all w-full md:w-auto">
               ${this.isSaving ? "กำลังบันทึก..." : "บันทึกและออก"}
             </button>
           </div>
@@ -1050,7 +1050,7 @@ removePart5Contractor(idx) {
                   part7: '7. การรับประกัน'
                 };
                 return `
-                  <button onclick="app.activeTab = '${tab}'; app.render()" class="px-4 py-3 font-bold text-sm border-b-2 transition-all whitespace-nowrap ${this.activeTab === tab ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-600 hover:text-slate-800'}">
+                  <button onclick="appManager.activeTab = '${tab}'; appManager.render()" class="px-4 py-3 font-bold text-sm border-b-2 transition-all whitespace-nowrap ${this.activeTab === tab ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-600 hover:text-slate-800'}">
                     ${tabLabels[tab]}
                   </button>
                 `;
@@ -1076,7 +1076,7 @@ removePart5Contractor(idx) {
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100/50">
                       <div class="flex items-center gap-3 mb-4">
-                        <button onclick="app.updateProject(proj => ({...proj, part1: {...proj.part1, received: !proj.part1.received, receivedDate: !proj.part1.received ? app.getCurrentTimestamp() : '' }}))" class="flex-shrink-0">
+                        <button onclick="appManager.updateProject(proj => ({...proj, part1: {...proj.part1, received: !proj.part1.received, receivedDate: !proj.part1.received ? appManager.getCurrentTimestamp() : '' }}))" class="flex-shrink-0">
                           <i data-lucide="${p.part1.received ? 'check-circle-2' : 'circle'}" style="width:24px;height:24px" class="${p.part1.received ? 'text-emerald-500' : 'text-slate-300'}"></i>
                         </button>
                         <span class="font-bold text-slate-700">รับงานแล้ว</span>
@@ -1086,11 +1086,11 @@ removePart5Contractor(idx) {
                         <div>
                           <label class="text-[10px] font-bold text-slate-400 mb-1 block uppercase tracking-wider">ชื่อเซลล์ผู้รับผิดชอบ</label>
                           <input type="text" placeholder="ระบุชื่อเซลล์ *" class="w-full bg-transparent border-b text-sm py-1 outline-none transition-colors ${this.validationError && !p.part1.salesName ? 'border-red-400 placeholder-red-300' : 'border-emerald-200 focus:border-emerald-500'}" value="${p.part1.salesName}" 
-                            onchange="app.updateProject(proj => ({...proj, part1: {...proj.part1, salesName: this.value}}))" />
+                            onchange="appManager.updateProject(proj => ({...proj, part1: {...proj.part1, salesName: this.value}}))" />
                         </div>
                         <div>
                            <label class="text-[10px] font-bold text-slate-400 mb-1 block uppercase tracking-wider">ช่องทางการขาย</label>
-                           <select onchange="app.updateProject(proj => ({...proj, part1: {...proj.part1, channel: this.value}}))" class="w-full bg-transparent border-b border-emerald-200 text-sm py-1 outline-none focus:border-emerald-500 cursor-pointer">
+                           <select onchange="appManager.updateProject(proj => ({...proj, part1: {...proj.part1, channel: this.value}}))" class="w-full bg-transparent border-b border-emerald-200 text-sm py-1 outline-none focus:border-emerald-500 cursor-pointer">
                              <option ${p.part1.channel === 'Facebook' ? 'selected' : ''}>Facebook</option>
                              <option ${p.part1.channel === 'Line' ? 'selected' : ''}>Line</option>
                              <option ${p.part1.channel === 'Phone' ? 'selected' : ''}>Phone</option>
@@ -1104,17 +1104,17 @@ removePart5Contractor(idx) {
                       <div class="group">
                         <label class="text-[10px] font-bold text-slate-400 block mb-1">ชื่อลูกค้า *</label>
                         <input type="text" placeholder="ระบุชื่อลูกค้า" class="w-full border-b text-sm py-2 outline-none transition-colors ${this.validationError && !p.part1.customerName ? 'border-red-400 placeholder-red-300' : 'border-slate-200 focus:border-emerald-500'}" value="${p.part1.customerName}" 
-                          onchange="app.updateProject(proj => ({...proj, part1: {...proj.part1, customerName: this.value}}))" />
+                          onchange="appManager.updateProject(proj => ({...proj, part1: {...proj.part1, customerName: this.value}}))" />
                       </div>
                       <div class="group">
                         <label class="text-[10px] font-bold text-slate-400 block mb-1">บริษัทลูกค้า *</label>
                         <input type="text" placeholder="ระบุบริษัท" class="w-full border-b text-sm py-2 outline-none transition-colors ${this.validationError && !p.part1.companyName ? 'border-red-400 placeholder-red-300' : 'border-slate-200 focus:border-emerald-500'}" value="${p.part1.companyName}" 
-                          onchange="app.updateProject(proj => ({...proj, part1: {...proj.part1, companyName: this.value}}))" />
+                          onchange="appManager.updateProject(proj => ({...proj, part1: {...proj.part1, companyName: this.value}}))" />
                       </div>
                       <div class="group">
                         <label class="text-[10px] font-bold text-emerald-600 block mb-1">ชื่อโครงการ *</label>
                         <input type="text" placeholder="ระบุชื่อโครงการ" class="w-full border-b text-sm py-2 font-bold outline-none transition-colors ${this.validationError && !p.part1.projectName ? 'border-red-400 placeholder-red-300 text-red-600' : 'border-emerald-200 text-emerald-700 focus:border-emerald-500'}" value="${p.part1.projectName}" 
-                          onchange="app.updateProject(proj => ({...proj, part1: {...proj.part1, projectName: this.value}}))" />
+                          onchange="appManager.updateProject(proj => ({...proj, part1: {...proj.part1, projectName: this.value}}))" />
                       </div>
                     </div>
                   </div>
@@ -1128,13 +1128,13 @@ removePart5Contractor(idx) {
                   <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 text-emerald-600">
                     <i data-lucide="rotate-ccw" style="width:20px;height:20px"></i> ส่วนที่ 2: การดำเนินการ
                   </h3>
-                  <button onclick="app.addPart2Item()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-emerald-100 transition-all active:scale-95">+ เพิ่มหัวข้อหลัก</button>
+                  <button onclick="appManager.addPart2Item()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-emerald-100 transition-all active:scale-95">+ เพิ่มหัวข้อหลัก</button>
                 </div>
                 <div class="space-y-6">
                   ${p.part2.items.map((item, idx) => `
                     <div class="border border-emerald-50 rounded-2xl p-5 bg-slate-50 relative group shadow-sm">
                       <div class="flex flex-wrap items-center gap-3 mb-4">
-                        <button onclick="app.togglePart2Item(${idx})" class="flex-shrink-0">
+                        <button onclick="appManager.togglePart2Item(${idx})" class="flex-shrink-0">
                           <i data-lucide="${item.checked ? 'check-circle-2' : 'circle'}" style="width:24px;height:24px" class="${item.checked ? 'text-emerald-500' : 'text-slate-300'}"></i>
                         </button>
                         <div class="relative flex-1 group">
@@ -1143,24 +1143,24 @@ removePart5Contractor(idx) {
                             class="w-full px-3 py-1.5 text-sm font-bold bg-white border border-slate-200 rounded-lg shadow-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all outline-none"
                             value="${item.docType}"
                             placeholder="เลือกหรือพิมพ์เอกสาร..."
-                            onchange="app.updatePart2DocType(${idx}, this.value)"
-                            oninput="app.showPart2Suggestions(${idx}, this.value)"
-                            onblur="setTimeout(() => app.hidePart2Suggestions(${idx}), 200)"
-                            onfocus="app.showPart2Suggestions(${idx}, this.value)"
+                            onchange="appManager.updatePart2DocType(${idx}, this.value)"
+                            oninput="appManager.showPart2Suggestions(${idx}, this.value)"
+                            onblur="setTimeout(() => appManager.hidePart2Suggestions(${idx}), 200)"
+                            onfocus="appManager.showPart2Suggestions(${idx}, this.value)"
                             data-part2-input="${idx}"
                           />
                           <div id="suggestions-part2-${idx}" class="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-lg mt-1 max-h-40 overflow-y-auto hidden z-50">
                             ${this.sharedDocOptions.map((opt, i) => `
                               <div class="flex items-center justify-between px-3 py-2 hover:bg-emerald-50 group text-sm">
-                                <div class="cursor-pointer flex-1" onclick="app.selectPart2Doc(${idx}, '${opt}')">
+                                <div class="cursor-pointer flex-1" onclick="appManager.selectPart2Doc(${idx}, '${opt}')">
                                   ${opt}
                                 </div>
-                                <button onclick="app.deleteDocOption('${opt}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all p-1">
+                                <button onclick="appManager.deleteDocOption('${opt}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all p-1">
                                   <i data-lucide="x" style="width:14px;height:14px"></i>
                                 </button>
                               </div>
                             `).join('')}
-                            <div class="border-t border-slate-100 px-3 py-2 bg-emerald-50/30 hover:bg-emerald-50 cursor-pointer text-sm font-bold text-emerald-600" onclick="app.addNewDocOption('part2', ${idx})">
+                            <div class="border-t border-slate-100 px-3 py-2 bg-emerald-50/30 hover:bg-emerald-50 cursor-pointer text-sm font-bold text-emerald-600" onclick="appManager.addNewDocOption('part2', ${idx})">
                               + เพิ่มตัวเลือกใหม่
                             </div>
                           </div>
@@ -1168,12 +1168,12 @@ removePart5Contractor(idx) {
                         <span class="text-[10px] text-slate-400 flex items-center gap-1 ml-auto"><i data-lucide="clock" style="width:12px;height:12px"></i> อัปเดตเมื่อ: ${this.formatDisplayTime(item.lastUpdated)}</span>
                       </div>
                       <textarea placeholder="รายละเอียดงานหรือความต้องการลูกค้า..." class="w-full text-xs p-3 bg-white border border-slate-100 rounded-xl mb-4 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-50 transition-all" 
-                        onchange="app.updatePart2Requirement(${idx}, this.value)">${item.customerRequirement}</textarea>
+                        onchange="appManager.updatePart2Requirement(${idx}, this.value)">${item.customerRequirement}</textarea>
 
                       <div class="ml-4 md:ml-8 space-y-4 border-l-2 border-emerald-100 pl-4 md:pl-6">
                         <div class="space-y-2">
                           <div class="flex items-center gap-2">
-                            <button onclick="app.togglePart2Self(${idx})" class="flex-shrink-0">
+                            <button onclick="appManager.togglePart2Self(${idx})" class="flex-shrink-0">
                               <i data-lucide="${item.isSelf?.checked ? 'check-circle-2' : 'circle'}" style="width:20px;height:20px" class="${item.isSelf?.checked ? 'text-emerald-500' : 'text-slate-300'}"></i>
                             </button>
                             <span class="text-sm font-bold text-slate-600">ทำภายในทีม</span>
@@ -1181,15 +1181,15 @@ removePart5Contractor(idx) {
                           ${item.isSelf?.checked ? `
                             <div class="space-y-2 fade-in">
                                <input type="text" placeholder="ระบุชื่อผู้รับงาน (Staff)..." class="w-full text-xs p-2 bg-white border border-emerald-100 rounded-lg outline-none font-bold focus:border-emerald-400" value="${item.isSelf?.staffName || ''}" 
-                                 onchange="app.updatePart2SelfStaff(${idx}, this.value)" />
+                                 onchange="appManager.updatePart2SelfStaff(${idx}, this.value)" />
                                <textarea placeholder="รายละเอียดการดำเนินงานภายใน..." class="w-full text-xs p-2 bg-white border border-emerald-100 rounded-lg outline-none focus:border-emerald-400" 
-                                 onchange="app.updatePart2SelfDetail(${idx}, this.value)">${item.isSelf?.detail || ''}</textarea>
+                                 onchange="appManager.updatePart2SelfDetail(${idx}, this.value)">${item.isSelf?.detail || ''}</textarea>
                             </div>
                           ` : ''}
                         </div>
                         <div class="space-y-2">
                           <div class="flex items-center gap-2">
-                            <button onclick="app.togglePart2Forward(${idx})" class="flex-shrink-0">
+                            <button onclick="appManager.togglePart2Forward(${idx})" class="flex-shrink-0">
                               <i data-lucide="${item.isForward?.checked ? 'check-circle-2' : 'circle'}" style="width:20px;height:20px" class="${item.isForward?.checked ? 'text-emerald-500' : 'text-slate-300'}"></i>
                             </button>
                             <span class="text-sm font-bold text-slate-600">ส่งต่อ</span>
@@ -1197,14 +1197,14 @@ removePart5Contractor(idx) {
                           ${item.isForward?.checked ? `
                             <div class="space-y-2 fade-in">
                               <input type="text" placeholder="ระบุชื่อผู้รับงาน..." class="w-full text-xs p-2 bg-white border border-emerald-100 rounded-lg outline-none font-bold focus:border-emerald-400" value="${item.isForward?.targetName || ''}" 
-                                onchange="app.updatePart2ForwardName(${idx}, this.value)" />
+                                onchange="appManager.updatePart2ForwardName(${idx}, this.value)" />
                               <textarea placeholder="รายละเอียดการส่งงาน..." class="w-full text-xs p-2 bg-white border border-emerald-100 rounded-lg outline-none focus:border-emerald-400" 
-                                onchange="app.updatePart2ForwardDetail(${idx}, this.value)">${item.isForward?.detail || ''}</textarea>
+                                onchange="appManager.updatePart2ForwardDetail(${idx}, this.value)">${item.isForward?.detail || ''}</textarea>
                             </div>
                           ` : ''}
                         </div>
                       </div>
-                      <button onclick="app.removePart2Item(${idx})" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onclick="appManager.removePart2Item(${idx})" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition-opacity">
                         <i data-lucide="trash-2" style="width:16px;height:16px"></i>
                       </button>
                     </div>
@@ -1219,7 +1219,7 @@ removePart5Contractor(idx) {
                   <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 text-emerald-600">
                     <i data-lucide="history" style="width:20px;height:20px"></i> ส่วนที่ 3: การแก้ไข
                   </h3>
-                  <button onclick="app.addPart3Item()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-emerald-100 transition-all active:scale-95">+ เพิ่มประวัติแก้ไข</button>
+                  <button onclick="appManager.addPart3Item()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-emerald-100 transition-all active:scale-95">+ เพิ่มประวัติแก้ไข</button>
                 </div>
                 <div class="space-y-6">
                   ${p.part3.items.map((item, index) => `
@@ -1232,24 +1232,24 @@ removePart5Contractor(idx) {
                             class="w-full px-3 py-1.5 text-sm font-bold bg-slate-50 border border-slate-100 rounded-lg shadow-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all outline-none"
                             value="${item.docType}"
                             placeholder="เลือกหรือพิมพ์เอกสาร..."
-                            onchange="app.updatePart3DocType(${index}, this.value)"
-                            oninput="app.showPart3Suggestions(${index}, this.value)"
-                            onblur="setTimeout(() => app.hidePart3Suggestions(${index}), 200)"
-                            onfocus="app.showPart3Suggestions(${index}, this.value)"
+                            onchange="appManager.updatePart3DocType(${index}, this.value)"
+                            oninput="appManager.showPart3Suggestions(${index}, this.value)"
+                            onblur="setTimeout(() => appManager.hidePart3Suggestions(${index}), 200)"
+                            onfocus="appManager.showPart3Suggestions(${index}, this.value)"
                             data-part3-input="${index}"
                           />
                           <div id="suggestions-part3-${index}" class="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-lg mt-1 max-h-40 overflow-y-auto hidden z-50">
                             ${this.sharedDocOptions.map((opt, i) => `
                               <div class="flex items-center justify-between px-3 py-2 hover:bg-emerald-50 group text-sm">
-                                <div class="cursor-pointer flex-1" onclick="app.selectPart3Doc(${index}, '${opt}')">
+                                <div class="cursor-pointer flex-1" onclick="appManager.selectPart3Doc(${index}, '${opt}')">
                                   ${opt}
                                 </div>
-                                <button onclick="app.deleteDocOption('${opt}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all p-1">
+                                <button onclick="appManager.deleteDocOption('${opt}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all p-1">
                                   <i data-lucide="x" style="width:14px;height:14px"></i>
                                 </button>
                               </div>
                             `).join('')}
-                            <div class="border-t border-slate-100 px-3 py-2 bg-emerald-50/30 hover:bg-emerald-50 cursor-pointer text-sm font-bold text-emerald-600" onclick="app.addNewDocOption('part3', ${index})">
+                            <div class="border-t border-slate-100 px-3 py-2 bg-emerald-50/30 hover:bg-emerald-50 cursor-pointer text-sm font-bold text-emerald-600" onclick="appManager.addNewDocOption('part3', ${index})">
                               + เพิ่มตัวเลือกใหม่
                             </div>
                           </div>
@@ -1257,12 +1257,12 @@ removePart5Contractor(idx) {
                         <span class="text-[10px] text-slate-400 ml-auto flex items-center gap-1"><i data-lucide="clock" style="width:12px;height:12px"></i> ${this.formatDisplayTime(item.timestamp)}</span>
                       </div>
                       <textarea placeholder="สาเหตุหรือจุดที่ต้องแก้ไข..." class="w-full text-xs p-3 bg-slate-50 border border-slate-100 rounded-xl mb-4 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-50 transition-all" 
-                        onchange="app.updatePart3Description(${index}, this.value)">${item.description}</textarea>
+                        onchange="appManager.updatePart3Description(${index}, this.value)">${item.description}</textarea>
                       
                       <div class="ml-4 md:ml-8 space-y-4 border-l-2 border-emerald-200 pl-4 md:pl-6 mb-2">
                         <div class="space-y-2">
                           <div class="flex items-center gap-2">
-                            <button onclick="app.togglePart3Self(${index})" class="flex-shrink-0">
+                            <button onclick="appManager.togglePart3Self(${index})" class="flex-shrink-0">
                               <i data-lucide="${item.isSelf?.checked ? 'check-circle-2' : 'circle'}" style="width:20px;height:20px" class="${item.isSelf?.checked ? 'text-emerald-500' : 'text-slate-300'}"></i>
                             </button>
                             <span class="text-sm font-bold text-slate-600">ทำภายในทีม</span>
@@ -1270,15 +1270,15 @@ removePart5Contractor(idx) {
                           ${item.isSelf?.checked ? `
                             <div class="space-y-2 fade-in">
                                <input type="text" placeholder="ระบุชื่อผู้แก้ไข (Staff)..." class="w-full text-xs p-2 bg-slate-50 border border-emerald-100 rounded-lg outline-none font-bold focus:border-emerald-400" value="${item.isSelf?.staffName || ''}" 
-                                 onchange="app.updatePart3SelfStaff(${index}, this.value)" />
+                                 onchange="appManager.updatePart3SelfStaff(${index}, this.value)" />
                                <textarea placeholder="รายละเอียดการแก้ไขภายใน..." class="w-full text-xs p-2 bg-slate-50 border border-emerald-100 rounded-lg outline-none focus:border-emerald-400" 
-                                 onchange="app.updatePart3SelfDetail(${index}, this.value)">${item.isSelf?.detail || ''}</textarea>
+                                 onchange="appManager.updatePart3SelfDetail(${index}, this.value)">${item.isSelf?.detail || ''}</textarea>
                             </div>
                           ` : ''}
                         </div>
                         <div class="space-y-2">
                           <div class="flex items-center gap-2">
-                            <button onclick="app.togglePart3Forward(${index})" class="flex-shrink-0">
+                            <button onclick="appManager.togglePart3Forward(${index})" class="flex-shrink-0">
                               <i data-lucide="${item.isForward?.checked ? 'check-circle-2' : 'circle'}" style="width:20px;height:20px" class="${item.isForward?.checked ? 'text-emerald-500' : 'text-slate-300'}"></i>
                             </button>
                             <span class="text-sm font-bold text-slate-600">ส่งต่อ</span>
@@ -1286,15 +1286,15 @@ removePart5Contractor(idx) {
                           ${item.isForward?.checked ? `
                             <div class="space-y-2 fade-in">
                               <input type="text" placeholder="ระบุชื่อผู้รับแก้ไข..." class="w-full text-xs p-2 bg-slate-50 border border-emerald-100 rounded-lg outline-none font-bold focus:border-emerald-400" value="${item.isForward?.targetName || ''}" 
-                                onchange="app.updatePart3ForwardName(${index}, this.value)" />
+                                onchange="appManager.updatePart3ForwardName(${index}, this.value)" />
                               <textarea placeholder="รายละเอียดการส่งแก้ไข..." class="w-full text-xs p-2 bg-slate-50 border border-emerald-100 rounded-lg outline-none focus:border-emerald-400" 
-                                onchange="app.updatePart3ForwardDetail(${index}, this.value)">${item.isForward?.detail || ''}</textarea>
+                                onchange="appManager.updatePart3ForwardDetail(${index}, this.value)">${item.isForward?.detail || ''}</textarea>
                             </div>
                           ` : ''}
                         </div>
                       </div>
 
-                      <button onclick="app.removePart3Item(${index})" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onclick="appManager.removePart3Item(${index})" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
                         <i data-lucide="trash-2" style="width:16px;height:16px"></i>
                       </button>
                     </div>
@@ -1309,12 +1309,12 @@ removePart5Contractor(idx) {
                   <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 text-emerald-600">
                     <i data-lucide="send" style="width:20px;height:20px"></i> ส่วนที่ 4: การส่งข้อมูลให้ลูกค้า
                   </h3>
-                  <button onclick="app.addPart4Item()" class="text-xs font-bold bg-emerald-600 text-white px-4 py-2 rounded-xl hover:bg-emerald-700 shadow-md shadow-emerald-100 transition-all active:scale-95">+ เพิ่มรายการส่งงาน</button>
+                  <button onclick="appManager.addPart4Item()" class="text-xs font-bold bg-emerald-600 text-white px-4 py-2 rounded-xl hover:bg-emerald-700 shadow-md shadow-emerald-100 transition-all active:scale-95">+ เพิ่มรายการส่งงาน</button>
                 </div>
                 <div class="space-y-3">
                   ${p.part4.items.map((item, idx) => `
                     <div class="flex items-center gap-4 bg-white p-4 rounded-2xl border border-emerald-100 group shadow-sm hover:border-emerald-300 transition-colors">
-                      <button onclick="app.togglePart4Item(${idx})" class="flex-shrink-0">
+                      <button onclick="appManager.togglePart4Item(${idx})" class="flex-shrink-0">
                         <i data-lucide="${item.checked ? 'check-circle-2' : 'circle'}" style="width:22px;height:22px" class="${item.checked ? 'text-emerald-500' : 'text-slate-300'}"></i>
                       </button>
                       <div class="relative flex-1">
@@ -1323,30 +1323,30 @@ removePart5Contractor(idx) {
                           class="w-full px-3 py-1.5 text-sm font-bold bg-slate-50 border border-slate-100 rounded-lg shadow-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all outline-none"
                           value="${item.docType}"
                           placeholder="เลือกหรือพิมพ์เอกสาร..."
-                          onchange="app.updatePart4DocType(${idx}, this.value)"
-                          oninput="app.showPart4Suggestions(${idx}, this.value)"
-                          onblur="setTimeout(() => app.hidePart4Suggestions(${idx}), 200)"
-                          onfocus="app.showPart4Suggestions(${idx}, this.value)"
+                          onchange="appManager.updatePart4DocType(${idx}, this.value)"
+                          oninput="appManager.showPart4Suggestions(${idx}, this.value)"
+                          onblur="setTimeout(() => appManager.hidePart4Suggestions(${idx}), 200)"
+                          onfocus="appManager.showPart4Suggestions(${idx}, this.value)"
                           data-part4-input="${idx}"
                         />
                         <div id="suggestions-part4-${idx}" class="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-lg mt-1 max-h-40 overflow-y-auto hidden z-50">
                           ${this.sharedDocOptions.map((opt, i) => `
                             <div class="flex items-center justify-between px-3 py-2 hover:bg-emerald-50 group text-sm">
-                              <div class="cursor-pointer flex-1" onclick="app.selectPart4Doc(${idx}, '${opt}')">
+                              <div class="cursor-pointer flex-1" onclick="appManager.selectPart4Doc(${idx}, '${opt}')">
                                 ${opt}
                               </div>
-                              <button onclick="app.deleteDocOption('${opt}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all p-1">
+                              <button onclick="appManager.deleteDocOption('${opt}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all p-1">
                                 <i data-lucide="x" style="width:14px;height:14px"></i>
                               </button>
                             </div>
                           `).join('')}
-                          <div class="border-t border-slate-100 px-3 py-2 bg-emerald-50/30 hover:bg-emerald-50 cursor-pointer text-sm font-bold text-emerald-600" onclick="app.addNewDocOption('part4', ${idx})">
+                          <div class="border-t border-slate-100 px-3 py-2 bg-emerald-50/30 hover:bg-emerald-50 cursor-pointer text-sm font-bold text-emerald-600" onclick="appManager.addNewDocOption('part4', ${idx})">
                             + เพิ่มตัวเลือกใหม่
                           </div>
                         </div>
                       </div>
                       <span class="text-[10px] text-slate-400 ml-auto flex items-center gap-1"><i data-lucide="clock" style="width:10px;height:10px"></i> ${this.formatDisplayTime(item.timestamp)}</span>
-                      <button onclick="app.removePart4Item(${idx})" class="text-slate-300 hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onclick="appManager.removePart4Item(${idx})" class="text-slate-300 hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition-opacity">
                         <i data-lucide="trash-2" style="width:16px;height:16px"></i>
                       </button>
                     </div>
@@ -1364,20 +1364,20 @@ removePart5Contractor(idx) {
                   <div class="bg-white border border-emerald-100 p-5 rounded-2xl shadow-sm">
                     <div class="flex justify-between items-center mb-4">
                        <div class="flex items-center gap-2 font-bold text-slate-700"><i data-lucide="users" style="width:18px;height:18px" class="text-emerald-500"></i> ติดตั้งโดยทีมงานภายใน</div>
-                       <button onclick="app.addPart5InternalStaff()" class="text-[10px] bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-black hover:bg-emerald-200 transition-colors">+ เพิ่มรายชื่อ</button>
+                       <button onclick="appManager.addPart5InternalStaff()" class="text-[10px] bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-black hover:bg-emerald-200 transition-colors">+ เพิ่มรายชื่อ</button>
                     </div>
                     <div class="space-y-4">
                       ${p.part5.internalStaff.map((staff, idx) => `
                         <div class="p-3 bg-slate-50 rounded-xl border border-emerald-50 group relative">
                           <div class="flex gap-2 mb-2">
                             <input type="text" placeholder="ระบุชื่อพนักงานติดตั้ง..." class="flex-1 p-2 bg-white border border-slate-100 rounded-lg text-xs outline-none font-bold focus:border-emerald-400" value="${staff.name}" 
-                              onchange="app.updatePart5InternalStaffName(${idx}, this.value)" />
-                            <button onclick="app.removePart5InternalStaff(${idx})" class="text-slate-300 hover:text-red-500 transition-colors">
+                              onchange="appManager.updatePart5InternalStaffName(${idx}, this.value)" />
+                            <button onclick="appManager.removePart5InternalStaff(${idx})" class="text-slate-300 hover:text-red-500 transition-colors">
                               <i data-lucide="trash-2" style="width:16px;height:16px"></i>
                             </button>
                           </div>
                           <textarea placeholder="รายละเอียดการดำเนินงานภายใน..." class="w-full p-2 bg-white border border-slate-100 rounded-lg text-xs outline-none focus:border-emerald-400" 
-                            onchange="app.updatePart5InternalStaffDetail(${idx}, this.value)">${staff.detail}</textarea>
+                            onchange="appManager.updatePart5InternalStaffDetail(${idx}, this.value)">${staff.detail}</textarea>
                         </div>
                       `).join('')}
                     </div>
@@ -1385,20 +1385,20 @@ removePart5Contractor(idx) {
                   <div class="bg-white border border-emerald-100 p-5 rounded-2xl shadow-sm">
                     <div class="flex justify-between items-center mb-4">
                        <div class="flex items-center gap-2 font-bold text-slate-700"><i data-lucide="truck" style="width:18px;height:18px" class="text-emerald-500"></i> ติดตั้งโดยผู้รับเหมาภายนอก</div>
-                       <button onclick="app.addPart5Contractor()" class="text-[10px] bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-black hover:bg-emerald-200 transition-colors">+ เพิ่มผู้รับเหมา</button>
+                       <button onclick="appManager.addPart5Contractor()" class="text-[10px] bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-black hover:bg-emerald-200 transition-colors">+ เพิ่มผู้รับเหมา</button>
                     </div>
                     <div class="space-y-4">
                       ${p.part5.contractors.map((contractor, idx) => `
                         <div class="p-3 bg-slate-50 rounded-xl border border-emerald-50 group relative">
                           <div class="flex gap-2 mb-2">
                             <input type="text" placeholder="ชื่อผู้รับเหมา / บริษัท" class="flex-1 p-2 bg-white border border-slate-100 rounded-lg text-xs outline-none font-bold focus:border-emerald-400" value="${contractor.name}" 
-                              onchange="app.updatePart5ContractorName(${idx}, this.value)" />
-                            <button onclick="app.removePart5Contractor(${idx})" class="text-slate-300 hover:text-red-500 transition-colors">
+                              onchange="appManager.updatePart5ContractorName(${idx}, this.value)" />
+                            <button onclick="appManager.removePart5Contractor(${idx})" class="text-slate-300 hover:text-red-500 transition-colors">
                               <i data-lucide="trash-2" style="width:16px;height:16px"></i>
                             </button>
                           </div>
                           <textarea placeholder="รายละเอียดการสั่งงาน..." class="w-full p-2 bg-white border border-slate-100 rounded-lg text-xs outline-none focus:border-emerald-400" 
-                            onchange="app.updatePart5ContractorDetail(${idx}, this.value)">${contractor.detail}</textarea>
+                            onchange="appManager.updatePart5ContractorDetail(${idx}, this.value)">${contractor.detail}</textarea>
                         </div>
                       `).join('')}
                     </div>
@@ -1406,7 +1406,7 @@ removePart5Contractor(idx) {
                   <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm">
                     <label class="text-[10px] font-black text-emerald-600 uppercase mb-2 block tracking-widest">กำหนดการติดตั้ง</label>
                     <input type="date" class="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all" value="${p.part5.installDate}"
-                      onchange="app.updateProject(proj => ({...proj, part5: {...proj.part5, installDate: this.value}}))" />
+                      onchange="appManager.updateProject(proj => ({...proj, part5: {...proj.part5, installDate: this.value}}))" />
                   </div>
                 </div>
               </section>
@@ -1421,7 +1421,7 @@ removePart5Contractor(idx) {
                 <div class="bg-white p-6 rounded-2xl border border-green-100 shadow-sm">
                   <label class="text-[10px] font-black text-green-600 uppercase ml-1 block mb-2">วันที่ส่งมอบงานสำเร็จ</label>
                   <input type="date" class="w-full p-3 bg-slate-50 border border-green-100 rounded-xl text-sm outline-none" value="${p.part6.deliveryDate}"
-                    onchange="app.updateProject(proj => ({...proj, part6: {...proj.part6, deliveryDate: this.value}}))" />
+                    onchange="appManager.updateProject(proj => ({...proj, part6: {...proj.part6, deliveryDate: this.value}}))" />
                 </div>
               </section>
               ` : ''}
@@ -1438,18 +1438,18 @@ removePart5Contractor(idx) {
                       <div>
                         <label class="text-[10px] text-slate-400 uppercase font-bold ml-1 mb-2 block tracking-wider">วันที่เริ่มการรับประกัน</label>
                         <input type="date" class="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none text-slate-700 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all" value="${p.part7.startDate}" 
-                          onchange="app.updateProject(proj => ({...proj, part7: {...proj.part7, startDate: this.value}}))" />
+                          onchange="appManager.updateProject(proj => ({...proj, part7: {...proj.part7, startDate: this.value}}))" />
                       </div>
                       <div>
                         <label class="text-[10px] text-slate-400 uppercase font-bold ml-1 mb-2 block tracking-wider">ระยะเวลารับประกัน (จำนวนเดือน)</label>
                         <div class="flex gap-2 items-center mb-3">
                           <input type="number" placeholder="ตัวอย่าง: 12" class="flex-1 p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none text-slate-700 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all" value="${p.part7.durationMonths}" 
-                            onchange="app.updateProject(proj => ({...proj, part7: {...proj.part7, durationMonths: this.value}}))" />
+                            onchange="appManager.updateProject(proj => ({...proj, part7: {...proj.part7, durationMonths: this.value}}))" />
                           <span class="text-slate-500 font-bold text-sm">เดือน</span>
                         </div>
                         <div class="flex flex-wrap gap-2">
                           ${['6','12','24','36'].map(m => `
-                            <button onclick="app.updateProject(proj => ({...proj, part7: {...proj.part7, durationMonths: '${m}'}}))" 
+                            <button onclick="appManager.updateProject(proj => ({...proj, part7: {...proj.part7, durationMonths: '${m}'}}))" 
                               class="text-[10px] px-4 py-1.5 rounded-lg border font-black transition-all ${p.part7.durationMonths === m ? 'bg-emerald-500 border-emerald-500 text-white shadow-md shadow-emerald-100' : 'border-slate-200 text-slate-400 hover:border-emerald-300 hover:text-emerald-500 bg-white'}">
                               ${m} ด.
                             </button>
@@ -1475,7 +1475,7 @@ removePart5Contractor(idx) {
 
     render() {
       const app = document.getElementById('app');
-      app.innerHTML = this.activeProjectId ? this.renderProjectDetail() : this.renderDashboard();
+      appManager.innerHTML = this.activeProjectId ? this.renderProjectDetail() : this.renderDashboard();
       lucide.createIcons();
     }
   }
@@ -1483,12 +1483,12 @@ removePart5Contractor(idx) {
   const app = new ProjectManager();
 </script>
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-appManager.js";
     import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBo0comaBXhHtuxiiNUGFldu-8ZcxtdQ7A",
-      authDomain: "work-jes.firebaseapp.com",
+      authDomain: "work-jes.firebaseappManager.com",
       projectId: "work-jes",
       storageBucket: "work-jes.firebasestorage.app",
       messagingSenderId: "112074428386",
@@ -1503,29 +1503,36 @@ removePart5Contractor(idx) {
         this.projects = [];
         this.activeProjectId = null;
         this.searchQuery = '';
-        this.initRealtimeData();
+        this.initRealtimeData(); // เริ่มดึงข้อมูลจาก Cloud ทันทีที่เปิดเว็บ
       }
 
-      // ฟังข้อมูลจาก Cloud ตลอดเวลา
+      // --- ฟังก์ชันหัวใจหลัก: คอยฟังข้อมูลจาก Cloud ---
       initRealtimeData() {
         const docRef = doc(db, "projects", "main_data");
         onSnapshot(docRef, (snapshot) => {
           if (snapshot.exists()) {
             this.projects = snapshot.data().projectList || [];
+          } else {
+            this.projects = [];
           }
-          this.render(); // เครื่องอื่นแก้ปุ๊บ หน้าจอนี้เปลี่ยนปั๊บ
+          this.render(); // เมื่อมีคนแก้ข้อมูล เครื่องที่เหลือจะวาดหน้าจอใหม่เองทันที
         });
       }
 
-      // บันทึกขึ้น Cloud แทน LocalStorage
+      // --- ฟังก์ชันบันทึกข้อมูลขึ้น Cloud (แทน LocalStorage) ---
       async saveToFirebase() {
-        const docRef = doc(db, "projects", "main_data");
-        await setDoc(docRef, { 
-          projectList: this.projects,
-          lastUpdated: new Date().toISOString()
-        });
+        try {
+          const docRef = doc(db, "projects", "main_data");
+          await setDoc(docRef, { 
+            projectList: this.projects,
+            lastUpdated: new Date().toISOString()
+          });
+        } catch (error) {
+          console.error("Error saving to Firebase:", error);
+        }
       }
 
+      // --- แก้ไขฟังก์ชันเดิมของคุณให้เรียกใช้ saveToFirebase ---
       createNewProject() {
         const newProject = {
           id: 'proj_' + Date.now(),
@@ -1559,6 +1566,32 @@ removePart5Contractor(idx) {
             project.warranty.expiry = start.toISOString().split('T')[0];
           }
           this.saveToFirebase();
+        }
+      }
+
+      addDocument(type) {
+        const project = this.projects.find(p => p.id === this.activeProjectId);
+        if (project) {
+          const doc = {
+            id: 'doc_' + Date.now(),
+            type,
+            name: '',
+            status: 'pending',
+            date: new Date().toISOString().split('T')[0]
+          };
+          project.docs.push(doc);
+          this.saveToFirebase();
+        }
+      }
+
+      updateDocumentStatus(docId, status) {
+        const project = this.projects.find(p => p.id === this.activeProjectId);
+        if (project) {
+          const doc = project.docs.find(d => d.id === docId);
+          if (doc) {
+            doc.status = status;
+            this.saveToFirebase();
+          }
         }
       }
 
@@ -1615,14 +1648,14 @@ removePart5Contractor(idx) {
                   </h1>
                   <p class="text-slate-500 text-sm md:text-base">จัดการ ${this.projects.length} โปรเจกต์ • ${filtered.length} ตรงกับตัวกรอง</p>
                 </div>
-                <button onclick="app.createNewProject()" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 transition-all w-full md:w-auto justify-center text-lg">
+                <button onclick="appManager.createNewProject()" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 transition-all w-full md:w-auto justify-center text-lg">
                   <i data-lucide="plus" style="width:24px;height:24px"></i> เพิ่มงานใหม่
                 </button>
               </div>
 
               <!-- Stats Cards -->
               <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="app.filterStatus = 'กำลังดำเนินการ'; app.render()">
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="appManager.filterStatus = 'กำลังดำเนินการ'; appManager.render()">
                   <div class="flex items-center gap-3">
                     <div class="bg-blue-500/10 p-2 rounded-lg group-hover:bg-blue-500/20 transition-colors">
                       <i data-lucide="zap" style="width:20px;height:20px" class="text-blue-600"></i>
@@ -1633,7 +1666,7 @@ removePart5Contractor(idx) {
                     </div>
                   </div>
                 </div>
-                <div class="bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="app.filterStatus = 'กำลังแก้ไข'; app.render()">
+                <div class="bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="appManager.filterStatus = 'กำลังแก้ไข'; appManager.render()">
                   <div class="flex items-center gap-3">
                     <div class="bg-amber-500/10 p-2 rounded-lg group-hover:bg-amber-500/20 transition-colors">
                       <i data-lucide="edit" style="width:20px;height:20px" class="text-amber-600"></i>
@@ -1644,7 +1677,7 @@ removePart5Contractor(idx) {
                     </div>
                   </div>
                 </div>
-                <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="app.filterStatus = 'ส่งข้อมูลให้ลูกค้าแล้ว'; app.render()">
+                <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="appManager.filterStatus = 'ส่งข้อมูลให้ลูกค้าแล้ว'; appManager.render()">
                   <div class="flex items-center gap-3">
                     <div class="bg-indigo-500/10 p-2 rounded-lg group-hover:bg-indigo-500/20 transition-colors">
                       <i data-lucide="send" style="width:20px;height:20px" class="text-indigo-600"></i>
@@ -1655,7 +1688,7 @@ removePart5Contractor(idx) {
                     </div>
                   </div>
                 </div>
-                <div class="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="app.filterStatus = 'กำลังติดตั้ง'; app.render()">
+                <div class="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="appManager.filterStatus = 'กำลังติดตั้ง'; appManager.render()">
                   <div class="flex items-center gap-3">
                     <div class="bg-orange-500/10 p-2 rounded-lg group-hover:bg-orange-500/20 transition-colors">
                       <i data-lucide="wrench" style="width:20px;height:20px" class="text-orange-600"></i>
@@ -1666,7 +1699,7 @@ removePart5Contractor(idx) {
                     </div>
                   </div>
                 </div>
-                <div class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="app.filterStatus = 'ได้งานแล้ว'; app.render()">
+                <div class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="appManager.filterStatus = 'ได้งานแล้ว'; appManager.render()">
                   <div class="flex items-center gap-3">
                     <div class="bg-green-500/10 p-2 rounded-lg group-hover:bg-green-500/20 transition-colors">
                       <i data-lucide="check-circle" style="width:20px;height:20px" class="text-green-600"></i>
@@ -1677,7 +1710,7 @@ removePart5Contractor(idx) {
                     </div>
                   </div>
                 </div>
-                <div class="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="app.filterStatus = 'ไม่ได้งาน'; app.render()">
+                <div class="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-2xl p-4 hover:shadow-lg transition-all group cursor-pointer" onclick="appManager.filterStatus = 'ไม่ได้งาน'; appManager.render()">
                   <div class="flex items-center gap-3">
                     <div class="bg-red-500/10 p-2 rounded-lg group-hover:bg-red-500/20 transition-colors">
                       <i data-lucide="x-circle" style="width:20px;height:20px" class="text-red-600"></i>
@@ -1706,8 +1739,8 @@ removePart5Contractor(idx) {
 				  autofocus
 				  oninput="
 				    this.setSelectionRange(this.value.length, this.value.length);
-				    app.searchQuery = this.value; 
-				    app.render(); 
+				    appManager.searchQuery = this.value; 
+				    appManager.render(); 
 				    const input = document.getElementById('searchInput');
 				    input.focus();
 				    input.setSelectionRange(input.value.length, input.value.length);
@@ -1720,7 +1753,7 @@ removePart5Contractor(idx) {
                 <select 
                   class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 outline-none cursor-pointer focus:ring-2 focus:ring-blue-500/50"
                   id="filterStatus"
-                  onchange="app.filterStatus = this.value; app.render()"
+                  onchange="appManager.filterStatus = this.value; appManager.render()"
                 >
                   ${statusOptions.map(s => `<option value="${s}" class="bg-white">${s}</option>`).join('')}
                 </select>
@@ -1730,7 +1763,7 @@ removePart5Contractor(idx) {
                 <button 
                   class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 outline-none cursor-pointer focus:ring-2 focus:ring-blue-500/50 flex items-center justify-between hover:border-slate-300 transition-all"
                   id="monthPickerBtn"
-                  onclick="app.toggleMonthPicker()"
+                  onclick="appManager.toggleMonthPicker()"
                 >
                   <span id="monthPickerDisplay">เลือกเดือน/ปี</span>
                   <i data-lucide="calendar" style="width:16px;height:16px" class="text-slate-400"></i>
@@ -1740,13 +1773,13 @@ removePart5Contractor(idx) {
                   id="monthPickerDropdown"
                 >
                   <div class="flex items-center justify-between mb-4">
-                    <button onclick="app.previousMonthYear()" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors">
+                    <button onclick="appManager.previousMonthYear()" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors">
                       <i data-lucide="chevron-left" style="width:18px;height:18px"></i>
                     </button>
                     <div class="text-center flex-1">
                       <div class="text-sm font-black text-slate-900" id="monthPickerYearDisplay">2024</div>
                     </div>
-                    <button onclick="app.nextMonthYear()" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors">
+                    <button onclick="appManager.nextMonthYear()" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors">
                       <i data-lucide="chevron-right" style="width:18px;height:18px"></i>
                     </button>
                   </div>
@@ -1754,7 +1787,7 @@ removePart5Contractor(idx) {
                     <!-- Generated by JavaScript -->
                   </div>
                   <button 
-                    onclick="app.filterDate = ''; app.closeMonthPicker(); document.getElementById('monthPickerDisplay').textContent = 'เลือกเดือน/ปี'; app.render();"
+                    onclick="appManager.filterDate = ''; appManager.closeMonthPicker(); document.getElementById('monthPickerDisplay').textContent = 'เลือกเดือน/ปี'; appManager.render();"
                     class="w-full mt-4 px-3 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all"
                   >
                     ล้างการเลือก
@@ -1762,7 +1795,7 @@ removePart5Contractor(idx) {
                 </div>
               </div>
               <button 
-                onclick="app.searchQuery = ''; app.filterStatus = 'ทั้งหมด'; app.filterDate = ''; document.getElementById('searchInput').value = ''; document.getElementById('filterStatus').value = 'ทั้งหมด'; document.getElementById('monthPickerDisplay').textContent = 'เลือกเดือน/ปี'; app.render();"
+                onclick="appManager.searchQuery = ''; appManager.filterStatus = 'ทั้งหมด'; appManager.filterDate = ''; document.getElementById('searchInput').value = ''; document.getElementById('filterStatus').value = 'ทั้งหมด'; document.getElementById('monthPickerDisplay').textContent = 'เลือกเดือน/ปี'; appManager.render();"
                 class="px-5 py-3 text-slate-700 hover:text-slate-900 text-sm font-bold flex items-center gap-2 hover:bg-slate-100 rounded-xl transition-all"
               >
                 <i data-lucide="rotate-ccw" style="width:16px;height:16px"></i> รีเซ็ต
@@ -1812,10 +1845,10 @@ removePart5Contractor(idx) {
                         <div class="text-xs text-slate-500">อัปเดต</div>
                         <div class="text-xs font-bold text-slate-700">${this.formatDisplayTime(p.updatedAt).split(' ')[0]}</div>
                       </div>
-                      <button onclick="app.openProject('${p.id}')" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 hover:shadow-md transition-all flex items-center gap-2">
+                      <button onclick="appManager.openProject('${p.id}')" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 hover:shadow-md transition-all flex items-center gap-2">
                         <i data-lucide="edit-3" style="width:16px;height:16px"></i> แก้ไข
                       </button>
-                      <button onclick="app.deleteProject('${p.id}')" class="p-2.5 text-slate-400 hover:text-red-600 hover:bg-slate-100 rounded-lg transition-all">
+                      <button onclick="appManager.deleteProject('${p.id}')" class="p-2.5 text-slate-400 hover:text-red-600 hover:bg-slate-100 rounded-lg transition-all">
                         <i data-lucide="trash-2" style="width:18px;height:18px"></i>
                       </button>
                     </div>
@@ -1842,7 +1875,7 @@ removePart5Contractor(idx) {
         <div class="min-h-screen bg-slate-50 pb-20 font-sans w-full flex flex-col">
           <div class="bg-white border-b sticky top-0 z-50 px-4 md:px-6 py-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="flex items-center gap-4">
-              <button onclick="app.closeProject()" class="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors shrink-0">
+              <button onclick="appManager.closeProject()" class="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors shrink-0">
                 <i data-lucide="arrow-left" style="width:20px;height:20px"></i>
               </button>
               <div class="min-w-0">
@@ -1851,13 +1884,13 @@ removePart5Contractor(idx) {
                   <div class="px-3 py-1 rounded-full border-2 text-[10px] md:text-xs font-black tracking-wide shadow-sm ${this.getStatusStyle(p.status)}">
                     ${p.status}
                   </div>
-                  <button onclick="app.toggleLostJob('${p.id}')" class="text-[10px] font-bold text-slate-500 hover:text-red-600 px-3 py-1 rounded-xl transition-all border border-slate-200 bg-white">
+                  <button onclick="appManager.toggleLostJob('${p.id}')" class="text-[10px] font-bold text-slate-500 hover:text-red-600 px-3 py-1 rounded-xl transition-all border border-slate-200 bg-white">
                     ${p.status === 'ไม่ได้งาน' ? "นำกลับมาทำต่อ" : "แจ้งไม่ได้งาน"}
                   </button>
                 </div>
               </div>
             </div>
-            <button onclick="app.closeProject()" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md hover:bg-blue-700 transition-all w-full md:w-auto">
+            <button onclick="appManager.closeProject()" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md hover:bg-blue-700 transition-all w-full md:w-auto">
               ${this.isSaving ? "กำลังบันทึก..." : "บันทึกและออก"}
             </button>
           </div>
@@ -1876,7 +1909,7 @@ removePart5Contractor(idx) {
                   part7: '7. การรับประกัน'
                 };
                 return `
-                  <button onclick="app.activeTab = '${tab}'; app.render()" class="px-4 py-3 font-bold text-sm border-b-2 transition-all whitespace-nowrap ${this.activeTab === tab ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-600 hover:text-slate-800'}">
+                  <button onclick="appManager.activeTab = '${tab}'; appManager.render()" class="px-4 py-3 font-bold text-sm border-b-2 transition-all whitespace-nowrap ${this.activeTab === tab ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-600 hover:text-slate-800'}">
                     ${tabLabels[tab]}
                   </button>
                 `;
@@ -1902,7 +1935,7 @@ removePart5Contractor(idx) {
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100/50">
                       <div class="flex items-center gap-3 mb-4">
-                        <button onclick="app.updateProject(proj => ({...proj, part1: {...proj.part1, received: !proj.part1.received, receivedDate: !proj.part1.received ? app.getCurrentTimestamp() : '' }}))" class="flex-shrink-0">
+                        <button onclick="appManager.updateProject(proj => ({...proj, part1: {...proj.part1, received: !proj.part1.received, receivedDate: !proj.part1.received ? appManager.getCurrentTimestamp() : '' }}))" class="flex-shrink-0">
                           <i data-lucide="${p.part1.received ? 'check-circle-2' : 'circle'}" style="width:24px;height:24px" class="${p.part1.received ? 'text-emerald-500' : 'text-slate-300'}"></i>
                         </button>
                         <span class="font-bold text-slate-700">รับงานแล้ว</span>
@@ -1912,11 +1945,11 @@ removePart5Contractor(idx) {
                         <div>
                           <label class="text-[10px] font-bold text-slate-400 mb-1 block uppercase tracking-wider">ชื่อเซลล์ผู้รับผิดชอบ</label>
                           <input type="text" placeholder="ระบุชื่อเซลล์ *" class="w-full bg-transparent border-b text-sm py-1 outline-none transition-colors ${this.validationError && !p.part1.salesName ? 'border-red-400 placeholder-red-300' : 'border-emerald-200 focus:border-emerald-500'}" value="${p.part1.salesName}" 
-                            onchange="app.updateProject(proj => ({...proj, part1: {...proj.part1, salesName: this.value}}))" />
+                            onchange="appManager.updateProject(proj => ({...proj, part1: {...proj.part1, salesName: this.value}}))" />
                         </div>
                         <div>
                            <label class="text-[10px] font-bold text-slate-400 mb-1 block uppercase tracking-wider">ช่องทางการขาย</label>
-                           <select onchange="app.updateProject(proj => ({...proj, part1: {...proj.part1, channel: this.value}}))" class="w-full bg-transparent border-b border-emerald-200 text-sm py-1 outline-none focus:border-emerald-500 cursor-pointer">
+                           <select onchange="appManager.updateProject(proj => ({...proj, part1: {...proj.part1, channel: this.value}}))" class="w-full bg-transparent border-b border-emerald-200 text-sm py-1 outline-none focus:border-emerald-500 cursor-pointer">
                              <option ${p.part1.channel === 'Facebook' ? 'selected' : ''}>Facebook</option>
                              <option ${p.part1.channel === 'Line' ? 'selected' : ''}>Line</option>
                              <option ${p.part1.channel === 'Phone' ? 'selected' : ''}>Phone</option>
@@ -1930,17 +1963,17 @@ removePart5Contractor(idx) {
                       <div class="group">
                         <label class="text-[10px] font-bold text-slate-400 block mb-1">ชื่อลูกค้า *</label>
                         <input type="text" placeholder="ระบุชื่อลูกค้า" class="w-full border-b text-sm py-2 outline-none transition-colors ${this.validationError && !p.part1.customerName ? 'border-red-400 placeholder-red-300' : 'border-slate-200 focus:border-emerald-500'}" value="${p.part1.customerName}" 
-                          onchange="app.updateProject(proj => ({...proj, part1: {...proj.part1, customerName: this.value}}))" />
+                          onchange="appManager.updateProject(proj => ({...proj, part1: {...proj.part1, customerName: this.value}}))" />
                       </div>
                       <div class="group">
                         <label class="text-[10px] font-bold text-slate-400 block mb-1">บริษัทลูกค้า *</label>
                         <input type="text" placeholder="ระบุบริษัท" class="w-full border-b text-sm py-2 outline-none transition-colors ${this.validationError && !p.part1.companyName ? 'border-red-400 placeholder-red-300' : 'border-slate-200 focus:border-emerald-500'}" value="${p.part1.companyName}" 
-                          onchange="app.updateProject(proj => ({...proj, part1: {...proj.part1, companyName: this.value}}))" />
+                          onchange="appManager.updateProject(proj => ({...proj, part1: {...proj.part1, companyName: this.value}}))" />
                       </div>
                       <div class="group">
                         <label class="text-[10px] font-bold text-emerald-600 block mb-1">ชื่อโครงการ *</label>
                         <input type="text" placeholder="ระบุชื่อโครงการ" class="w-full border-b text-sm py-2 font-bold outline-none transition-colors ${this.validationError && !p.part1.projectName ? 'border-red-400 placeholder-red-300 text-red-600' : 'border-emerald-200 text-emerald-700 focus:border-emerald-500'}" value="${p.part1.projectName}" 
-                          onchange="app.updateProject(proj => ({...proj, part1: {...proj.part1, projectName: this.value}}))" />
+                          onchange="appManager.updateProject(proj => ({...proj, part1: {...proj.part1, projectName: this.value}}))" />
                       </div>
                     </div>
                   </div>
@@ -1954,13 +1987,13 @@ removePart5Contractor(idx) {
                   <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 text-emerald-600">
                     <i data-lucide="rotate-ccw" style="width:20px;height:20px"></i> ส่วนที่ 2: การดำเนินการ
                   </h3>
-                  <button onclick="app.addPart2Item()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-emerald-100 transition-all active:scale-95">+ เพิ่มหัวข้อหลัก</button>
+                  <button onclick="appManager.addPart2Item()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-emerald-100 transition-all active:scale-95">+ เพิ่มหัวข้อหลัก</button>
                 </div>
                 <div class="space-y-6">
                   ${p.part2.items.map((item, idx) => `
                     <div class="border border-emerald-50 rounded-2xl p-5 bg-slate-50 relative group shadow-sm">
                       <div class="flex flex-wrap items-center gap-3 mb-4">
-                        <button onclick="app.togglePart2Item(${idx})" class="flex-shrink-0">
+                        <button onclick="appManager.togglePart2Item(${idx})" class="flex-shrink-0">
                           <i data-lucide="${item.checked ? 'check-circle-2' : 'circle'}" style="width:24px;height:24px" class="${item.checked ? 'text-emerald-500' : 'text-slate-300'}"></i>
                         </button>
                         <div class="relative flex-1 group">
@@ -1969,24 +2002,24 @@ removePart5Contractor(idx) {
                             class="w-full px-3 py-1.5 text-sm font-bold bg-white border border-slate-200 rounded-lg shadow-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all outline-none"
                             value="${item.docType}"
                             placeholder="เลือกหรือพิมพ์เอกสาร..."
-                            onchange="app.updatePart2DocType(${idx}, this.value)"
-                            oninput="app.showPart2Suggestions(${idx}, this.value)"
-                            onblur="setTimeout(() => app.hidePart2Suggestions(${idx}), 200)"
-                            onfocus="app.showPart2Suggestions(${idx}, this.value)"
+                            onchange="appManager.updatePart2DocType(${idx}, this.value)"
+                            oninput="appManager.showPart2Suggestions(${idx}, this.value)"
+                            onblur="setTimeout(() => appManager.hidePart2Suggestions(${idx}), 200)"
+                            onfocus="appManager.showPart2Suggestions(${idx}, this.value)"
                             data-part2-input="${idx}"
                           />
                           <div id="suggestions-part2-${idx}" class="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-lg mt-1 max-h-40 overflow-y-auto hidden z-50">
                             ${this.sharedDocOptions.map((opt, i) => `
                               <div class="flex items-center justify-between px-3 py-2 hover:bg-emerald-50 group text-sm">
-                                <div class="cursor-pointer flex-1" onclick="app.selectPart2Doc(${idx}, '${opt}')">
+                                <div class="cursor-pointer flex-1" onclick="appManager.selectPart2Doc(${idx}, '${opt}')">
                                   ${opt}
                                 </div>
-                                <button onclick="app.deleteDocOption('${opt}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all p-1">
+                                <button onclick="appManager.deleteDocOption('${opt}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all p-1">
                                   <i data-lucide="x" style="width:14px;height:14px"></i>
                                 </button>
                               </div>
                             `).join('')}
-                            <div class="border-t border-slate-100 px-3 py-2 bg-emerald-50/30 hover:bg-emerald-50 cursor-pointer text-sm font-bold text-emerald-600" onclick="app.addNewDocOption('part2', ${idx})">
+                            <div class="border-t border-slate-100 px-3 py-2 bg-emerald-50/30 hover:bg-emerald-50 cursor-pointer text-sm font-bold text-emerald-600" onclick="appManager.addNewDocOption('part2', ${idx})">
                               + เพิ่มตัวเลือกใหม่
                             </div>
                           </div>
@@ -1994,12 +2027,12 @@ removePart5Contractor(idx) {
                         <span class="text-[10px] text-slate-400 flex items-center gap-1 ml-auto"><i data-lucide="clock" style="width:12px;height:12px"></i> อัปเดตเมื่อ: ${this.formatDisplayTime(item.lastUpdated)}</span>
                       </div>
                       <textarea placeholder="รายละเอียดงานหรือความต้องการลูกค้า..." class="w-full text-xs p-3 bg-white border border-slate-100 rounded-xl mb-4 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-50 transition-all" 
-                        onchange="app.updatePart2Requirement(${idx}, this.value)">${item.customerRequirement}</textarea>
+                        onchange="appManager.updatePart2Requirement(${idx}, this.value)">${item.customerRequirement}</textarea>
 
                       <div class="ml-4 md:ml-8 space-y-4 border-l-2 border-emerald-100 pl-4 md:pl-6">
                         <div class="space-y-2">
                           <div class="flex items-center gap-2">
-                            <button onclick="app.togglePart2Self(${idx})" class="flex-shrink-0">
+                            <button onclick="appManager.togglePart2Self(${idx})" class="flex-shrink-0">
                               <i data-lucide="${item.isSelf?.checked ? 'check-circle-2' : 'circle'}" style="width:20px;height:20px" class="${item.isSelf?.checked ? 'text-emerald-500' : 'text-slate-300'}"></i>
                             </button>
                             <span class="text-sm font-bold text-slate-600">ทำภายในทีม</span>
@@ -2007,15 +2040,15 @@ removePart5Contractor(idx) {
                           ${item.isSelf?.checked ? `
                             <div class="space-y-2 fade-in">
                                <input type="text" placeholder="ระบุชื่อผู้รับงาน (Staff)..." class="w-full text-xs p-2 bg-white border border-emerald-100 rounded-lg outline-none font-bold focus:border-emerald-400" value="${item.isSelf?.staffName || ''}" 
-                                 onchange="app.updatePart2SelfStaff(${idx}, this.value)" />
+                                 onchange="appManager.updatePart2SelfStaff(${idx}, this.value)" />
                                <textarea placeholder="รายละเอียดการดำเนินงานภายใน..." class="w-full text-xs p-2 bg-white border border-emerald-100 rounded-lg outline-none focus:border-emerald-400" 
-                                 onchange="app.updatePart2SelfDetail(${idx}, this.value)">${item.isSelf?.detail || ''}</textarea>
+                                 onchange="appManager.updatePart2SelfDetail(${idx}, this.value)">${item.isSelf?.detail || ''}</textarea>
                             </div>
                           ` : ''}
                         </div>
                         <div class="space-y-2">
                           <div class="flex items-center gap-2">
-                            <button onclick="app.togglePart2Forward(${idx})" class="flex-shrink-0">
+                            <button onclick="appManager.togglePart2Forward(${idx})" class="flex-shrink-0">
                               <i data-lucide="${item.isForward?.checked ? 'check-circle-2' : 'circle'}" style="width:20px;height:20px" class="${item.isForward?.checked ? 'text-emerald-500' : 'text-slate-300'}"></i>
                             </button>
                             <span class="text-sm font-bold text-slate-600">ส่งต่อ</span>
@@ -2023,14 +2056,14 @@ removePart5Contractor(idx) {
                           ${item.isForward?.checked ? `
                             <div class="space-y-2 fade-in">
                               <input type="text" placeholder="ระบุชื่อผู้รับงาน..." class="w-full text-xs p-2 bg-white border border-emerald-100 rounded-lg outline-none font-bold focus:border-emerald-400" value="${item.isForward?.targetName || ''}" 
-                                onchange="app.updatePart2ForwardName(${idx}, this.value)" />
+                                onchange="appManager.updatePart2ForwardName(${idx}, this.value)" />
                               <textarea placeholder="รายละเอียดการส่งงาน..." class="w-full text-xs p-2 bg-white border border-emerald-100 rounded-lg outline-none focus:border-emerald-400" 
-                                onchange="app.updatePart2ForwardDetail(${idx}, this.value)">${item.isForward?.detail || ''}</textarea>
+                                onchange="appManager.updatePart2ForwardDetail(${idx}, this.value)">${item.isForward?.detail || ''}</textarea>
                             </div>
                           ` : ''}
                         </div>
                       </div>
-                      <button onclick="app.removePart2Item(${idx})" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onclick="appManager.removePart2Item(${idx})" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition-opacity">
                         <i data-lucide="trash-2" style="width:16px;height:16px"></i>
                       </button>
                     </div>
@@ -2045,7 +2078,7 @@ removePart5Contractor(idx) {
                   <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 text-emerald-600">
                     <i data-lucide="history" style="width:20px;height:20px"></i> ส่วนที่ 3: การแก้ไข
                   </h3>
-                  <button onclick="app.addPart3Item()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-emerald-100 transition-all active:scale-95">+ เพิ่มประวัติแก้ไข</button>
+                  <button onclick="appManager.addPart3Item()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-emerald-100 transition-all active:scale-95">+ เพิ่มประวัติแก้ไข</button>
                 </div>
                 <div class="space-y-6">
                   ${p.part3.items.map((item, index) => `
@@ -2058,24 +2091,24 @@ removePart5Contractor(idx) {
                             class="w-full px-3 py-1.5 text-sm font-bold bg-slate-50 border border-slate-100 rounded-lg shadow-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all outline-none"
                             value="${item.docType}"
                             placeholder="เลือกหรือพิมพ์เอกสาร..."
-                            onchange="app.updatePart3DocType(${index}, this.value)"
-                            oninput="app.showPart3Suggestions(${index}, this.value)"
-                            onblur="setTimeout(() => app.hidePart3Suggestions(${index}), 200)"
-                            onfocus="app.showPart3Suggestions(${index}, this.value)"
+                            onchange="appManager.updatePart3DocType(${index}, this.value)"
+                            oninput="appManager.showPart3Suggestions(${index}, this.value)"
+                            onblur="setTimeout(() => appManager.hidePart3Suggestions(${index}), 200)"
+                            onfocus="appManager.showPart3Suggestions(${index}, this.value)"
                             data-part3-input="${index}"
                           />
                           <div id="suggestions-part3-${index}" class="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-lg mt-1 max-h-40 overflow-y-auto hidden z-50">
                             ${this.sharedDocOptions.map((opt, i) => `
                               <div class="flex items-center justify-between px-3 py-2 hover:bg-emerald-50 group text-sm">
-                                <div class="cursor-pointer flex-1" onclick="app.selectPart3Doc(${index}, '${opt}')">
+                                <div class="cursor-pointer flex-1" onclick="appManager.selectPart3Doc(${index}, '${opt}')">
                                   ${opt}
                                 </div>
-                                <button onclick="app.deleteDocOption('${opt}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all p-1">
+                                <button onclick="appManager.deleteDocOption('${opt}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all p-1">
                                   <i data-lucide="x" style="width:14px;height:14px"></i>
                                 </button>
                               </div>
                             `).join('')}
-                            <div class="border-t border-slate-100 px-3 py-2 bg-emerald-50/30 hover:bg-emerald-50 cursor-pointer text-sm font-bold text-emerald-600" onclick="app.addNewDocOption('part3', ${index})">
+                            <div class="border-t border-slate-100 px-3 py-2 bg-emerald-50/30 hover:bg-emerald-50 cursor-pointer text-sm font-bold text-emerald-600" onclick="appManager.addNewDocOption('part3', ${index})">
                               + เพิ่มตัวเลือกใหม่
                             </div>
                           </div>
@@ -2083,12 +2116,12 @@ removePart5Contractor(idx) {
                         <span class="text-[10px] text-slate-400 ml-auto flex items-center gap-1"><i data-lucide="clock" style="width:12px;height:12px"></i> ${this.formatDisplayTime(item.timestamp)}</span>
                       </div>
                       <textarea placeholder="สาเหตุหรือจุดที่ต้องแก้ไข..." class="w-full text-xs p-3 bg-slate-50 border border-slate-100 rounded-xl mb-4 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-50 transition-all" 
-                        onchange="app.updatePart3Description(${index}, this.value)">${item.description}</textarea>
+                        onchange="appManager.updatePart3Description(${index}, this.value)">${item.description}</textarea>
                       
                       <div class="ml-4 md:ml-8 space-y-4 border-l-2 border-emerald-200 pl-4 md:pl-6 mb-2">
                         <div class="space-y-2">
                           <div class="flex items-center gap-2">
-                            <button onclick="app.togglePart3Self(${index})" class="flex-shrink-0">
+                            <button onclick="appManager.togglePart3Self(${index})" class="flex-shrink-0">
                               <i data-lucide="${item.isSelf?.checked ? 'check-circle-2' : 'circle'}" style="width:20px;height:20px" class="${item.isSelf?.checked ? 'text-emerald-500' : 'text-slate-300'}"></i>
                             </button>
                             <span class="text-sm font-bold text-slate-600">ทำภายในทีม</span>
@@ -2096,15 +2129,15 @@ removePart5Contractor(idx) {
                           ${item.isSelf?.checked ? `
                             <div class="space-y-2 fade-in">
                                <input type="text" placeholder="ระบุชื่อผู้แก้ไข (Staff)..." class="w-full text-xs p-2 bg-slate-50 border border-emerald-100 rounded-lg outline-none font-bold focus:border-emerald-400" value="${item.isSelf?.staffName || ''}" 
-                                 onchange="app.updatePart3SelfStaff(${index}, this.value)" />
+                                 onchange="appManager.updatePart3SelfStaff(${index}, this.value)" />
                                <textarea placeholder="รายละเอียดการแก้ไขภายใน..." class="w-full text-xs p-2 bg-slate-50 border border-emerald-100 rounded-lg outline-none focus:border-emerald-400" 
-                                 onchange="app.updatePart3SelfDetail(${index}, this.value)">${item.isSelf?.detail || ''}</textarea>
+                                 onchange="appManager.updatePart3SelfDetail(${index}, this.value)">${item.isSelf?.detail || ''}</textarea>
                             </div>
                           ` : ''}
                         </div>
                         <div class="space-y-2">
                           <div class="flex items-center gap-2">
-                            <button onclick="app.togglePart3Forward(${index})" class="flex-shrink-0">
+                            <button onclick="appManager.togglePart3Forward(${index})" class="flex-shrink-0">
                               <i data-lucide="${item.isForward?.checked ? 'check-circle-2' : 'circle'}" style="width:20px;height:20px" class="${item.isForward?.checked ? 'text-emerald-500' : 'text-slate-300'}"></i>
                             </button>
                             <span class="text-sm font-bold text-slate-600">ส่งต่อ</span>
@@ -2112,15 +2145,15 @@ removePart5Contractor(idx) {
                           ${item.isForward?.checked ? `
                             <div class="space-y-2 fade-in">
                               <input type="text" placeholder="ระบุชื่อผู้รับแก้ไข..." class="w-full text-xs p-2 bg-slate-50 border border-emerald-100 rounded-lg outline-none font-bold focus:border-emerald-400" value="${item.isForward?.targetName || ''}" 
-                                onchange="app.updatePart3ForwardName(${index}, this.value)" />
+                                onchange="appManager.updatePart3ForwardName(${index}, this.value)" />
                               <textarea placeholder="รายละเอียดการส่งแก้ไข..." class="w-full text-xs p-2 bg-slate-50 border border-emerald-100 rounded-lg outline-none focus:border-emerald-400" 
-                                onchange="app.updatePart3ForwardDetail(${index}, this.value)">${item.isForward?.detail || ''}</textarea>
+                                onchange="appManager.updatePart3ForwardDetail(${index}, this.value)">${item.isForward?.detail || ''}</textarea>
                             </div>
                           ` : ''}
                         </div>
                       </div>
 
-                      <button onclick="app.removePart3Item(${index})" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onclick="appManager.removePart3Item(${index})" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
                         <i data-lucide="trash-2" style="width:16px;height:16px"></i>
                       </button>
                     </div>
@@ -2135,12 +2168,12 @@ removePart5Contractor(idx) {
                   <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 text-emerald-600">
                     <i data-lucide="send" style="width:20px;height:20px"></i> ส่วนที่ 4: การส่งข้อมูลให้ลูกค้า
                   </h3>
-                  <button onclick="app.addPart4Item()" class="text-xs font-bold bg-emerald-600 text-white px-4 py-2 rounded-xl hover:bg-emerald-700 shadow-md shadow-emerald-100 transition-all active:scale-95">+ เพิ่มรายการส่งงาน</button>
+                  <button onclick="appManager.addPart4Item()" class="text-xs font-bold bg-emerald-600 text-white px-4 py-2 rounded-xl hover:bg-emerald-700 shadow-md shadow-emerald-100 transition-all active:scale-95">+ เพิ่มรายการส่งงาน</button>
                 </div>
                 <div class="space-y-3">
                   ${p.part4.items.map((item, idx) => `
                     <div class="flex items-center gap-4 bg-white p-4 rounded-2xl border border-emerald-100 group shadow-sm hover:border-emerald-300 transition-colors">
-                      <button onclick="app.togglePart4Item(${idx})" class="flex-shrink-0">
+                      <button onclick="appManager.togglePart4Item(${idx})" class="flex-shrink-0">
                         <i data-lucide="${item.checked ? 'check-circle-2' : 'circle'}" style="width:22px;height:22px" class="${item.checked ? 'text-emerald-500' : 'text-slate-300'}"></i>
                       </button>
                       <div class="relative flex-1">
@@ -2149,30 +2182,30 @@ removePart5Contractor(idx) {
                           class="w-full px-3 py-1.5 text-sm font-bold bg-slate-50 border border-slate-100 rounded-lg shadow-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all outline-none"
                           value="${item.docType}"
                           placeholder="เลือกหรือพิมพ์เอกสาร..."
-                          onchange="app.updatePart4DocType(${idx}, this.value)"
-                          oninput="app.showPart4Suggestions(${idx}, this.value)"
-                          onblur="setTimeout(() => app.hidePart4Suggestions(${idx}), 200)"
-                          onfocus="app.showPart4Suggestions(${idx}, this.value)"
+                          onchange="appManager.updatePart4DocType(${idx}, this.value)"
+                          oninput="appManager.showPart4Suggestions(${idx}, this.value)"
+                          onblur="setTimeout(() => appManager.hidePart4Suggestions(${idx}), 200)"
+                          onfocus="appManager.showPart4Suggestions(${idx}, this.value)"
                           data-part4-input="${idx}"
                         />
                         <div id="suggestions-part4-${idx}" class="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-lg mt-1 max-h-40 overflow-y-auto hidden z-50">
                           ${this.sharedDocOptions.map((opt, i) => `
                             <div class="flex items-center justify-between px-3 py-2 hover:bg-emerald-50 group text-sm">
-                              <div class="cursor-pointer flex-1" onclick="app.selectPart4Doc(${idx}, '${opt}')">
+                              <div class="cursor-pointer flex-1" onclick="appManager.selectPart4Doc(${idx}, '${opt}')">
                                 ${opt}
                               </div>
-                              <button onclick="app.deleteDocOption('${opt}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all p-1">
+                              <button onclick="appManager.deleteDocOption('${opt}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all p-1">
                                 <i data-lucide="x" style="width:14px;height:14px"></i>
                               </button>
                             </div>
                           `).join('')}
-                          <div class="border-t border-slate-100 px-3 py-2 bg-emerald-50/30 hover:bg-emerald-50 cursor-pointer text-sm font-bold text-emerald-600" onclick="app.addNewDocOption('part4', ${idx})">
+                          <div class="border-t border-slate-100 px-3 py-2 bg-emerald-50/30 hover:bg-emerald-50 cursor-pointer text-sm font-bold text-emerald-600" onclick="appManager.addNewDocOption('part4', ${idx})">
                             + เพิ่มตัวเลือกใหม่
                           </div>
                         </div>
                       </div>
                       <span class="text-[10px] text-slate-400 ml-auto flex items-center gap-1"><i data-lucide="clock" style="width:10px;height:10px"></i> ${this.formatDisplayTime(item.timestamp)}</span>
-                      <button onclick="app.removePart4Item(${idx})" class="text-slate-300 hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onclick="appManager.removePart4Item(${idx})" class="text-slate-300 hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition-opacity">
                         <i data-lucide="trash-2" style="width:16px;height:16px"></i>
                       </button>
                     </div>
@@ -2190,20 +2223,20 @@ removePart5Contractor(idx) {
                   <div class="bg-white border border-emerald-100 p-5 rounded-2xl shadow-sm">
                     <div class="flex justify-between items-center mb-4">
                        <div class="flex items-center gap-2 font-bold text-slate-700"><i data-lucide="users" style="width:18px;height:18px" class="text-emerald-500"></i> ติดตั้งโดยทีมงานภายใน</div>
-                       <button onclick="app.addPart5InternalStaff()" class="text-[10px] bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-black hover:bg-emerald-200 transition-colors">+ เพิ่มรายชื่อ</button>
+                       <button onclick="appManager.addPart5InternalStaff()" class="text-[10px] bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-black hover:bg-emerald-200 transition-colors">+ เพิ่มรายชื่อ</button>
                     </div>
                     <div class="space-y-4">
                       ${p.part5.internalStaff.map((staff, idx) => `
                         <div class="p-3 bg-slate-50 rounded-xl border border-emerald-50 group relative">
                           <div class="flex gap-2 mb-2">
                             <input type="text" placeholder="ระบุชื่อพนักงานติดตั้ง..." class="flex-1 p-2 bg-white border border-slate-100 rounded-lg text-xs outline-none font-bold focus:border-emerald-400" value="${staff.name}" 
-                              onchange="app.updatePart5InternalStaffName(${idx}, this.value)" />
-                            <button onclick="app.removePart5InternalStaff(${idx})" class="text-slate-300 hover:text-red-500 transition-colors">
+                              onchange="appManager.updatePart5InternalStaffName(${idx}, this.value)" />
+                            <button onclick="appManager.removePart5InternalStaff(${idx})" class="text-slate-300 hover:text-red-500 transition-colors">
                               <i data-lucide="trash-2" style="width:16px;height:16px"></i>
                             </button>
                           </div>
                           <textarea placeholder="รายละเอียดการดำเนินงานภายใน..." class="w-full p-2 bg-white border border-slate-100 rounded-lg text-xs outline-none focus:border-emerald-400" 
-                            onchange="app.updatePart5InternalStaffDetail(${idx}, this.value)">${staff.detail}</textarea>
+                            onchange="appManager.updatePart5InternalStaffDetail(${idx}, this.value)">${staff.detail}</textarea>
                         </div>
                       `).join('')}
                     </div>
@@ -2211,20 +2244,20 @@ removePart5Contractor(idx) {
                   <div class="bg-white border border-emerald-100 p-5 rounded-2xl shadow-sm">
                     <div class="flex justify-between items-center mb-4">
                        <div class="flex items-center gap-2 font-bold text-slate-700"><i data-lucide="truck" style="width:18px;height:18px" class="text-emerald-500"></i> ติดตั้งโดยผู้รับเหมาภายนอก</div>
-                       <button onclick="app.addPart5Contractor()" class="text-[10px] bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-black hover:bg-emerald-200 transition-colors">+ เพิ่มผู้รับเหมา</button>
+                       <button onclick="appManager.addPart5Contractor()" class="text-[10px] bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-black hover:bg-emerald-200 transition-colors">+ เพิ่มผู้รับเหมา</button>
                     </div>
                     <div class="space-y-4">
                       ${p.part5.contractors.map((contractor, idx) => `
                         <div class="p-3 bg-slate-50 rounded-xl border border-emerald-50 group relative">
                           <div class="flex gap-2 mb-2">
                             <input type="text" placeholder="ชื่อผู้รับเหมา / บริษัท" class="flex-1 p-2 bg-white border border-slate-100 rounded-lg text-xs outline-none font-bold focus:border-emerald-400" value="${contractor.name}" 
-                              onchange="app.updatePart5ContractorName(${idx}, this.value)" />
-                            <button onclick="app.removePart5Contractor(${idx})" class="text-slate-300 hover:text-red-500 transition-colors">
+                              onchange="appManager.updatePart5ContractorName(${idx}, this.value)" />
+                            <button onclick="appManager.removePart5Contractor(${idx})" class="text-slate-300 hover:text-red-500 transition-colors">
                               <i data-lucide="trash-2" style="width:16px;height:16px"></i>
                             </button>
                           </div>
                           <textarea placeholder="รายละเอียดการสั่งงาน..." class="w-full p-2 bg-white border border-slate-100 rounded-lg text-xs outline-none focus:border-emerald-400" 
-                            onchange="app.updatePart5ContractorDetail(${idx}, this.value)">${contractor.detail}</textarea>
+                            onchange="appManager.updatePart5ContractorDetail(${idx}, this.value)">${contractor.detail}</textarea>
                         </div>
                       `).join('')}
                     </div>
@@ -2232,7 +2265,7 @@ removePart5Contractor(idx) {
                   <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm">
                     <label class="text-[10px] font-black text-emerald-600 uppercase mb-2 block tracking-widest">กำหนดการติดตั้ง</label>
                     <input type="date" class="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all" value="${p.part5.installDate}"
-                      onchange="app.updateProject(proj => ({...proj, part5: {...proj.part5, installDate: this.value}}))" />
+                      onchange="appManager.updateProject(proj => ({...proj, part5: {...proj.part5, installDate: this.value}}))" />
                   </div>
                 </div>
               </section>
@@ -2247,7 +2280,7 @@ removePart5Contractor(idx) {
                 <div class="bg-white p-6 rounded-2xl border border-green-100 shadow-sm">
                   <label class="text-[10px] font-black text-green-600 uppercase ml-1 block mb-2">วันที่ส่งมอบงานสำเร็จ</label>
                   <input type="date" class="w-full p-3 bg-slate-50 border border-green-100 rounded-xl text-sm outline-none" value="${p.part6.deliveryDate}"
-                    onchange="app.updateProject(proj => ({...proj, part6: {...proj.part6, deliveryDate: this.value}}))" />
+                    onchange="appManager.updateProject(proj => ({...proj, part6: {...proj.part6, deliveryDate: this.value}}))" />
                 </div>
               </section>
               ` : ''}
@@ -2264,18 +2297,18 @@ removePart5Contractor(idx) {
                       <div>
                         <label class="text-[10px] text-slate-400 uppercase font-bold ml-1 mb-2 block tracking-wider">วันที่เริ่มการรับประกัน</label>
                         <input type="date" class="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none text-slate-700 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all" value="${p.part7.startDate}" 
-                          onchange="app.updateProject(proj => ({...proj, part7: {...proj.part7, startDate: this.value}}))" />
+                          onchange="appManager.updateProject(proj => ({...proj, part7: {...proj.part7, startDate: this.value}}))" />
                       </div>
                       <div>
                         <label class="text-[10px] text-slate-400 uppercase font-bold ml-1 mb-2 block tracking-wider">ระยะเวลารับประกัน (จำนวนเดือน)</label>
                         <div class="flex gap-2 items-center mb-3">
                           <input type="number" placeholder="ตัวอย่าง: 12" class="flex-1 p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none text-slate-700 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all" value="${p.part7.durationMonths}" 
-                            onchange="app.updateProject(proj => ({...proj, part7: {...proj.part7, durationMonths: this.value}}))" />
+                            onchange="appManager.updateProject(proj => ({...proj, part7: {...proj.part7, durationMonths: this.value}}))" />
                           <span class="text-slate-500 font-bold text-sm">เดือน</span>
                         </div>
                         <div class="flex flex-wrap gap-2">
                           ${['6','12','24','36'].map(m => `
-                            <button onclick="app.updateProject(proj => ({...proj, part7: {...proj.part7, durationMonths: '${m}'}}))" 
+                            <button onclick="appManager.updateProject(proj => ({...proj, part7: {...proj.part7, durationMonths: '${m}'}}))" 
                               class="text-[10px] px-4 py-1.5 rounded-lg border font-black transition-all ${p.part7.durationMonths === m ? 'bg-emerald-500 border-emerald-500 text-white shadow-md shadow-emerald-100' : 'border-slate-200 text-slate-400 hover:border-emerald-300 hover:text-emerald-500 bg-white'}">
                               ${m} ด.
                             </button>
@@ -2308,7 +2341,7 @@ render() {
       }
     }
 
-    // สำคัญ: ต้องเป็น window.appManager เพื่อให้ตรงกับ onclick ใน HTML
+// สำคัญ: ต้องเป็น window.appManager เพื่อให้ตรงกับคำเรียกในไฟล์ HTML ของคุณ
     window.appManager = new ProjectManager();
   </script>
  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e04e72135489958',t:'MTc3NDE3OTQzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
