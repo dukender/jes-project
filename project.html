@@ -37,13 +37,17 @@
   const firebaseApp = initializeApp(firebaseConfig);
   const db = getFirestore(firebaseApp);
 
-  // Initialize Element SDK
-  window.elementSdk?.init({
-    defaultConfig: {},
-    onConfigChange: async () => {},
-    mapToCapabilities: () => ({ recolorables: [], borderables: [], fontEditable: undefined, fontSizeable: undefined }),
-    mapToEditPanelValues: () => new Map()
-  });
+  // Initialize Element SDK (คอมเมนต์ส่วนนี้ทิ้งไป เพื่อแก้ปัญหา Error: window.elementSdk.init is not a function)
+  /*
+  if (window.elementSdk && typeof window.elementSdk.init === 'function') {
+    window.elementSdk.init({
+      defaultConfig: {},
+      onConfigChange: async () => {},
+      mapToCapabilities: () => ({ recolorables: [], borderables: [], fontEditable: undefined, fontSizeable: undefined }),
+      mapToEditPanelValues: () => new Map()
+    });
+  }
+  */
 
   class ProjectManager {
     constructor() {
@@ -74,6 +78,7 @@
     initRealtimeData() {
       const docRef = doc(db, "projects", "main_data");
       onSnapshot(docRef, (snapshot) => {
+        console.log("✅ เชื่อมต่อ Firebase สำเร็จและดึงข้อมูลแบบ Realtime แล้ว!"); // เพิ่ม log ให้เช็ค
         if (snapshot.exists()) {
           const data = snapshot.data();
           this.projects = data.projectList || [];
@@ -94,6 +99,7 @@
           docOptions: this.sharedDocOptions,
           lastUpdated: new Date().toISOString()
         });
+        console.log("☁️ บันทึกข้อมูลขึ้น Firebase สำเร็จ!"); // เพิ่ม log ให้เช็คเวลาเซฟข้อมูล
       } catch (error) {
         console.error("Error saving to Firebase: ", error);
       }
