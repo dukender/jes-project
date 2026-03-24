@@ -37,18 +37,6 @@
   const firebaseApp = initializeApp(firebaseConfig);
   const db = getFirestore(firebaseApp);
 
-  // Initialize Element SDK (คอมเมนต์ส่วนนี้ทิ้งไป เพื่อแก้ปัญหา Error: window.elementSdk.init is not a function)
-  /*
-  if (window.elementSdk && typeof window.elementSdk.init === 'function') {
-    window.elementSdk.init({
-      defaultConfig: {},
-      onConfigChange: async () => {},
-      mapToCapabilities: () => ({ recolorables: [], borderables: [], fontEditable: undefined, fontSizeable: undefined }),
-      mapToEditPanelValues: () => new Map()
-    });
-  }
-  */
-
   class ProjectManager {
     constructor() {
       // ตั้งค่าเริ่มต้น (ไม่ต้องดึงจาก LocalStorage แล้ว)
@@ -200,7 +188,8 @@
           companyName: '',
           projectName: '',
           salesName: '',
-          channel: 'Line'
+          channel: 'Line',
+          jobDetails: '' // เพิ่มฟิลด์รายละเอียดงานเบื้องต้น
         },
         part2: { items: [] },
         part3: { items: [] },
@@ -218,7 +207,6 @@
       this.activeProjectId = newProject.id;
       this.isNewProject = true; // แฟล็กไว้ว่านี่คือการเพิ่มงานใหม่ (ยังไม่สมบูรณ์)
       
-      // --- จุดสำคัญ: บังคับรีเซ็ตสถานะการกาง (Expanded) ทุกส่วนใหม่หมด ---
       // กำหนดให้ part1 เป็น true และส่วนที่เหลือ (2-7) เป็น false ทั้งหมด
       this.expandedSections = {
         part1: true,
@@ -341,7 +329,14 @@
       this.render();
     }
 
-    // --- เพิ่มฟังก์ชันใหม่สำหรับการกดย้อนกลับโดยไม่สนการเช็คเงื่อนไข ---
+    // --- เพิ่มฟังก์ชันเปลี่ยนแท็บและเลื่อนจอขึ้น ---
+    goToNextTab(nextTabId) {
+      this.activeTab = nextTabId;
+      this.render();
+      window.scrollTo({ top: 0, behavior: 'smooth' }); // เลื่อนจอขึ้นบนสุดอย่างนุ่มนวล
+    }
+
+    // --- ฟังก์ชันสำหรับการกดย้อนกลับโดยไม่สนการเช็คเงื่อนไข ---
     goBack() {
       // หากกดย้อนกลับในขณะที่อยู่ในโหมด "สร้างงานใหม่" ให้ลบข้อมูลร่างทิ้งทันที
       if (this.isNewProject) {
@@ -1299,7 +1294,7 @@
                 </div>
               </div>
             </div>
-            <button onclick="app.closeProject()" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md hover:bg-blue-700 transition-all w-full md:w-auto">
+            <button onclick="app.closeProject()" class="bg-green-600 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md hover:bg-green-700 transition-all w-full md:w-auto">
               ${this.isSaving ? "กำลังบันทึก..." : "บันทึกและออก"}
             </button>
           </div>
@@ -1409,6 +1404,20 @@
                       </div>
                     </div>
                   </div>
+
+                  <!-- เพิ่มกรอบรายละเอียดงาน (Job Details) -->
+                  <div class="mt-6 bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">รายละเอียดงาน</label>
+                     <textarea placeholder="ระบุรายละเอียดงาน, ความต้องการเบื้องต้น, หรือข้อมูลอื่นๆ ที่จำเป็น..." class="w-full bg-white border border-slate-200 rounded-xl text-sm p-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all min-h-[100px]" onchange="app.updateProject(proj => ({...proj, part1: {...proj.part1, jobDetails: this.value}}))">${p.part1.jobDetails || ''}</textarea>
+                  </div>
+
+                </div>
+
+                <!-- ปุ่มนำทางถัดไป (ส่วนที่ 1) -->
+                <div class="mt-8 flex justify-end pt-6 border-t border-slate-100">
+                  <button onclick="app.goToNextTab('part2')" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2 active:scale-95">
+                    ไปที่ส่วนที่ 2: การดำเนินการ <i data-lucide="arrow-right" style="width:18px;height:18px"></i>
+                  </button>
                 </div>
               </section>
               ` : ''}
@@ -1501,6 +1510,13 @@
                     </div>
                   `).join('')}
                 </div>
+                
+                <!-- ปุ่มนำทางถัดไป (ส่วนที่ 2) -->
+                <div class="mt-8 flex justify-end pt-6 border-t border-slate-100">
+                  <button onclick="app.goToNextTab('part3')" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2 active:scale-95">
+                    ไปที่ส่วนที่ 3: การแก้ไข <i data-lucide="arrow-right" style="width:18px;height:18px"></i>
+                  </button>
+                </div>
               </section>
               ` : ''}
 			  
@@ -1591,6 +1607,13 @@
                     </div>
                   `).join('')}
                 </div>
+                
+                <!-- ปุ่มนำทางถัดไป (ส่วนที่ 3) -->
+                <div class="mt-8 flex justify-end pt-6 border-t border-slate-100">
+                  <button onclick="app.goToNextTab('part4')" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2 active:scale-95">
+                    ไปที่ส่วนที่ 4: การส่งข้อมูล <i data-lucide="arrow-right" style="width:18px;height:18px"></i>
+                  </button>
+                </div>
               </section>
               ` : ''}
 
@@ -1642,6 +1665,13 @@
                       </button>
                     </div>
                   `).join('')}
+                </div>
+                
+                <!-- ปุ่มนำทางถัดไป (ส่วนที่ 4) -->
+                <div class="mt-8 flex justify-end pt-6 border-t border-slate-100">
+                  <button onclick="app.goToNextTab('part5')" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2 active:scale-95">
+                    ไปที่ส่วนที่ 5: การติดตั้ง <i data-lucide="arrow-right" style="width:18px;height:18px"></i>
+                  </button>
                 </div>
               </section>
               ` : ''}
@@ -1700,6 +1730,13 @@
                       onchange="app.updateProject(proj => ({...proj, part5: {...proj.part5, installDate: this.value}}))" />
                   </div>
                 </div>
+                
+                <!-- ปุ่มนำทางถัดไป (ส่วนที่ 5) -->
+                <div class="mt-8 flex justify-end pt-6 border-t border-slate-100">
+                  <button onclick="app.goToNextTab('part6')" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2 active:scale-95">
+                    ไปที่ส่วนที่ 6: การส่งมอบงาน <i data-lucide="arrow-right" style="width:18px;height:18px"></i>
+                  </button>
+                </div>
               </section>
               ` : ''}
 
@@ -1713,6 +1750,13 @@
                   <label class="text-[10px] font-black text-blue-600 uppercase ml-1 block mb-2">วันที่ส่งมอบงานสำเร็จ</label>
                   <input type="date" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" value="${p.part6.deliveryDate}"
                     onchange="app.updateProject(proj => ({...proj, part6: {...proj.part6, deliveryDate: this.value}}))" />
+                </div>
+                
+                <!-- ปุ่มนำทางถัดไป (ส่วนที่ 6) -->
+                <div class="mt-8 flex justify-end pt-6 border-t border-slate-100">
+                  <button onclick="app.goToNextTab('part7')" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2 active:scale-95">
+                    ไปที่ส่วนที่ 7: การรับประกัน <i data-lucide="arrow-right" style="width:18px;height:18px"></i>
+                  </button>
                 </div>
               </section>
               ` : ''}
@@ -1754,6 +1798,13 @@
                       <div class="text-3xl text-blue-600 font-black tracking-tight">${warranty.expiry}</div>
                     </div>
                   </div>
+                </div>
+                
+                <!-- ขั้นตอนสุดท้าย: ปุ่มบันทึก -->
+                <div class="mt-8 flex justify-end pt-6 border-t border-slate-100">
+                  <button onclick="app.closeProject()" class="bg-green-600 hover:bg-green-700 text-white px-10 py-4 rounded-2xl font-black text-base shadow-lg transition-all flex items-center gap-2 active:scale-95">
+                    <i data-lucide="save" style="width:20px;height:20px"></i> บันทึกข้อมูลและเสร็จสิ้น
+                  </button>
                 </div>
               </section>
               ` : ''}
