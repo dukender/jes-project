@@ -6,6 +6,7 @@
   <title>Project for SaleTeam</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="/_sdk/element_sdk.js"></script>
   <style>
     html, body { height: 100%; width: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; }
@@ -41,6 +42,11 @@
       this.projects = [];
       this.sharedDocOptions = ["BOQ", "Datasheet", "Price list", "PO", "PR"];
       this.activeProjectId = null;
+      this.currentView = 'list'; // เพิ่ม state สำหรับจัดการหน้า Dashboard vs List
+      this.dashboardYear = new Date().getFullYear(); // เพิ่ม state เก็บปีของ Dashboard
+      this.dashboardChart = null; // เก็บ instance ของกราฟ
+      this.monthlyData = [];
+      this.monthNames = [];
       this.searchQuery = '';
       this.filterStatus = 'ทั้งหมด';
       this.filterDate = '';
@@ -144,7 +150,8 @@
           this.toggleLostJob(projectId);
         }
         const monthPickerContainer = document.getElementById('monthPickerContainer');
-        if (monthPickerContainer && !monthPickerContainer.contains(e.target)) {
+        // แก้ไข: ใช้ e.composedPath() เพื่อเช็คว่าคลิกอยู่ข้างในจริงๆ แม้ Element ภายในจะถูก Re-render
+        if (monthPickerContainer && !e.composedPath().includes(monthPickerContainer)) {
           this.closeMonthPicker();
         }
       });
@@ -364,6 +371,69 @@
       this.activeProjectId = null;
       this.validationError = false;
       this.render();
+    }
+
+    goToDashboard() {
+      this.currentView = 'dashboard';
+      this.render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    goToList() {
+      this.currentView = 'list';
+      this.render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    setDashboardYear(year) {
+      this.dashboardYear = parseInt(year);
+      this.render();
+    }
+
+    initDashboardChart() {
+      const ctx = document.getElementById('monthlyChart');
+      if (!ctx) return;
+
+      if (this.dashboardChart) {
+        this.dashboardChart.destroy();
+      }
+
+      this.dashboardChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: this.monthNames,
+          datasets: [
+            {
+              label: 'ได้งานแล้ว',
+              data: this.monthlyData.map(d => d.won),
+              backgroundColor: '#10b981', // green-500
+              borderRadius: 4
+            },
+            {
+              label: 'ไม่ได้งาน',
+              data: this.monthlyData.map(d => d.lost),
+              backgroundColor: '#ef4444', // red-500
+              borderRadius: 4
+            },
+            {
+              label: 'กำลังดำเนินการ/อื่นๆ',
+              data: this.monthlyData.map(d => d.inProgress),
+              backgroundColor: '#f59e0b', // amber-500
+              borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, ticks: { precision: 0 } }
+          },
+          plugins: {
+            legend: { position: 'top' }
+          }
+        }
+      });
     }
 
 	closeProject() {
@@ -829,7 +899,7 @@
         ...p,
         part5: {
           ...p.part5,
-          internalStaff: [...p.part5.internalStaff, { id: Date.now(), name: '', detail: '' }]
+          internalStaff: [...p.part5.internalStaff, { id: Date.now(), name: '', detail: '', siteDate: '' }]
         }
       }));
     }
@@ -837,6 +907,13 @@
     updatePart5InternalStaffName(idx, value) {
       this.updateProject(p => {
         p.part5.internalStaff[idx].name = value;
+        return p;
+      });
+    }
+
+    updatePart5InternalStaffDate(idx, value) {
+      this.updateProject(p => {
+        p.part5.internalStaff[idx].siteDate = value;
         return p;
       });
     }
@@ -867,7 +944,7 @@
         ...p,
         part5: {
           ...p.part5,
-          contractors: [...p.part5.contractors, { id: Date.now(), name: '', detail: '' }]
+          contractors: [...p.part5.contractors, { id: Date.now(), name: '', detail: '', siteDate: '' }]
         }
       }));
     }
@@ -875,6 +952,13 @@
     updatePart5ContractorName(idx, value) {
       this.updateProject(p => {
         p.part5.contractors[idx].name = value;
+        return p;
+      });
+    }
+
+    updatePart5ContractorDate(idx, value) {
+      this.updateProject(p => {
+        p.part5.contractors[idx].siteDate = value;
         return p;
       });
     }
@@ -1081,7 +1165,10 @@
             (p.part1.companyName || '').toLowerCase().includes(this.searchQuery.toLowerCase());
           
           const matchesStatus = this.filterStatus === 'ทั้งหมด' || p.status === this.filterStatus;
-          const matchesDate = !this.filterDate || p.createdAt.startsWith(this.filterDate);
+          
+          // แก้ไขให้การกรองเดือน/ปี อ้างอิงจากวันที่รับงานเป็นหลัก
+          const targetDate = p.part1?.receivedDate || p.createdAt || '';
+          const matchesDate = !this.filterDate || targetDate.startsWith(this.filterDate);
 
           return matchesSearch && matchesStatus && matchesDate;
         })
@@ -1115,9 +1202,14 @@
                   </h1>
                 </div>
                 
-                <button onclick="app.createNewProject()" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 transition-all w-full md:w-auto justify-center text-lg">
-                  <i data-lucide="plus" style="width:24px;height:24px"></i> เพิ่มงานใหม่
-                </button>
+                <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                  <button onclick="app.goToDashboard()" class="bg-white text-blue-600 border border-blue-200 px-6 py-4 rounded-2xl font-black flex items-center gap-2 shadow-sm hover:shadow-md hover:bg-blue-50 transition-all justify-center text-lg">
+                    <i data-lucide="bar-chart-2" style="width:24px;height:24px"></i> Dashboard
+                  </button>
+                  <button onclick="app.createNewProject()" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 transition-all w-full md:w-auto justify-center text-lg">
+                    <i data-lucide="plus" style="width:24px;height:24px"></i> เพิ่มงานใหม่
+                  </button>
+                </div>
               </div>
 
               <!-- Stats Cards -->
@@ -1449,9 +1541,21 @@
                           <i data-lucide="${p.part1.received ? 'check-circle-2' : 'circle'}" style="width:24px;height:24px" class="${p.part1.received ? 'text-blue-500' : 'text-slate-300'}"></i>
                         </button>
                         <span class="font-bold text-slate-700">รับงานแล้ว</span>
-                        ${p.part1.receivedDate ? `<span class="text-[10px] text-blue-600 font-medium italic ml-auto">${this.formatDisplayTime(p.part1.receivedDate)}</span>` : ''}
                       </div>
                       <div class="space-y-4">
+                        <div>
+                          <label class="text-[10px] font-bold text-slate-400 mb-1 block uppercase tracking-wider">วันที่รับงาน</label>
+                          <div class="flex items-center gap-2">
+                            <i data-lucide="calendar" style="width:16px;height:16px" class="text-blue-500"></i>
+                            <input type="date" class="w-full bg-transparent border-b text-sm py-1 outline-none transition-colors border-blue-200 focus:border-blue-500 text-slate-700 cursor-pointer" 
+                              value="${p.part1.receivedDate ? new Date(p.part1.receivedDate).toISOString().split('T')[0] : ''}" 
+                              onchange="app.updateProject(proj => { 
+                                const d = new Date(this.value); 
+                                return {...proj, part1: {...proj.part1, receivedDate: isNaN(d) ? '' : d.toISOString()}}; 
+                              })" 
+                              ${!p.part1.received ? 'disabled opacity-50' : ''} />
+                          </div>
+                        </div>
                         <div>
                           <label class="text-[10px] font-bold text-slate-400 mb-1 block uppercase tracking-wider">ชื่อเซลล์ผู้รับผิดชอบ</label>
                           <input type="text" placeholder="ระบุชื่อเซลล์ *" class="w-full bg-transparent border-b text-sm py-1 outline-none transition-colors ${this.validationError && !p.part1.salesName ? 'border-red-400 placeholder-red-300' : 'border-blue-200 focus:border-blue-500'}" value="${p.part1.salesName}" 
@@ -1792,16 +1896,21 @@
                     <div class="space-y-4">
                       ${p.part5.internalStaff.map((staff, idx) => `
                         <div class="p-3 bg-slate-50 rounded-xl border border-blue-50 group relative">
-                          <div class="flex gap-2 mb-2">
-                            <input type="text" placeholder="ระบุชื่อพนักงานติดตั้ง..." class="flex-1 p-2 bg-white border border-slate-100 rounded-lg text-xs outline-none font-bold focus:border-blue-400" value="${staff.name}" 
+                          <div class="flex flex-wrap md:flex-nowrap gap-2 mb-2 items-center">
+                            <input type="text" placeholder="ระบุชื่อพนักงานติดตั้ง..." class="flex-1 min-w-[150px] p-2 bg-white border border-slate-100 rounded-lg text-xs outline-none font-bold focus:border-blue-400" value="${staff.name || ''}" 
                               onchange="app.updatePart5InternalStaffName(${idx}, this.value)" />
-                            <button onclick="app.removePart5InternalStaff(${idx})" class="text-slate-300 hover:text-red-500 transition-colors">
-                              <i data-lucide="trash-2" style="width:16px;height:16px"></i>
-                            </button>
+                            <div class="flex items-center gap-2 w-full md:w-auto">
+                              <label class="text-[10px] text-slate-500 font-bold whitespace-nowrap">วันที่เข้าหน้างาน:</label>
+                              <input type="date" class="w-full md:w-[125px] p-2 bg-white border border-slate-100 rounded-lg text-xs outline-none text-slate-700 focus:border-blue-400 cursor-pointer" value="${staff.siteDate || ''}" 
+                                onchange="app.updatePart5InternalStaffDate(${idx}, this.value)" />
+                              <button onclick="app.removePart5InternalStaff(${idx})" class="text-slate-300 hover:text-red-500 transition-colors shrink-0">
+                                <i data-lucide="trash-2" style="width:16px;height:16px"></i>
+                              </button>
+                            </div>
                           </div>
                           <textarea placeholder="รายละเอียดการดำเนินงานภายใน..." class="w-full p-2 bg-white border border-slate-100 rounded-lg text-xs outline-none focus:border-blue-400 auto-resize-textarea resize-none overflow-hidden" 
                             oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px';"
-                            onchange="app.updatePart5InternalStaffDetail(${idx}, this.value)">${staff.detail}</textarea>
+                            onchange="app.updatePart5InternalStaffDetail(${idx}, this.value)">${staff.detail || ''}</textarea>
                         </div>
                       `).join('')}
                     </div>
@@ -1814,16 +1923,21 @@
                     <div class="space-y-4">
                       ${p.part5.contractors.map((contractor, idx) => `
                         <div class="p-3 bg-slate-50 rounded-xl border border-blue-50 group relative">
-                          <div class="flex gap-2 mb-2">
-                            <input type="text" placeholder="ชื่อผู้รับเหมา / บริษัท" class="flex-1 p-2 bg-white border border-slate-100 rounded-lg text-xs outline-none font-bold focus:border-blue-400" value="${contractor.name}" 
+                          <div class="flex flex-wrap md:flex-nowrap gap-2 mb-2 items-center">
+                            <input type="text" placeholder="ชื่อผู้รับเหมา / บริษัท" class="flex-1 min-w-[150px] p-2 bg-white border border-slate-100 rounded-lg text-xs outline-none font-bold focus:border-blue-400" value="${contractor.name || ''}" 
                               onchange="app.updatePart5ContractorName(${idx}, this.value)" />
-                            <button onclick="app.removePart5Contractor(${idx})" class="text-slate-300 hover:text-red-500 transition-colors">
-                              <i data-lucide="trash-2" style="width:16px;height:16px"></i>
-                            </button>
+                            <div class="flex items-center gap-2 w-full md:w-auto">
+                              <label class="text-[10px] text-slate-500 font-bold whitespace-nowrap">วันที่เข้าหน้างาน:</label>
+                              <input type="date" class="w-full md:w-[125px] p-2 bg-white border border-slate-100 rounded-lg text-xs outline-none text-slate-700 focus:border-blue-400 cursor-pointer" value="${contractor.siteDate || ''}" 
+                                onchange="app.updatePart5ContractorDate(${idx}, this.value)" />
+                              <button onclick="app.removePart5Contractor(${idx})" class="text-slate-300 hover:text-red-500 transition-colors shrink-0">
+                                <i data-lucide="trash-2" style="width:16px;height:16px"></i>
+                              </button>
+                            </div>
                           </div>
                           <textarea placeholder="รายละเอียดการสั่งงาน..." class="w-full p-2 bg-white border border-slate-100 rounded-lg text-xs outline-none focus:border-blue-400 auto-resize-textarea resize-none overflow-hidden" 
                             oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px';"
-                            onchange="app.updatePart5ContractorDetail(${idx}, this.value)">${contractor.detail}</textarea>
+                            onchange="app.updatePart5ContractorDetail(${idx}, this.value)">${contractor.detail || ''}</textarea>
                         </div>
                       `).join('')}
                     </div>
@@ -1836,7 +1950,7 @@
                 </div>
                 
                 <div class="mt-8 flex justify-end pt-6 border-t border-slate-100">
-                  <button onclick="app.goToNextTab('part6')" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2 active:scale-95">
+                  <button onclick="app.goToNextTab('part6')" class="bg-white hover:bg-slate-50 text-blue-600 border border-blue-200 px-8 py-3 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-2 active:scale-95">
                     ไปที่ส่วนที่ 6: การส่งมอบงาน <i data-lucide="arrow-right" style="width:18px;height:18px"></i>
                   </button>
                 </div>
@@ -1976,6 +2090,129 @@
       return html;
     }
 
+    renderAnalyticsDashboard() {
+      const currentYear = this.dashboardYear;
+      const currentMonth = new Date().getMonth();
+
+      // สร้างฟังก์ชันช่วยดึงวันที่สร้างงานอย่างปลอดภัย (แก้ไขให้อ้างอิงจากวันที่รับงานเป็นหลัก)
+      const getProjDate = (p) => {
+        const d = new Date(p.part1?.receivedDate || p.createdAt || p.updatedAt || parseInt(p.id));
+        return isNaN(d) ? new Date() : d;
+      };
+
+      const thisYearProjects = this.projects.filter(p => getProjDate(p).getFullYear() === currentYear);
+      const thisMonthProjects = thisYearProjects.filter(p => getProjDate(p).getMonth() === currentMonth);
+
+      const calculateStats = (projArray) => ({
+          total: projArray.length,
+          won: projArray.filter(p => p.status === 'ได้งานแล้ว').length,
+          lost: projArray.filter(p => p.status === 'ไม่ได้งาน').length,
+          inProgress: projArray.filter(p => !['ได้งานแล้ว', 'ไม่ได้งาน'].includes(p.status)).length
+      });
+
+      const yearStats = calculateStats(thisYearProjects);
+      const monthStats = calculateStats(thisMonthProjects);
+
+      this.monthlyData = Array.from({length: 12}, (_, i) => {
+         const mProjects = thisYearProjects.filter(p => getProjDate(p).getMonth() === i);
+         return calculateStats(mProjects);
+      });
+
+      this.monthNames = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+
+      // ดึงปีที่มีอยู่ในระบบทั้งหมดมาทำ Dropdown Filter
+      const availableYears = [...new Set(this.projects.map(p => getProjDate(p).getFullYear()))].sort((a,b)=>b-a);
+      if (!availableYears.includes(new Date().getFullYear())) availableYears.unshift(new Date().getFullYear());
+
+      return `
+        <div class="min-h-screen bg-slate-50 pb-20 font-sans w-full flex flex-col fade-in">
+          <div class="bg-white border-b sticky top-0 z-50 px-4 md:px-6 py-4 shadow-sm flex items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <button onclick="app.goToList()" class="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors">
+                <i data-lucide="arrow-left" style="width:20px;height:20px"></i>
+              </button>
+              <h2 class="font-black text-slate-800 text-xl">Dashboard สรุปผลการดำเนินงาน</h2>
+            </div>
+            <div>
+              <select onchange="app.setDashboardYear(this.value)" class="bg-slate-50 border border-slate-200 text-slate-700 font-bold py-2 px-4 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-sm">
+                ${availableYears.map(y => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>ปี ${y}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          
+          <div class="p-4 md:p-8 max-w-7xl mx-auto w-full space-y-6">
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <!-- เดือนนี้ -->
+               <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden">
+                 <div class="absolute -right-6 -top-6 text-blue-50 opacity-50"><i data-lucide="calendar" style="width:120px;height:120px"></i></div>
+                 <h3 class="text-lg font-bold text-slate-700 mb-6 flex items-center gap-2 relative z-10"><i data-lucide="calendar" class="text-blue-500"></i> ประจำเดือน ${this.monthNames[currentMonth]}</h3>
+                 <div class="grid grid-cols-2 gap-4 relative z-10">
+                    <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100"><div class="text-[11px] text-blue-600 font-bold mb-1">งานทั้งหมด</div><div class="text-3xl font-black text-blue-900">${monthStats.total}</div></div>
+                    <div class="bg-green-50 p-4 rounded-2xl border border-green-100"><div class="text-[11px] text-green-600 font-bold mb-1">ได้งานแล้ว</div><div class="text-3xl font-black text-green-900">${monthStats.won}</div></div>
+                    <div class="bg-orange-50 p-4 rounded-2xl border border-orange-100"><div class="text-[11px] text-orange-600 font-bold mb-1">กำลังดำเนินการ</div><div class="text-3xl font-black text-orange-900">${monthStats.inProgress}</div></div>
+                    <div class="bg-red-50 p-4 rounded-2xl border border-red-100"><div class="text-[11px] text-red-600 font-bold mb-1">ไม่ได้งาน</div><div class="text-3xl font-black text-red-900">${monthStats.lost}</div></div>
+                 </div>
+               </div>
+               <!-- ปีนี้ -->
+               <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden">
+                 <div class="absolute -right-6 -top-6 text-indigo-50 opacity-50"><i data-lucide="bar-chart" style="width:120px;height:120px"></i></div>
+                 <h3 class="text-lg font-bold text-slate-700 mb-6 flex items-center gap-2 relative z-10"><i data-lucide="bar-chart" class="text-indigo-500"></i> ภาพรวมทั้งปี ${currentYear}</h3>
+                 <div class="grid grid-cols-2 gap-4 relative z-10">
+                    <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100"><div class="text-[11px] text-indigo-600 font-bold mb-1">งานทั้งหมด</div><div class="text-3xl font-black text-indigo-900">${yearStats.total}</div></div>
+                    <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100"><div class="text-[11px] text-emerald-600 font-bold mb-1">ได้งานแล้ว</div><div class="text-3xl font-black text-emerald-900">${yearStats.won}</div></div>
+                    <div class="bg-amber-50 p-4 rounded-2xl border border-amber-100"><div class="text-[11px] text-amber-600 font-bold mb-1">กำลังดำเนินการ</div><div class="text-3xl font-black text-amber-900">${yearStats.inProgress}</div></div>
+                    <div class="bg-rose-50 p-4 rounded-2xl border border-rose-100"><div class="text-[11px] text-rose-600 font-bold mb-1">ไม่ได้งาน</div><div class="text-3xl font-black text-rose-900">${yearStats.lost}</div></div>
+                 </div>
+               </div>
+            </div>
+
+            <!-- กราฟแท่งเปรียบเทียบรายเดือน -->
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+              <h3 class="text-lg font-bold text-slate-700 mb-6 flex items-center gap-2"><i data-lucide="bar-chart-2" class="text-blue-500"></i> กราฟเปรียบเทียบสถานะรายเดือน ปี ${currentYear}</h3>
+              <div class="w-full h-[300px] relative">
+                <canvas id="monthlyChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Monthly Comparison Table -->
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+              <h3 class="text-lg font-bold text-slate-700 mb-6 flex items-center gap-2"><i data-lucide="trending-up" class="text-green-500"></i> เปรียบเทียบรายเดือน ปี ${currentYear}</h3>
+              <div class="overflow-x-auto rounded-xl border border-slate-100">
+                <table class="w-full text-left border-collapse min-w-[600px]">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-[11px] uppercase tracking-wider">
+                      <th class="p-4 font-black">เดือน</th>
+                      <th class="p-4 font-black text-center">จำนวนงานรวม</th>
+                      <th class="p-4 font-black text-center text-green-600">ได้งานแล้ว</th>
+                      <th class="p-4 font-black text-center text-orange-600">กำลังดำเนินการ</th>
+                      <th class="p-4 font-black text-center text-red-600">ไม่ได้งาน</th>
+                      <th class="p-4 font-black text-center text-blue-600">อัตราการได้งาน (Win Rate)</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    ${this.monthlyData.map((data, index) => {
+                       const winRate = data.total > 0 ? ((data.won / data.total) * 100).toFixed(1) : 0;
+                       return `
+                       <tr class="hover:bg-blue-50/50 transition-colors">
+                         <td class="p-4 font-bold text-slate-700">${this.monthNames[index]}</td>
+                         <td class="p-4 text-center font-black text-slate-900">${data.total}</td>
+                         <td class="p-4 text-center font-bold text-green-600">${data.won}</td>
+                         <td class="p-4 text-center font-bold text-orange-600">${data.inProgress}</td>
+                         <td class="p-4 text-center font-bold text-red-600">${data.lost}</td>
+                         <td class="p-4 text-center font-black text-blue-600">${winRate}%</td>
+                       </tr>
+                       `;
+                    }).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     renderNetworkStatus() {
       return `
         <div class="fixed top-3 right-4 md:right-8 z-[9999] flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-md rounded-full shadow-sm border ${this.isOnline ? 'border-green-200' : 'border-red-200'} transition-all">
@@ -1988,7 +2225,14 @@
     render() {
       const appElement = document.getElementById('app');
       if (appElement) {
-        let html = this.activeProjectId ? this.renderProjectDetail() : this.renderDashboard();
+        let html = '';
+        if (this.activeProjectId) {
+          html = this.renderProjectDetail();
+        } else if (this.currentView === 'dashboard') {
+          html = this.renderAnalyticsDashboard();
+        } else {
+          html = this.renderDashboard();
+        }
         
         html += this.renderNetworkStatus();
         if (this.confirmModalState) html += this.renderConfirmModal();
@@ -1996,6 +2240,11 @@
         
         appElement.innerHTML = html;
         lucide.createIcons();
+
+        // โหลดกราฟให้แสดงผลหากอยู่บนหน้า Dashboard
+        if (this.currentView === 'dashboard') {
+          this.initDashboardChart();
+        }
 
         const autoTextareas = document.querySelectorAll('.auto-resize-textarea');
         autoTextareas.forEach(tx => {
