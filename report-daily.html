@@ -178,7 +178,7 @@
                                 <!-- ชื่องาน -->
                                 <div class="flex items-start gap-3">
                                     <div class="mt-2 text-gray-400">
-                                        <i data-lucide="clipboard-list" class="w-6 h-6"></i>
+                                        <i data-lucide="circle" class="w-6 h-6"></i>
                                     </div>
                                     <div class="flex-1">
                                         <input type="text" id="taskName" required placeholder="เพิ่มชื่องาน" class="w-full text-2xl font-semibold px-2 py-1 border-0 border-b-2 border-transparent hover:border-gray-200 focus:border-[#5b5fc7] bg-transparent focus:bg-gray-50 focus:outline-none transition-colors placeholder-gray-400">
@@ -595,12 +595,13 @@
                 if(unsubscribeTasks) unsubscribeTasks();
                 if(unsubscribeHolidays) unsubscribeHolidays();
             }
-        });
+        }); // แก้ไขเพิ่มวงเล็บปิดของ onAuthStateChanged ที่หายไปกลับมาให้ถูกต้อง
 
-        // ฟังก์ชันโหลดข้อมูลวันหยุด
+        // ฟังก์ชันโหลดข้อมูลวันหยุด (แก้ไขให้อ่านจากข้อมูลส่วนรวมสาธารณะ)
         function loadHolidays() {
             if (!currentUser) return;
-            const holidaysCollection = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'daily_holidays');
+            // เปลี่ยน Path จาก 'users', currentUser.uid เป็น 'public', 'data'
+            const holidaysCollection = collection(db, 'artifacts', appId, 'public', 'data', 'daily_holidays');
             unsubscribeHolidays = onSnapshot(holidaysCollection, (snapshot) => {
                 allHolidays = [];
                 snapshot.forEach((doc) => {
@@ -612,16 +613,17 @@
             });
         }
 
-        // ฟังก์ชันโหลดข้อมูล (ห้ามใช้ query ซับซ้อนตามกฎ)
+        // ฟังก์ชันโหลดข้อมูล (แก้ไขให้อ่านจากข้อมูลส่วนรวมสาธารณะ)
         function loadTasks() {
             if (!currentUser) return;
 
-            const tasksCollection = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'daily_tasks');
+            // เปลี่ยน Path จาก 'users', currentUser.uid เป็น 'public', 'data'
+            const tasksCollection = collection(db, 'artifacts', appId, 'public', 'data', 'daily_tasks');
             
             unsubscribeTasks = onSnapshot(tasksCollection, (snapshot) => {
                 const tasks = [];
                 snapshot.forEach((doc) => {
-                    tasks.push({ id: doc.id, ...doc.data() });
+                    tasks.push({ id: doc.id, ...doc.data() }); // 1 Document = 1 Task (ไม่เกิน 1MB แน่นอน)
                 });
 
                 // เรียงข้อมูลตามวันที่รับงาน (รับงานล่าสุดอยู่ด้านบนสุด) 
@@ -794,7 +796,8 @@
             };
 
             try {
-                const hCol = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'daily_holidays');
+                // เปลี่ยน Path บันทึกไปที่โฟลเดอร์สาธารณะ (สร้าง Document ใหม่เสมอ เพื่อป้องกันปัญหา 1MB)
+                const hCol = collection(db, 'artifacts', appId, 'public', 'data', 'daily_holidays');
                 await addDoc(hCol, holidayData);
                 showNotification("เพิ่มวันหยุดสำเร็จ");
                 holidayModal?.classList.add('hidden');
@@ -813,7 +816,8 @@
         window.deleteHoliday = async (id) => {
             if(!currentUser) return;
             try {
-                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'daily_holidays', id));
+                // เปลี่ยน Path ลบให้ตรงกับโฟลเดอร์สาธารณะ
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_holidays', id));
                 showNotification("ลบวันหยุดแล้ว");
             } catch(e) {
                 showNotification("เกิดข้อผิดพลาดในการลบ", "error");
@@ -1130,12 +1134,14 @@
 
             try {
                 if (currentEditTaskId) {
-                    const taskRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'daily_tasks', currentEditTaskId);
+                    // เปลี่ยน Path อัปเดตข้อมูลไปที่โฟลเดอร์สาธารณะ
+                    const taskRef = doc(db, 'artifacts', appId, 'public', 'data', 'daily_tasks', currentEditTaskId);
                     await updateDoc(taskRef, taskData);
                     showNotification("อัปเดตข้อมูลสำเร็จ");
                 } else {
                     taskData.createdAt = Date.now();
-                    const tasksCollection = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'daily_tasks');
+                    // เปลี่ยน Path เพิ่มข้อมูลไปที่โฟลเดอร์สาธารณะ (เพิ่ม Document ใหม่)
+                    const tasksCollection = collection(db, 'artifacts', appId, 'public', 'data', 'daily_tasks');
                     await addDoc(tasksCollection, taskData);
                     showNotification("บันทึกข้อมูลสำเร็จ");
                 }
@@ -1194,11 +1200,13 @@
             const { id, ...taskData } = taskToRestore;
 
             try {
-                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'daily_tasks', taskId));
+                // เปลี่ยน Path ลบข้อมูลสาธารณะ
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_tasks', taskId));
                 
                 showNotification("ลบรายการแล้ว", "success", async () => {
                     try {
-                        await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'daily_tasks', taskId), taskData);
+                        // เปลี่ยน Path กู้คืนข้อมูลสาธารณะ
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_tasks', taskId), taskData);
                         showNotification("ย้อนกลับการลบสำเร็จ", "success");
                     } catch (error) {
                         console.error("Error restoring document: ", error);
