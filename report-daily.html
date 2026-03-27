@@ -428,24 +428,36 @@
             timeoutId = setTimeout(closeNotif, duration);
         }
 
-        // 1. ตรวจสอบการตั้งค่า Firebase
+        // ==============================================
+        // 1. การตั้งค่า Firebase 
+        // สลับใช้ Config ของระบบ (เมื่ออยู่ใน Preview) และ Config ของคุณ (เมื่อนำไปรันบนเว็บอื่น)
+        // ==============================================
         let firebaseConfig;
-        try {
-            if (typeof __firebase_config !== 'undefined') {
-                firebaseConfig = JSON.parse(__firebase_config);
-            } else {
-                throw new Error("ไม่พบการตั้งค่า Firebase");
-            }
-        } catch (error) {
-            console.error("Firebase config error:", error);
-            const tc = document.getElementById('tasks-container');
-            if (tc) tc.innerHTML = `<div class="text-center py-12 text-red-500 bg-red-50 rounded-lg"><p>เกิดข้อผิดพลาดในการตั้งค่าฐานข้อมูล</p></div>`;
+        let isLocalOrGithub = false;
+
+        // เช็คว่าทำงานอยู่ใน Canvas Preview Environment หรือไม่
+        if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+            // โหมด Preview ในระบบ Canvas (บังคับใช้ Config ของระบบเพื่อให้ Preview ทำงานได้)
+            firebaseConfig = JSON.parse(__firebase_config);
+        } else {
+            // โหมดนำไปใช้งานจริงบน GitHub Pages หรือรันจากไฟล์ local (ใช้ Config ของคุณ)
+            isLocalOrGithub = true;
+            firebaseConfig = {
+                apiKey: "AIzaSyBGjNRjZstg9XuKA9X-CCCsKT2ZwJ7KtNA",
+                authDomain: "project-dailyreport.firebaseapp.com",
+                projectId: "project-dailyreport",
+                storageBucket: "project-dailyreport.firebasestorage.app",
+                messagingSenderId: "777791683600",
+                appId: "1:777791683600:web:41be9e62052d3996fd1e95"
+            };
         }
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'daily-log-app';
+        
+        // กำหนด App ID แบบตายตัวเพื่อใช้เป็น Path ใน Firestore เมื่อรันบน GitHub
+        const appId = isLocalOrGithub ? 'project-dailyreport' : (typeof __app_id !== 'undefined' ? __app_id : 'project-dailyreport');
 
         let currentUser = null;
         let unsubscribeTasks = null;
@@ -532,18 +544,28 @@
 
         // ==============================================
 
-        // 2. ฟังก์ชันตรวจสอบสิทธิ์และดึงข้อมูล
+        // 2. ฟังก์ชันตรวจสอบสิทธิ์และดึงข้อมูลพร้อมระบบ Fallback
         const initAuth = async () => {
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                // หากกำลังทำงานใน Canvas Preview (มี initial_auth_token) ให้ใช้ Token ของระบบเพื่อให้พรีวิวได้
+                if (!isLocalOrGithub && typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
                 } else {
+                    // หากไม่ได้อยู่ในพรีวิว (อยู่บน GitHub) ให้ล็อกอินแบบไม่ระบุตัวตน (ต้องเปิด Anonymous ใน Firebase)
                     await signInAnonymously(auth);
                 }
             } catch (error) {
                 console.error("Authentication failed:", error);
+                let errorMsg = "ล็อกอินล้มเหลว (ตรวจสอบ Auth Rules ใน Firebase)";
+                
+                // แจ้งเตือนผู้ใช้หากยังไม่ได้เปิด Anonymous Auth ใน Firebase ของตัวเอง
+                if (error.code === 'auth/configuration-not-found' || error.code === 'auth/operation-not-allowed') {
+                    errorMsg = "รอการเปิดใช้งาน Anonymous Auth";
+                    showNotification("คุณต้องไปเปิด 'Anonymous' ในเมนู Authentication ของ Firebase ก่อนนะครับ", "error");
+                }
+                
                 if (statusEl) {
-                    statusEl.innerHTML = `<i data-lucide="x-circle" class="w-4 h-4 text-red-300"></i> เชื่อมต่อล้มเหลว`;
+                    statusEl.innerHTML = `<i data-lucide="alert-circle" class="w-4 h-4 text-red-300"></i> ${errorMsg}`;
                 }
                 lucide.createIcons();
             }
