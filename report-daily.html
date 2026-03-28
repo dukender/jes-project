@@ -76,31 +76,60 @@
 
         <!-- 0. ส่วนแสดง Dashboard (ซ่อนเป็นค่าเริ่มต้น) -->
         <div id="view-dashboard" class="hidden">
+            <!-- ส่วนควบคุมแดชบอร์ด (ตัวกรองปี & โหมดเวลา) -->
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-200 gap-4">
+                <div class="flex items-center gap-3">
+                    <label class="font-bold text-gray-700 text-sm flex items-center gap-2">
+                        <i data-lucide="filter" class="w-4 h-4 text-[#5b5fc7]"></i> กรองตามปี:
+                    </label>
+                    <select id="dash-year-select" class="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5b5fc7] text-sm font-medium transition-shadow cursor-pointer min-w-[150px]">
+                        <option value="all">ทุกปีทั้งหมด</option>
+                        <!-- ตัวเลือกปีจะถูกสร้างด้วย JavaScript -->
+                    </select>
+                </div>
+                <div class="flex items-center bg-gray-100 p-1 rounded-lg">
+                    <button id="btn-view-month" class="px-5 py-2 text-sm font-semibold rounded-md bg-white shadow-sm text-[#5b5fc7] transition-all">รายเดือน</button>
+                    <button id="btn-view-week" class="px-5 py-2 text-sm font-semibold rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all">รายสัปดาห์</button>
+                </div>
+            </div>
+
+            <!-- กราฟสถิติ -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <!-- กราฟเปรียบเทียบ เดือน/สัปดาห์ -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="bar-chart-3" class="w-5 h-5 text-[#5b5fc7]"></i> จำนวนงานรายเดือน / รายสัปดาห์</h3>
-                    <div class="relative h-64 w-full">
+                <!-- 1. กราฟเปรียบเทียบ เดือน/สัปดาห์ (ใช้พื้นที่ 2 คอลัมน์) -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:col-span-2">
+                    <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="bar-chart-3" class="w-5 h-5 text-indigo-500"></i> สถิติงานตามเวลา (<span id="dash-time-label">รายเดือน</span>)</h3>
+                    <div class="relative h-72 w-full">
                         <canvas id="chart-time"></canvas>
                     </div>
                 </div>
-                <!-- กราฟสัดส่วนผู้รับผิดชอบ -->
+
+                <!-- 2. กราฟโครงการ (แท่งแนวนอน) (ใช้พื้นที่ 2 คอลัมน์) -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:col-span-2">
+                    <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="folder-kanban" class="w-5 h-5 text-teal-500"></i> จำนวนงานแยกตามชื่อโครงการ (Top 10)</h3>
+                    <div class="relative h-80 w-full">
+                        <canvas id="chart-project"></canvas>
+                    </div>
+                </div>
+
+                <!-- 3. กราฟสัดส่วนผู้รับผิดชอบ -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="users" class="w-5 h-5 text-[#5b5fc7]"></i> สัดส่วนตามชื่อผู้รับผิดชอบ</h3>
+                    <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="users" class="w-5 h-5 text-violet-500"></i> สัดส่วนตามชื่อผู้รับผิดชอบ</h3>
                     <div class="relative h-64 w-full flex justify-center">
                         <canvas id="chart-responsible"></canvas>
                     </div>
                 </div>
-                <!-- กราฟสัดส่วนลูกค้า -->
+
+                <!-- 4. กราฟสัดส่วนลูกค้า -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="briefcase" class="w-5 h-5 text-[#5b5fc7]"></i> สัดส่วนตามชื่อลูกค้า</h3>
+                    <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="briefcase" class="w-5 h-5 text-amber-500"></i> สัดส่วนตามชื่อลูกค้า</h3>
                     <div class="relative h-64 w-full flex justify-center">
                         <canvas id="chart-customer"></canvas>
                     </div>
                 </div>
-                <!-- กราฟสัดส่วนการมอบหมาย -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="arrow-right-left" class="w-5 h-5 text-[#5b5fc7]"></i> สัดส่วนตามการมอบหมาย</h3>
+
+                <!-- 5. กราฟสัดส่วนการมอบหมาย (ให้อยู่ตรงกลางเด่นๆ ถ้าจอใหญ่) -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:col-span-2">
+                    <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2 justify-center"><i data-lucide="arrow-right-left" class="w-5 h-5 text-rose-500"></i> สัดส่วนตามการมอบหมาย</h3>
                     <div class="relative h-64 w-full flex justify-center">
                         <canvas id="chart-assignment"></canvas>
                     </div>
@@ -514,7 +543,9 @@
         let selectedTaskTypes = []; // เก็บประเภทงานที่ถูกเลือกหลายอัน (Array of strings)
 
         // ตัวแปรเก็บ Instance ของ Chart.js เพื่อทำลายก่อนวาดใหม่
-        let chartInstances = { time: null, responsible: null, customer: null, assignment: null };
+        let chartInstances = { time: null, responsible: null, customer: null, assignment: null, project: null };
+        let dashCurrentYear = new Date().getFullYear().toString(); // ค่าเริ่มต้นปีปัจจุบัน
+        let dashTimeView = 'month'; // 'month' หรือ 'week'
 
         const statusEl = document.getElementById('user-status');
         const tasksContainer = document.getElementById('tasks-container');
@@ -1168,22 +1199,55 @@
         function renderDashboard() {
             if (allTasks.length === 0) return; // ไม่มีข้อมูลไม่วาดกราฟ
             
-            // เตรียมข้อมูล Month / Week
-            const timeData = { months: {}, weeks: {} };
-            // เตรียมข้อมูลสัดส่วน
-            const counts = { responsible: {}, customer: {}, assignment: {} };
+            // 1. จัดการตัวเลือก "ปี" ใน Dropdown
+            const yearSelect = document.getElementById('dash-year-select');
+            if (yearSelect) {
+                const yearsSet = new Set();
+                allTasks.forEach(t => { if (t.receiveDate) yearsSet.add(t.receiveDate.substring(0, 4)); });
+                const sortedYears = Array.from(yearsSet).sort().reverse();
+                
+                const currentSelection = yearSelect.value || dashCurrentYear;
+                
+                yearSelect.innerHTML = '<option value="all">ทุกปีทั้งหมด</option>';
+                sortedYears.forEach(y => {
+                    yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
+                });
+                
+                // คืนค่าตัวเลือกเดิม ถ้าหาไม่เจอให้เป็น all
+                if (currentSelection === 'all' || sortedYears.includes(currentSelection)) {
+                    yearSelect.value = currentSelection;
+                    dashCurrentYear = currentSelection;
+                } else if (sortedYears.includes(new Date().getFullYear().toString())) {
+                    yearSelect.value = new Date().getFullYear().toString();
+                    dashCurrentYear = new Date().getFullYear().toString();
+                } else {
+                    yearSelect.value = 'all';
+                    dashCurrentYear = 'all';
+                }
+            }
 
-            allTasks.forEach(t => {
+            // 2. กรองข้อมูลเฉพาะปีที่เลือก
+            let dashTasks = allTasks;
+            if (dashCurrentYear !== 'all') {
+                dashTasks = allTasks.filter(t => t.receiveDate && t.receiveDate.startsWith(dashCurrentYear));
+            }
+
+            // 3. เตรียมข้อมูล
+            const timeData = { counts: {} };
+            const counts = { responsible: {}, customer: {}, assignment: {}, project: {} };
+
+            dashTasks.forEach(t => {
                 if (!t.receiveDate) return;
                 const d = new Date(t.receiveDate);
                 
-                // นับรายเดือน (YYYY-MM)
-                const monthKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}`;
-                timeData.months[monthKey] = (timeData.months[monthKey] || 0) + 1;
-                
-                // นับรายสัปดาห์ (WXX YYYY)
-                const weekKey = `W${getWeekNumber(d)} ${d.getFullYear()}`;
-                timeData.weeks[weekKey] = (timeData.weeks[weekKey] || 0) + 1;
+                // นับรายเดือน / รายสัปดาห์
+                if (dashTimeView === 'month') {
+                    const monthKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}`;
+                    timeData.counts[monthKey] = (timeData.counts[monthKey] || 0) + 1;
+                } else {
+                    const weekKey = `W${getWeekNumber(d)} ${d.getFullYear()}`;
+                    timeData.counts[weekKey] = (timeData.counts[weekKey] || 0) + 1;
+                }
 
                 // นับสัดส่วน
                 const resp = t.responsibleName || 'ไม่ระบุ';
@@ -1194,6 +1258,10 @@
                 
                 const assign = t.assignment || 'ไม่ระบุ';
                 counts.assignment[assign] = (counts.assignment[assign] || 0) + 1;
+
+                // นับแยกตามโครงการ
+                const proj = t.projectName || 'ไม่ได้ระบุโครงการ';
+                counts.project[proj] = (counts.project[proj] || 0) + 1;
             });
 
             // ฟังก์ชันช่วยทำลายกราฟเก่าก่อนวาดใหม่
@@ -1203,36 +1271,70 @@
                 }
             };
 
-            // สีโทน MS Teams / Planner
-            const colors = ['#5b5fc7', '#8f95d8', '#cdd0f0', '#00a4ef', '#7fba00', '#ffb900', '#f25022', '#737373'];
+            // ชุดสีใหม่ (Modern Palette) ให้ดูสดใสแยกตามกราฟ
+            const modernColors = ['#6366f1', '#8b5cf6', '#d946ef', '#f43f5e', '#f97316', '#eab308', '#22c55e', '#14b8a6', '#0ea5e9', '#64748b'];
 
-            // 1. กราฟเวลา (เอาแค่ 6 เดือนล่าสุด และ 6 สัปดาห์ล่าสุด)
+            // 1. กราฟเวลา (แท่งแนวตั้ง)
             const timeCanvas = document.getElementById('chart-time');
             if (timeCanvas) {
                 destroyChart('time');
-                const sortedMonths = Object.keys(timeData.months).sort().slice(-6);
+                // เรียงคีย์เวลาให้ถูกต้อง
+                const sortedTimeKeys = Object.keys(timeData.counts).sort();
                 const ctxTime = timeCanvas.getContext('2d');
                 chartInstances['time'] = new Chart(ctxTime, {
                     type: 'bar',
                     data: {
-                        labels: sortedMonths,
+                        labels: sortedTimeKeys,
                         datasets: [{
-                            label: 'จำนวนงาน (รายเดือน)',
-                            data: sortedMonths.map(k => timeData.months[k]),
-                            backgroundColor: '#5b5fc7',
-                            borderRadius: 4
+                            label: `จำนวนงาน (${dashTimeView === 'month' ? 'รายเดือน' : 'รายสัปดาห์'})`,
+                            data: sortedTimeKeys.map(k => timeData.counts[k]),
+                            backgroundColor: '#6366f1', // Indigo
+                            borderRadius: 6
                         }]
                     },
                     options: { responsive: true, maintainAspectRatio: false }
                 });
+                
+                const timeLabel = document.getElementById('dash-time-label');
+                if(timeLabel) timeLabel.textContent = dashTimeView === 'month' ? 'รายเดือน' : 'รายสัปดาห์';
             }
 
-            // ฟังก์ชันช่วยวาด Pie/Doughnut Chart
+            // 2. กราฟโครงการ (แท่งแนวนอน Horizontal Bar)
+            const projCanvas = document.getElementById('chart-project');
+            if (projCanvas) {
+                destroyChart('project');
+                // ดึง 10 อันดับแรกที่มีงานมากสุด
+                const sortedProjKeys = Object.keys(counts.project)
+                    .sort((a,b) => counts.project[b] - counts.project[a])
+                    .slice(0, 10);
+                
+                const ctxProj = projCanvas.getContext('2d');
+                chartInstances['project'] = new Chart(ctxProj, {
+                    type: 'bar',
+                    data: {
+                        labels: sortedProjKeys,
+                        datasets: [{
+                            label: 'จำนวนงาน',
+                            data: sortedProjKeys.map(k => counts.project[k]),
+                            backgroundColor: '#14b8a6', // Teal
+                            borderRadius: 6
+                        }]
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false,
+                        indexAxis: 'y', // ทำให้เป็นแท่งแนวนอน
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            // ฟังก์ชันช่วยวาด Pie/Doughnut Chart ชุดสีใหม่
             const drawPieChart = (canvasId, dataObj, titleStr) => {
                 const canvas = document.getElementById(`chart-${canvasId}`);
                 if (!canvas) return;
                 destroyChart(canvasId);
-                const sortedKeys = Object.keys(dataObj).sort((a, b) => dataObj[b] - dataObj[a]).slice(0, 5); // เอา Top 5
+                const sortedKeys = Object.keys(dataObj).sort((a, b) => dataObj[b] - dataObj[a]).slice(0, 6); // เอา Top 6
                 const ctx = canvas.getContext('2d');
                 chartInstances[canvasId] = new Chart(ctx, {
                     type: 'doughnut',
@@ -1240,25 +1342,47 @@
                         labels: sortedKeys,
                         datasets: [{
                             data: sortedKeys.map(k => dataObj[k]),
-                            backgroundColor: colors,
-                            borderWidth: 1
+                            backgroundColor: modernColors,
+                            borderWidth: 0,
+                            hoverOffset: 4
                         }]
                     },
                     options: { 
                         responsive: true, 
                         maintainAspectRatio: false,
-                        plugins: { legend: { position: 'right' } }
+                        plugins: { legend: { position: 'right' } },
+                        cutout: '65%' // รูตรงกลางใหญ่ขึ้นให้ดูทันสมัย
                     }
                 });
             };
 
-            // 2. กราฟผู้รับผิดชอบ
+            // 3. กราฟผู้รับผิดชอบ
             drawPieChart('responsible', counts.responsible, 'ผู้รับผิดชอบ');
-            // 3. กราฟลูกค้า
+            // 4. กราฟลูกค้า
             drawPieChart('customer', counts.customer, 'ลูกค้า');
-            // 4. กราฟการมอบหมาย
+            // 5. กราฟการมอบหมาย
             drawPieChart('assignment', counts.assignment, 'การมอบหมาย');
         }
+
+        // ===== จัดการ Event ของตัวเลือกบน Dashboard =====
+        document.getElementById('dash-year-select')?.addEventListener('change', (e) => {
+            dashCurrentYear = e.target.value;
+            renderDashboard(); // อัปเดตกราฟใหม่ทันทีเมื่อเปลี่ยนปี
+        });
+
+        document.getElementById('btn-view-month')?.addEventListener('click', () => {
+            dashTimeView = 'month';
+            document.getElementById('btn-view-month').className = "px-5 py-2 text-sm font-semibold rounded-md bg-white shadow-sm text-[#5b5fc7] transition-all";
+            document.getElementById('btn-view-week').className = "px-5 py-2 text-sm font-semibold rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all";
+            renderDashboard();
+        });
+
+        document.getElementById('btn-view-week')?.addEventListener('click', () => {
+            dashTimeView = 'week';
+            document.getElementById('btn-view-week').className = "px-5 py-2 text-sm font-semibold rounded-md bg-white shadow-sm text-[#5b5fc7] transition-all";
+            document.getElementById('btn-view-month').className = "px-5 py-2 text-sm font-semibold rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all";
+            renderDashboard();
+        });
 
         // ===== ระบบค้นหาและตัวกรอง =====
         function filterAndRenderTasks() {
