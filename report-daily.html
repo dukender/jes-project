@@ -111,11 +111,32 @@
 
             <!-- กราฟสถิติ -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <!-- 1. กราฟเปรียบเทียบ เดือน/สัปดาห์ (ใช้พื้นที่ 2 คอลัมน์) -->
+                <!-- 1. กราฟเปรียบเทียบ เดือน/สัปดาห์ (ใช้พื้นที่ 2 คอลัมน์) พร้อมกรอบตัวเลขด้านซ้าย -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:col-span-2">
-                    <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="bar-chart-3" class="w-5 h-5 text-indigo-500"></i> สถิติงานตามเวลา (<span id="dash-time-label">รายเดือน</span>)</h3>
-                    <div class="relative h-72 w-full">
-                        <canvas id="chart-time"></canvas>
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <!-- ส่วนตัวเลขสรุป (ด้านซ้าย) -->
+                        <div class="md:w-1/4 flex flex-col border-b md:border-b-0 md:border-r border-gray-100 pb-4 md:pb-0 pr-0 md:pr-4">
+                            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <i data-lucide="bar-chart-3" class="w-5 h-5 text-indigo-500"></i> สถิติงานตามเวลา <span class="text-xs font-normal text-gray-500">(<span id="dash-time-label">รายเดือน</span>)</span>
+                            </h3>
+                            <div class="flex-1 flex flex-col justify-center gap-4">
+                                <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">โครงการทั้งหมด</p>
+                                    <p class="text-3xl font-bold text-[#5b5fc7]" id="dash-total-projects">0</p>
+                                </div>
+                                <div class="bg-teal-50 p-4 rounded-lg border border-teal-100">
+                                    <p class="text-xs font-semibold text-teal-600 uppercase tracking-wider mb-1">โครงการตามตัวกรอง</p>
+                                    <p class="text-3xl font-bold text-teal-600" id="dash-filtered-projects">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- ส่วนกราฟ (ด้านขวา) -->
+                        <div class="md:w-3/4 relative min-h-[250px]">
+                            <div class="relative h-72 w-full">
+                                <canvas id="chart-time"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1260,6 +1281,19 @@
                 // receiveDate อยู่ในรูปแบบ YYYY-MM-DD ตัดเอาเฉพาะตำแหน่งเดือนมาเปรียบเทียบ
                 dashTasks = dashTasks.filter(t => t.receiveDate && t.receiveDate.substring(5, 7) === dashCurrentMonth);
             }
+
+            // --- ส่วนที่เพิ่ม: คำนวณจำนวนโครงการทั้งหมด และโครงการตามตัวกรอง ---
+            const totalProjectsSet = new Set();
+            allTasks.forEach(t => { if(t.projectName) totalProjectsSet.add(t.projectName); });
+            
+            const filteredProjectsSet = new Set();
+            dashTasks.forEach(t => { if(t.projectName) filteredProjectsSet.add(t.projectName); });
+
+            const totalProjEl = document.getElementById('dash-total-projects');
+            const filteredProjEl = document.getElementById('dash-filtered-projects');
+            if (totalProjEl) totalProjEl.textContent = totalProjectsSet.size;
+            if (filteredProjEl) filteredProjEl.textContent = filteredProjectsSet.size;
+            // -----------------------------------------------------------
 
             // 3. เตรียมข้อมูล
             const timeData = { counts: {} };
