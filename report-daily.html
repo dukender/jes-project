@@ -51,8 +51,8 @@
             <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#5b5fc7] to-[#8b5cf6]"></div>
             
             <div class="w-16 h-16 bg-[#5b5fc7] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg rotate-3 mt-4">
-                <!-- เปลี่ยนไอคอนเป็นรูปโล่ความปลอดภัย (shield-check) -->
-                <i data-lucide="shield-check" class="w-8 h-8 text-white -rotate-3"></i>
+                <!-- เปลี่ยนกลับเป็นไอคอนกระดานคลิปบอร์ด (clipboard-list) ตามเดิม -->
+                <i data-lucide="clipboard-list" class="w-8 h-8 text-white -rotate-3"></i>
             </div>
             <h1 class="text-2xl font-bold text-gray-800 mb-2">เข้าสู่ระบบ (Login)</h1>
             <p class="text-gray-500 text-sm mb-8">Daily Task Log System</p>
@@ -512,11 +512,15 @@
                                         </div>
                                     </div>
 
-                                    <div id="notes-container" class="hidden bg-gray-50 border border-gray-200 rounded-md p-4 transition-all">
-                                        <label class="flex items-center gap-2 text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
-                                            <i data-lucide="list-checks" class="w-4 h-4"></i> บันทึกย่อ / รายละเอียด
+                                    <!-- เพิ่ม Checkbox สำหรับเปิด/ปิด กล่องใส่บันทึกย่อ -->
+                                    <div class="mt-4">
+                                        <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 cursor-pointer mb-3 select-none w-fit group">
+                                            <input type="checkbox" id="enable-notes-checkbox" class="rounded border-gray-300 text-[#5b5fc7] focus:ring-[#5b5fc7] w-4 h-4 transition-colors cursor-pointer">
+                                            <i data-lucide="list-checks" class="w-4 h-4 text-gray-500 group-hover:text-[#5b5fc7] transition-colors"></i> เพิ่มบันทึกย่อ / รายละเอียด
                                         </label>
-                                        <div id="notes-list" class="space-y-3"></div>
+                                        <div id="notes-container" class="hidden bg-gray-50 border border-gray-200 rounded-md p-4 transition-all">
+                                            <div id="notes-list" class="space-y-3"></div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -1135,7 +1139,7 @@
                 `;
             });
             lucide.createIcons();
-            toggleNotesContainer(); 
+            // นำ toggleNotesContainer() ออก เพื่อไม่ให้กล่องข้อความเด้งเปิดเองเวลาเลือกประเภทงาน
         }
 
         window.removeTaskType = (tag) => {
@@ -1246,19 +1250,20 @@
         // ==============================================
         // ระบบ Checklist & Notes
         // ==============================================
-        window.toggleNotesContainer = () => {
+        
+        // รับการทำงานจาก Checkbox เพื่อแสดง/ซ่อน กล่องข้อความ
+        document.getElementById('enable-notes-checkbox')?.addEventListener('change', (e) => {
             const container = document.getElementById('notes-container');
-            if(!container) return;
-            if(selectedTaskTypes.length > 0) {
+            if (e.target.checked) {
                 container.classList.remove('hidden');
                 if(currentNotes.length === 0) {
                     currentNotes = [{ id: Date.now(), text: '', completed: false, completedAt: null }];
-                    renderNotes();
                 }
+                renderNotes();
             } else {
                 container.classList.add('hidden');
             }
-        };
+        });
 
         function renderNotes() {
             const list = document.getElementById('notes-list');
@@ -1322,9 +1327,27 @@
         };
 
         window.removeNote = (id) => {
+            // ค้นหาตำแหน่งและเก็บข้อมูลตัวที่กำลังจะลบเอาไว้สำหรับย้อนกลับ
+            const noteIndex = currentNotes.findIndex(n => n.id === id);
+            if (noteIndex === -1) return;
+            const noteToRestore = currentNotes[noteIndex];
+            
             currentNotes = currentNotes.filter(n => n.id !== id);
-            if(currentNotes.length === 0) currentNotes = [{ id: Date.now(), text: '', completed: false, completedAt: null }];
+            if(currentNotes.length === 0) {
+                currentNotes = [{ id: Date.now(), text: '', completed: false, completedAt: null }];
+            }
             renderNotes();
+
+            // แจ้งเตือนพร้อมปุ่ม Undo
+            showNotification("ลบรายการบันทึกย่อแล้ว", "success", () => {
+                // ถ้ามีแค่กล่องว่างที่ถูกสร้างขึ้นมาใหม่ ให้ลบทิ้งก่อน
+                if (currentNotes.length === 1 && currentNotes[0].text === '' && !currentNotes[0].completed && currentNotes[0].id !== noteToRestore.id) {
+                    currentNotes = [];
+                }
+                // แทรกข้อมูลกลับคืนไปยังตำแหน่งเดิม
+                currentNotes.splice(noteIndex, 0, noteToRestore);
+                renderNotes();
+            });
         };
 
         // ==============================================
@@ -1752,7 +1775,12 @@
             if (recDate) recDate.value = getThaiDateString();
             currentNotes = [{ id: Date.now(), text: '', completed: false, completedAt: null }];
             renderNotes();
-            toggleNotesContainer();
+            
+            // รีเซ็ตสถานะ Checkbox ให้ซ่อนกล่องข้อความ
+            const checkbox = document.getElementById('enable-notes-checkbox');
+            if(checkbox) checkbox.checked = false;
+            document.getElementById('notes-container')?.classList.add('hidden');
+            
             document.getElementById('form-title').innerText = "เพิ่มรายละเอียดงานใหม่";
             document.getElementById('submit-btn').innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> บันทึกข้อมูล`;
             lucide.createIcons();
@@ -1766,7 +1794,9 @@
             submitBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> กำลังบันทึก...`;
             submitBtn.disabled = true;
 
-            const notesToSave = currentNotes.filter(n => n.text.trim() !== '' || n.completed);
+            // บันทึกเฉพาะเมื่อมีการติ๊กถูก Checkbox ให้ใช้งานเท่านั้น
+            const isNotesEnabled = document.getElementById('enable-notes-checkbox')?.checked;
+            const notesToSave = isNotesEnabled ? currentNotes.filter(n => n.text.trim() !== '' || n.completed) : [];
             
             const taskData = {
                 taskName: document.getElementById('taskName')?.value || '',
@@ -1830,10 +1860,20 @@
             else selectedTaskTypes = [];
             renderTaskTypeChips();
             
-            if (task.notes && task.notes.length > 0) currentNotes = JSON.parse(JSON.stringify(task.notes));
-            else currentNotes = [{ id: Date.now(), text: '', completed: false, completedAt: null }];
+            const checkbox = document.getElementById('enable-notes-checkbox');
+            const notesContainer = document.getElementById('notes-container');
             
-            toggleNotesContainer();
+            // เช็คว่างานนี้มีบันทึกย่อหรือไม่ ถ้ามีให้ตั้งค่า Checkbox เป็นติ๊กถูกและเปิดกล่อง
+            if (task.notes && task.notes.length > 0) {
+                currentNotes = JSON.parse(JSON.stringify(task.notes));
+                if(checkbox) checkbox.checked = true;
+                if(notesContainer) notesContainer.classList.remove('hidden');
+            } else {
+                currentNotes = [{ id: Date.now(), text: '', completed: false, completedAt: null }];
+                if(checkbox) checkbox.checked = false;
+                if(notesContainer) notesContainer.classList.add('hidden');
+            }
+            
             renderNotes();
 
             currentEditTaskId = taskId;
