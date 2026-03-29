@@ -129,7 +129,7 @@
                         </button>
                         <!-- เพิ่มแท็บจัดการผู้ใช้ (Admin Only) -->
                         <button id="tab-users" class="hidden px-4 py-3 font-semibold text-gray-500 hover:text-[#5b5fc7] transition-colors flex items-center gap-2 border-b-2 border-transparent whitespace-nowrap admin-only">
-                            <i data-lucide="users-cog" class="w-5 h-5"></i> จัดการผู้ใช้
+                            <i data-lucide="user" class="w-5 h-5"></i> จัดการผู้ใช้
                         </button>
                         <!-- ซ่อนแท็บนี้ตามความต้องการ แต่ยังเก็บ id ไว้ใช้งานสลับหน้าด้วย JavaScript -->
                         <button id="tab-manage" class="hidden px-4 py-3 font-semibold text-gray-500 hover:text-[#5b5fc7] transition-colors flex items-center gap-2 border-b-2 border-transparent whitespace-nowrap">
@@ -370,7 +370,7 @@
                         <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-500 to-orange-400"></div>
                         <div class="p-8">
                             <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2 mb-6 mt-2">
-                                <i data-lucide="users-cog" class="w-6 h-6 text-red-500"></i> บริหารจัดการผู้ใช้งาน (User Management)
+                                <i data-lucide="user" class="w-6 h-6 text-red-500"></i> บริหารจัดการผู้ใช้งาน (User Management)
                             </h2>
                             
                             <!-- Form Add User -->
@@ -405,6 +405,7 @@
                                         <tr>
                                             <th class="px-6 py-4 font-semibold">อีเมล (Email)</th>
                                             <th class="px-6 py-4 font-semibold">ระดับสิทธิ์ (Role)</th>
+                                            <th class="px-6 py-4 font-semibold">สถานะออนไลน์</th>
                                             <th class="px-6 py-4 font-semibold text-right">จัดการ</th>
                                         </tr>
                                     </thead>
@@ -812,6 +813,16 @@
         // ระบบ LOGIN และ Role-Based Access Control
         // ==============================================
 
+        let presenceInterval = null;
+
+        async function updatePresence(isOnlineStatus) {
+            if (!currentUser || !currentUser.email) return;
+            try {
+                const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.email.toLowerCase());
+                await setDoc(userRef, { isOnline: isOnlineStatus, lastActive: Date.now() }, { merge: true });
+            } catch (e) { console.error("Presence update error:", e); }
+        }
+
         // ฟังชันก์ตรวจสอบสิทธิ์จาก Database
         async function fetchUserRole(user) {
             const userEmail = (user.email || '').toLowerCase();
@@ -889,8 +900,13 @@
             }
         });
 
-        document.getElementById('btn-logout')?.addEventListener('click', () => {
+        document.getElementById('btn-logout')?.addEventListener('click', async () => {
+            await updatePresence(false);
             signOut(auth);
+        });
+
+        window.addEventListener('beforeunload', () => {
+            if (currentUser) updatePresence(false);
         });
 
         onAuthStateChanged(auth, async (user) => {
@@ -927,6 +943,11 @@
                     loadUsersList();
                 }
                 
+                // --- ระบบ Presence (สถานะออนไลน์) ---
+                updatePresence(true);
+                if (presenceInterval) clearInterval(presenceInterval);
+                presenceInterval = setInterval(() => updatePresence(true), 60000); // อัปเดตทุก 1 นาที
+                
                 // เริ่มต้นหน้าแรกที่ตารางรายการงาน
                 switchTab('list');
 
@@ -936,6 +957,8 @@
                 loginView.classList.remove('hidden');
                 mainApp.classList.add('hidden');
                 
+                if (presenceInterval) clearInterval(presenceInterval);
+
                 if (unsubscribeTasks) unsubscribeTasks();
                 if (unsubscribeHolidays) unsubscribeHolidays();
             }
@@ -2165,10 +2188,17 @@
                 const isSuperAdmin = u.email === 'dukender7188@gmail.com';
                 const disableDelete = isSuperAdmin ? 'disabled opacity-30 cursor-not-allowed' : '';
 
+                // คำนวณสถานะออนไลน์ (อัปเดตล่าสุดไม่เกิน 5 นาที)
+                const isOnline = u.isOnline && (Date.now() - (u.lastActive || 0) < 5 * 60 * 1000);
+                const onlineStatusHtml = isOnline
+                    ? `<div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_4px_rgba(34,197,94,0.6)]"></div><span class="text-xs font-medium text-gray-600">ออนไลน์</span></div>`
+                    : `<div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded-full bg-red-500"></div><span class="text-xs font-medium text-gray-400">ไม่ออนไลน์</span></div>`;
+
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4 font-medium text-gray-800">${u.email}</td>
                         <td class="px-6 py-4">${roleBadge}</td>
+                        <td class="px-6 py-4">${onlineStatusHtml}</td>
                         <td class="px-6 py-4 text-right">
                             <button onclick="event.preventDefault(); window.editUserRole('${u.email}', '${u.role}')" class="p-2 text-blue-600 hover:bg-blue-100 rounded-md mr-1 transition-colors" title="แก้ไขสิทธิ์" ${disableDelete}>
                                 <i data-lucide="edit-3" class="w-4 h-4"></i>
