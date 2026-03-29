@@ -550,13 +550,15 @@
         import { getAuth, onAuthStateChanged, GoogleAuthProvider, OAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // ตั้งค่า Firebase จาก Immersive Environment
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const isLocalOrGithub = Object.keys(firebaseConfig).length === 0;
-        
-        if (isLocalOrGithub) {
-            console.warn("ไม่ได้เชื่อมต่อ Firebase (ใช้งาน UI Mode อย่างเดียว)");
-        }
+        // 1. นำชุดโค้ด firebaseConfig ของคุณเอง (จากขั้นตอนที่ 1) มาวางทับตรงนี้ทั้งหมด
+        const firebaseConfig = {
+            apiKey: "AIzaSyBGjNRjZstg9XuKA9X-CCCsKT2ZwJ7KtNA",
+            authDomain: "project-dailyreport.firebaseapp.com",
+            projectId: "project-dailyreport",
+            storageBucket: "project-dailyreport.firebasestorage.app",
+            messagingSenderId: "777791683600",
+            appId: "1:777791683600:web:41be9e62052d3996fd1e95"
+        };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -566,7 +568,8 @@
         const googleProvider = new GoogleAuthProvider();
         const microsoftProvider = new OAuthProvider('microsoft.com');
 
-        const appId = isLocalOrGithub ? 'project-dailyreport' : (typeof __app_id !== 'undefined' ? __app_id : 'project-dailyreport');
+        // 2. ตั้งชื่อฐานข้อมูลหลักของคุณ (ไม่ต้องแก้ก็ได้ครับ)
+        const appId = 'cctv-project';
 
         // ===== ระบบจัดการ Timezone (เวลาไทย GMT+7) =====
         function getThaiDate() {
