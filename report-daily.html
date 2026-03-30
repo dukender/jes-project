@@ -1255,17 +1255,17 @@
                 
                 list.innerHTML += `
                     <div class="flex items-start gap-3 group/note">
-                        <button type="button" onclick="toggleNote(${note.id})" class="mt-1 w-5 h-5 rounded flex items-center justify-center border transition-colors ${note.completed ? 'bg-[#5b5fc7] border-[#5b5fc7] text-white' : 'border-gray-300 hover:border-[#5b5fc7] bg-white'}">
-                            ${note.completed ? '<i data-lucide="check" class="w-3.5 h-3.5"></i>' : ''}
-                        </button>
+                        <!-- เปลี่ยนมาใช้ Checkbox มาตรฐาน (Native Checkbox) เพื่อให้ตรงกับความต้องการเป๊ะๆ -->
+                        <input type="checkbox" onchange="toggleNote(${note.id})" ${note.completed ? 'checked' : ''} class="mt-1.5 w-4 h-4 text-[#5b5fc7] border-gray-300 rounded focus:ring-[#5b5fc7] cursor-pointer transition-all shadow-sm">
+                        
                         <div class="flex-1 flex flex-col gap-1">
                             <div class="flex items-center gap-2">
-                                <input type="text" value="${note.text}" oninput="updateNoteText(${note.id}, this.value)" placeholder="${note.completed ? 'กรอกรายละเอียด...' : 'คลิกเพื่อระบุเวลา และเริ่มพิมพ์รายละเอียด...'}" class="flex-1 bg-transparent border-0 border-b border-transparent hover:border-gray-200 focus:border-[#5b5fc7] focus:ring-0 px-0 py-1 text-sm ${note.completed ? 'text-gray-700' : 'text-gray-400 opacity-60'} transition-colors" ${!note.completed ? 'readonly tabindex="-1"' : ''}>
+                                <input type="text" value="${note.text}" oninput="updateNoteText(${note.id}, this.value)" placeholder="${note.completed ? 'พิมพ์รายละเอียดที่นี่...' : 'คลิกติ๊กถูกที่กล่องด้านหน้า เพื่อลงเวลาและเริ่มพิมพ์...'}" class="flex-1 bg-transparent border-0 border-b hover:border-gray-300 focus:border-[#5b5fc7] focus:ring-0 px-1 py-1 text-sm ${note.completed ? 'text-gray-800 border-gray-200' : 'text-gray-400 opacity-60 border-transparent cursor-not-allowed select-none'} transition-all" ${!note.completed ? 'readonly tabindex="-1"' : ''}>
                                 ${timeHtml}
                             </div>
                         </div>
                         ${currentNotes.length > 1 || note.completed ? `
-                        <button type="button" onclick="removeNote(${note.id})" class="mt-1 text-gray-300 hover:text-red-500 opacity-0 group-hover/note:opacity-100 transition-opacity p-1">
+                        <button type="button" onclick="removeNote(${note.id})" class="mt-1.5 text-gray-300 hover:text-red-500 opacity-0 group-hover/note:opacity-100 transition-opacity p-1">
                             <i data-lucide="x" class="w-4 h-4"></i>
                         </button>
                         ` : '<div class="w-6"></div>'}
@@ -1283,10 +1283,10 @@
                     const now = new Date();
                     note.completedAt = `${now.toLocaleDateString('th-TH', {timeZone: 'Asia/Bangkok'})} ${now.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit', timeZone: 'Asia/Bangkok'})} น.`;
                     
-                    // เมื่อติ๊กถูก ให้สร้างกล่องว่างรอไว้ด้านล่างสุดทันที
+                    // เมื่อติ๊กถูก ให้สร้างกล่องว่างรอไว้ด้านล่างสุดทันที (งอกอันใหม่)
                     const lastNote = currentNotes[currentNotes.length - 1];
                     if (lastNote && lastNote.id === id) {
-                        currentNotes.push({ id: Date.now(), text: '', completed: false, completedAt: null });
+                        currentNotes.push({ id: Date.now() + Math.random(), text: '', completed: false, completedAt: null });
                     }
                 } else {
                     note.completedAt = null;
@@ -1320,7 +1320,7 @@
             
             // เช็คว่าถ้าช่องสุดท้ายโดนลบไป หรือ ช่องสุดท้ายติ๊กถูกแล้ว ให้สร้างช่องใหม่ไว้รองรับ
             if(currentNotes.length === 0 || currentNotes[currentNotes.length - 1].completed) {
-                currentNotes.push({ id: Date.now(), text: '', completed: false, completedAt: null });
+                currentNotes.push({ id: Date.now() + Math.random(), text: '', completed: false, completedAt: null });
             }
             renderNotes();
 
@@ -1332,7 +1332,7 @@
                 currentNotes.splice(noteIndex, 0, noteToRestore); // แทรกข้อมูลกลับที่เดิม
                 
                 if(currentNotes.length === 0 || currentNotes[currentNotes.length - 1].completed) {
-                    currentNotes.push({ id: Date.now(), text: '', completed: false, completedAt: null });
+                    currentNotes.push({ id: Date.now() + Math.random(), text: '', completed: false, completedAt: null });
                 }
                 renderNotes();
             });
@@ -1762,7 +1762,7 @@
             const recDate = document.getElementById('receiveDate');
             if (recDate) recDate.value = getThaiDateString();
             
-            currentNotes = [{ id: Date.now(), text: '', completed: false, completedAt: null }];
+            currentNotes = [{ id: Date.now() + Math.random(), text: '', completed: false, completedAt: null }];
             renderNotes();
             
             document.getElementById('form-title').innerText = "เพิ่มรายละเอียดงานใหม่";
@@ -1848,10 +1848,10 @@
                 currentNotes = JSON.parse(JSON.stringify(task.notes));
                 const lastNote = currentNotes[currentNotes.length - 1];
                 if (lastNote && lastNote.completed) {
-                    currentNotes.push({ id: Date.now(), text: '', completed: false, completedAt: null });
+                    currentNotes.push({ id: Date.now() + Math.random(), text: '', completed: false, completedAt: null });
                 }
             } else {
-                currentNotes = [{ id: Date.now(), text: '', completed: false, completedAt: null }];
+                currentNotes = [{ id: Date.now() + Math.random(), text: '', completed: false, completedAt: null }];
             }
             
             renderNotes();
