@@ -117,14 +117,14 @@
                 <!-- แท็บระบบสำหรับสลับหน้า (Tabs) และปุ่มเพิ่มงานด้านขวา -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 border-b border-gray-200 gap-4 sm:gap-0">
                     <div class="flex gap-6 px-2 overflow-x-auto no-scrollbar w-full sm:w-auto">
-                        <button id="tab-dashboard" class="px-4 py-3 font-semibold text-gray-500 hover:text-[#5b5fc7] transition-colors flex items-center gap-2 border-b-2 border-transparent whitespace-nowrap">
+                        <button id="tab-dashboard" class="px-4 py-3 font-semibold text-[#5b5fc7] border-b-2 border-[#5b5fc7] transition-colors flex items-center gap-2 whitespace-nowrap">
                             <i data-lucide="pie-chart" class="w-5 h-5"></i> แดชบอร์ดสถิติ
                         </button>
                         <!-- ย้ายแท็บสรุปโครงการ มาต่อจากแดชบอร์ด -->
                         <button id="tab-project-summary" class="px-4 py-3 font-semibold text-gray-500 hover:text-[#5b5fc7] transition-colors flex items-center gap-2 border-b-2 border-transparent whitespace-nowrap">
                             <i data-lucide="layout-list" class="w-5 h-5"></i> สรุปโครงการ
                         </button>
-                        <button id="tab-calendar" class="px-4 py-3 font-semibold text-[#5b5fc7] border-b-2 border-[#5b5fc7] transition-colors flex items-center gap-2 whitespace-nowrap">
+                        <button id="tab-calendar" class="px-4 py-3 font-semibold text-gray-500 hover:text-[#5b5fc7] transition-colors flex items-center gap-2 border-b-2 border-transparent whitespace-nowrap">
                             <i data-lucide="calendar-days" class="w-5 h-5"></i> ปฏิทินงาน
                         </button>
                         <button id="tab-list" class="px-4 py-3 font-semibold text-gray-500 hover:text-[#5b5fc7] transition-colors flex items-center gap-2 border-b-2 border-transparent whitespace-nowrap">
@@ -140,16 +140,27 @@
                         </button>
                     </div>
                     
-                    <!-- ปุ่มเพิ่มงานที่ถูกย้ายมาด้านบน (ซ่อนถ้าเป็น monitor) -->
-                    <div class="px-2 pb-2 w-full sm:w-auto role-restricted-action">
-                        <button id="btn-add-task-top" class="w-full sm:w-auto px-5 py-2.5 bg-[#5b5fc7] hover:bg-[#4a4e9e] text-white text-sm font-medium rounded-md transition-colors flex items-center justify-center gap-1.5 shadow-sm whitespace-nowrap">
-                            <i data-lucide="plus" class="w-4 h-4"></i> เพิ่มงาน
-                        </button>
+                    <!-- เครื่องมือด้านขวา (กรองอีเมล + ปุ่มเพิ่มงาน) -->
+                    <div class="px-2 pb-2 w-full sm:w-auto flex flex-col sm:flex-row items-center gap-3 justify-end">
+                        <!-- Dropdown กรองผู้ใช้สำหรับ Admin/Monitor -->
+                        <div id="admin-user-filter-wrapper" class="hidden w-full sm:w-auto">
+                            <div class="flex items-center gap-2 bg-indigo-50 border border-indigo-200 rounded-md px-3 py-2 shadow-sm focus-within:ring-1 focus-within:ring-[#5b5fc7] transition-all h-[42px]">
+                                <i data-lucide="users" class="w-4 h-4 text-[#5b5fc7]"></i>
+                                <select id="global-user-filter" title="ตัวกรองผู้ใช้งาน" class="bg-transparent border-none text-sm font-semibold focus:ring-0 outline-none text-[#5b5fc7] cursor-pointer w-full sm:w-48 truncate">
+                                    <option value="all">ดูข้อมูลทุกผู้ใช้งาน</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="w-full sm:w-auto role-restricted-action">
+                            <button id="btn-add-task-top" class="w-full sm:w-auto px-5 py-2.5 bg-[#5b5fc7] hover:bg-[#4a4e9e] text-white text-sm font-medium rounded-md transition-colors flex items-center justify-center gap-1.5 shadow-sm whitespace-nowrap h-[42px]">
+                                <i data-lucide="plus" class="w-4 h-4"></i> เพิ่มงาน
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- 0. ส่วนแสดง Dashboard -->
-                <div id="view-dashboard" class="hidden">
+                <div id="view-dashboard" class="block animate-fade-in">
                     <div class="flex flex-col sm:flex-row justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-200 gap-4">
                         <div class="flex items-center gap-2 flex-wrap">
                             <label class="font-bold text-gray-700 text-sm flex items-center gap-1">
@@ -261,8 +272,96 @@
                     </div>
                 </div>
 
+                <!-- 5. ส่วนแสดงสรุปรายชื่อโครงการ (Project Summary View) -->
+                <div id="view-project-summary" class="hidden animate-fade-in pb-10">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4 border-b border-gray-100 pb-5">
+                            <div>
+                                <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                    <i data-lucide="layout-list" class="w-6 h-6 text-[#5b5fc7]"></i> สรุปรายชื่อโครงการทั้งหมด
+                                </h2>
+                                <p class="text-sm text-gray-500 mt-1">แสดงข้อมูล <span id="summary-display-count" class="font-bold text-[#5b5fc7]">0</span> รายการ</p>
+                            </div>
+                            
+                            <!-- เพิ่มช่อง Search, Date, Export ชิดขวา แบบเดียวกับ List View -->
+                            <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                                <div class="relative flex-1 min-w-[150px]">
+                                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <input type="text" id="summary-search-input" placeholder="ค้นหาชื่อโครงการ..." class="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#5b5fc7] transition-shadow">
+                                </div>
+                                
+                                <select id="summary-search-time-type" class="px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#5b5fc7] transition-shadow text-gray-600 bg-white">
+                                    <option value="day">รายวัน</option>
+                                    <option value="month">รายเดือน</option>
+                                    <option value="year">รายปี</option>
+                                </select>
+                                
+                                <input type="date" id="summary-search-date" title="ค้นหาตามวันที่รับงาน" class="px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#5b5fc7] transition-shadow text-gray-600 block">
+                                <input type="month" id="summary-search-month" title="ค้นหาตามเดือนรับงาน" class="px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#5b5fc7] transition-shadow text-gray-600 hidden">
+                                <select id="summary-search-year" title="ค้นหาตามปีรับงาน" class="px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#5b5fc7] transition-shadow text-gray-600 hidden min-w-[120px]">
+                                    <option value="">ทุกปีทั้งหมด</option>
+                                </select>
+                                
+                                <button id="btn-summary-reset-search" class="p-2 bg-gray-50 text-gray-500 hover:text-gray-800 hover:bg-gray-200 border border-gray-200 rounded-md transition-colors" title="รีเซ็ตการค้นหา">
+                                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                                </button>
+
+                                <div class="flex items-center gap-1 border-l border-gray-200 pl-2 ml-1">
+                                    <button id="btn-summary-export-excel" class="p-2 bg-green-50 text-green-600 hover:bg-green-100 border border-green-200 rounded-md transition-colors relative" title="Export to Excel">
+                                        <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
+                                        <span class="absolute bottom-0.5 right-0.5 text-[7px] font-bold bg-white text-green-600 px-0.5 rounded-sm border border-green-200 leading-none">EXCEL</span>
+                                    </button>
+                                    <button id="btn-summary-export-pdf" class="p-2 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 rounded-md transition-colors relative" title="Export to PDF">
+                                        <i data-lucide="file-text" class="w-5 h-5"></i>
+                                        <span class="absolute bottom-0.5 right-0.5 text-[8px] font-bold bg-white text-red-600 px-0.5 rounded-sm border border-red-200 leading-none">PDF</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Summary Cards (เพิ่ม Onclick เพื่อกรอง และการแสดงผล %) -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 select-none">
+                            <div id="card-sum-all" onclick="setSummaryFilter('all')" class="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center cursor-pointer transition-all hover:shadow-md ring-2 ring-gray-400 ring-offset-2 scale-[1.02]">
+                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">โครงการทั้งหมด</p>
+                                <p class="text-xl font-bold text-gray-800" id="summary-total">0 ( 0% )</p>
+                            </div>
+                            <div id="card-sum-prog" onclick="setSummaryFilter('in_progress')" class="bg-blue-50 p-4 rounded-lg border border-blue-200 text-center cursor-pointer transition-all hover:shadow-md">
+                                <p class="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">กำลังดำเนินการ</p>
+                                <p class="text-xl font-bold text-blue-700" id="summary-progress">0 ( 0% )</p>
+                            </div>
+                            <div id="card-sum-won" onclick="setSummaryFilter('won')" class="bg-green-50 p-4 rounded-lg border border-green-200 text-center cursor-pointer transition-all hover:shadow-md">
+                                <p class="text-xs font-semibold text-green-600 uppercase tracking-wider mb-1">ได้งาน</p>
+                                <p class="text-xl font-bold text-green-700" id="summary-won">0 ( 0% )</p>
+                            </div>
+                            <div id="card-sum-lost" onclick="setSummaryFilter('lost')" class="bg-red-50 p-4 rounded-lg border border-red-200 text-center cursor-pointer transition-all hover:shadow-md">
+                                <p class="text-xs font-semibold text-red-600 uppercase tracking-wider mb-1">ไม่ได้งาน</p>
+                                <p class="text-xl font-bold text-red-700" id="summary-lost">0 ( 0% )</p>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="overflow-x-auto min-h-[300px]">
+                            <table class="w-full text-left text-sm whitespace-nowrap border border-gray-100 rounded-lg overflow-hidden" id="projects-summary-table">
+                                <thead class="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
+                                    <tr>
+                                        <th class="px-4 py-4 font-semibold text-center w-16">ลำดับ</th>
+                                        <th class="px-4 py-4 font-semibold text-center w-28">วันที่รับงาน</th>
+                                        <th class="px-6 py-4 font-semibold">ชื่อโครงการ</th>
+                                        <th class="px-4 py-4 font-semibold text-center w-32">กำลังดำเนินการ</th>
+                                        <th class="px-4 py-4 font-semibold text-center w-32">ได้งาน</th>
+                                        <th class="px-4 py-4 font-semibold text-center w-32">ไม่ได้งาน</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="projects-summary-body" class="divide-y divide-gray-100 bg-white">
+                                    <!-- JS Populates -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 1. ส่วนแสดงปฏิทิน -->
-                <div id="view-calendar" class="block animate-fade-in">
+                <div id="view-calendar" class="hidden animate-fade-in">
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                         <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
                             <div class="flex items-center gap-4">
@@ -363,94 +462,6 @@
                                 <p class="text-lg font-medium text-gray-600">ยังไม่มีรายการงาน</p>
                                 <p class="text-sm mt-1">เริ่มเพิ่มงานใหม่เพื่อบันทึกข้อมูลของคุณ</p>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 5. ส่วนแสดงสรุปรายชื่อโครงการ (Project Summary View) -->
-                <div id="view-project-summary" class="hidden animate-fade-in pb-10">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4 border-b border-gray-100 pb-5">
-                            <div>
-                                <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                                    <i data-lucide="layout-list" class="w-6 h-6 text-[#5b5fc7]"></i> สรุปรายชื่อโครงการทั้งหมด
-                                </h2>
-                                <p class="text-sm text-gray-500 mt-1">แสดงข้อมูล <span id="summary-display-count" class="font-bold text-[#5b5fc7]">0</span> รายการ</p>
-                            </div>
-                            
-                            <!-- เพิ่มช่อง Search, Date, Export ชิดขวา แบบเดียวกับ List View -->
-                            <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-                                <div class="relative flex-1 min-w-[150px]">
-                                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                    <input type="text" id="summary-search-input" placeholder="ค้นหาชื่อโครงการ..." class="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#5b5fc7] transition-shadow">
-                                </div>
-                                
-                                <select id="summary-search-time-type" class="px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#5b5fc7] transition-shadow text-gray-600 bg-white">
-                                    <option value="day">รายวัน</option>
-                                    <option value="month">รายเดือน</option>
-                                    <option value="year">รายปี</option>
-                                </select>
-                                
-                                <input type="date" id="summary-search-date" title="ค้นหาตามวันที่รับงาน" class="px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#5b5fc7] transition-shadow text-gray-600 block">
-                                <input type="month" id="summary-search-month" title="ค้นหาตามเดือนรับงาน" class="px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#5b5fc7] transition-shadow text-gray-600 hidden">
-                                <select id="summary-search-year" title="ค้นหาตามปีรับงาน" class="px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#5b5fc7] transition-shadow text-gray-600 hidden min-w-[120px]">
-                                    <option value="">ทุกปีทั้งหมด</option>
-                                </select>
-                                
-                                <button id="btn-summary-reset-search" class="p-2 bg-gray-50 text-gray-500 hover:text-gray-800 hover:bg-gray-200 border border-gray-200 rounded-md transition-colors" title="รีเซ็ตการค้นหา">
-                                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                                </button>
-
-                                <div class="flex items-center gap-1 border-l border-gray-200 pl-2 ml-1">
-                                    <button id="btn-summary-export-excel" class="p-2 bg-green-50 text-green-600 hover:bg-green-100 border border-green-200 rounded-md transition-colors relative" title="Export to Excel">
-                                        <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
-                                        <span class="absolute bottom-0.5 right-0.5 text-[7px] font-bold bg-white text-green-600 px-0.5 rounded-sm border border-green-200 leading-none">EXCEL</span>
-                                    </button>
-                                    <button id="btn-summary-export-pdf" class="p-2 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 rounded-md transition-colors relative" title="Export to PDF">
-                                        <i data-lucide="file-text" class="w-5 h-5"></i>
-                                        <span class="absolute bottom-0.5 right-0.5 text-[8px] font-bold bg-white text-red-600 px-0.5 rounded-sm border border-red-200 leading-none">PDF</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Summary Cards (เพิ่ม Onclick เพื่อกรอง และการแสดงผล %) -->
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 select-none">
-                            <div id="card-sum-all" onclick="setSummaryFilter('all')" class="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center cursor-pointer transition-all hover:shadow-md ring-2 ring-gray-400 ring-offset-2 scale-[1.02]">
-                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">โครงการทั้งหมด</p>
-                                <p class="text-xl font-bold text-gray-800" id="summary-total">0 ( 0% )</p>
-                            </div>
-                            <div id="card-sum-prog" onclick="setSummaryFilter('in_progress')" class="bg-blue-50 p-4 rounded-lg border border-blue-200 text-center cursor-pointer transition-all hover:shadow-md">
-                                <p class="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">กำลังดำเนินการ</p>
-                                <p class="text-xl font-bold text-blue-700" id="summary-progress">0 ( 0% )</p>
-                            </div>
-                            <div id="card-sum-won" onclick="setSummaryFilter('won')" class="bg-green-50 p-4 rounded-lg border border-green-200 text-center cursor-pointer transition-all hover:shadow-md">
-                                <p class="text-xs font-semibold text-green-600 uppercase tracking-wider mb-1">ได้งาน</p>
-                                <p class="text-xl font-bold text-green-700" id="summary-won">0 ( 0% )</p>
-                            </div>
-                            <div id="card-sum-lost" onclick="setSummaryFilter('lost')" class="bg-red-50 p-4 rounded-lg border border-red-200 text-center cursor-pointer transition-all hover:shadow-md">
-                                <p class="text-xs font-semibold text-red-600 uppercase tracking-wider mb-1">ไม่ได้งาน</p>
-                                <p class="text-xl font-bold text-red-700" id="summary-lost">0 ( 0% )</p>
-                            </div>
-                        </div>
-
-                        <!-- Table -->
-                        <div class="overflow-x-auto min-h-[300px]">
-                            <table class="w-full text-left text-sm whitespace-nowrap border border-gray-100 rounded-lg overflow-hidden" id="projects-summary-table">
-                                <thead class="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
-                                    <tr>
-                                        <th class="px-4 py-4 font-semibold text-center w-16">ลำดับ</th>
-                                        <th class="px-4 py-4 font-semibold text-center w-28">วันที่รับงาน</th>
-                                        <th class="px-6 py-4 font-semibold">ชื่อโครงการ</th>
-                                        <th class="px-4 py-4 font-semibold text-center w-32">กำลังดำเนินการ</th>
-                                        <th class="px-4 py-4 font-semibold text-center w-32">ได้งาน</th>
-                                        <th class="px-4 py-4 font-semibold text-center w-32">ไม่ได้งาน</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="projects-summary-body" class="divide-y divide-gray-100 bg-white">
-                                    <!-- JS Populates -->
-                                </tbody>
-                            </table>
                         </div>
                     </div>
                 </div>
@@ -757,6 +768,9 @@
         let dashCurrentYear = getThaiDate().getFullYear().toString();
         let dashCurrentMonth = 'all';
         let dashTimeView = 'month';
+        
+        // ตัวแปรเก็บสถานะการกรองอีเมล (ใช้ร่วมกัน 4 หน้าจอ)
+        let globalEmailFilter = 'all';
 
         const statusEl = document.getElementById('user-status');
         const tasksContainer = document.getElementById('tasks-container');
@@ -967,6 +981,7 @@
             const actionCells = document.querySelectorAll('.action-cell');
             const tabManage = document.getElementById('tab-manage');
             const adminOnlyActions = document.querySelectorAll('.admin-only'); 
+            const globalFilterWrapper = document.getElementById('admin-user-filter-wrapper');
             
             if (currentUserRole === 'admin') {
                 adminOnlyActions.forEach(el => el.style.display = '');
@@ -974,6 +989,13 @@
             } else {
                 adminOnlyActions.forEach(el => el.style.display = 'none');
                 document.getElementById('tab-users')?.classList.add('hidden');
+            }
+
+            // แสดงช่องกรองผู้ใช้งานแบบ Global เฉพาะแอดมินและมอนิเตอร์
+            if (currentUserRole === 'admin' || currentUserRole === 'monitor') {
+                globalFilterWrapper?.classList.remove('hidden');
+            } else {
+                globalFilterWrapper?.classList.add('hidden');
             }
 
             if (currentUserRole === 'monitor') {
@@ -992,6 +1014,27 @@
             }
             return dataList.filter(item => item.ownerId === currentUser.uid);
         }
+
+        // ===== ระบบดึงข้อมูลงาน/วันหยุดที่กรองตาม Email สำหรับ Admin/Monitor =====
+        function getTasksByFilter() {
+            if (globalEmailFilter === 'all') return allTasks;
+            return allTasks.filter(t => t.ownerEmail === globalEmailFilter);
+        }
+
+        function getHolidaysByFilter() {
+            if (globalEmailFilter === 'all') return allHolidays;
+            return allHolidays.filter(h => h.ownerEmail === globalEmailFilter);
+        }
+        
+        document.getElementById('global-user-filter')?.addEventListener('change', (e) => {
+            globalEmailFilter = e.target.value;
+            // อัปเดตข้อมูลทุกหน้าที่เปิดอยู่ทันที
+            if (viewDashboard && !viewDashboard.classList.contains('hidden')) renderDashboard();
+            if (viewCalendar && !viewCalendar.classList.contains('hidden')) renderCalendar();
+            if (viewList && !viewList.classList.contains('hidden')) filterAndRenderTasks();
+            if (viewProjectSummary && !viewProjectSummary.classList.contains('hidden')) renderProjectSummary();
+        });
+        // ====================================================================
 
         document.getElementById('btn-login-google')?.addEventListener('click', async () => {
             try {
@@ -1116,8 +1159,28 @@
                 
                 allTasks = tasks; 
                 
+                // นำรายชื่ออีเมลที่พบในระบบมาแสดงใน Dropdown Filter (Admin/Monitor)
+                const emailFilterSelect = document.getElementById('global-user-filter');
+                if (emailFilterSelect && (currentUserRole === 'admin' || currentUserRole === 'monitor')) {
+                    const currentVal = globalEmailFilter;
+                    const emailsSet = new Set();
+                    tasks.forEach(t => { if(t.ownerEmail) emailsSet.add(t.ownerEmail); });
+                    
+                    let optionsHtml = '<option value="all">ดูข้อมูลทุกผู้ใช้งาน</option>';
+                    Array.from(emailsSet).sort().forEach(email => {
+                        optionsHtml += `<option value="${email}">${email}</option>`;
+                    });
+                    emailFilterSelect.innerHTML = optionsHtml;
+                    if (emailsSet.has(currentVal)) {
+                        emailFilterSelect.value = currentVal;
+                    } else {
+                        globalEmailFilter = 'all';
+                        emailFilterSelect.value = 'all';
+                    }
+                }
+                
                 const listYearSelect = document.getElementById('search-year');
-                const summaryYearSelect = document.getElementById('summary-search-year'); // เพิ่มอัปเดตช่องปีในหน้าสรุปโครงการด้วย
+                const summaryYearSelect = document.getElementById('summary-search-year'); 
                 
                 if (listYearSelect) {
                     const yearsSet = new Set();
@@ -1225,8 +1288,14 @@
             if(!currentUser || currentUserRole === 'monitor') return;
             try {
                 projInput.value = 'กำลังเพิ่ม...';
-                // เพิ่ม status: 'in_progress' เป็นค่าเริ่มต้นทันทีที่สร้างโครงการใหม่
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'daily_projects'), { name: name, createdAt: Date.now(), ownerId: currentUser.uid, status: 'in_progress' });
+                // เพิ่ม status: 'in_progress' เป็นค่าเริ่มต้นทันทีที่สร้างโครงการใหม่ พร้อมบันทึก ownerEmail เพื่อให้กรองได้แม่นยำขึ้น
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'daily_projects'), { 
+                    name: name, 
+                    createdAt: Date.now(), 
+                    ownerId: currentUser.uid, 
+                    ownerEmail: currentUser.email,
+                    status: 'in_progress' 
+                });
                 selectProject(name);
                 showNotification(`เพิ่มโครงการ "${name}" แล้ว`);
             } catch (e) {
@@ -1380,18 +1449,28 @@
             const tbody = document.getElementById('projects-summary-body');
             if (!tbody) return;
             
+            // ใช้ฟังก์ชัน getTasksByFilter เพื่อให้เคารพการกรองตามอีเมลของ Global Dropdown
+            const tasksToUse = getTasksByFilter();
+            
             // 1. กรองข้อมูลตามสิทธิ์ (Admin/Monitor เห็นทั้งหมด, User เห็นเฉพาะโครงการของตัวเอง หรือโครงการที่มีงานของตัวเอง)
             let visibleProjects = [];
             if (currentUserRole === 'admin' || currentUserRole === 'monitor') {
-                visibleProjects = [...allProjects];
+                if (globalEmailFilter === 'all') {
+                    visibleProjects = [...allProjects];
+                } else {
+                    const userProjectNames = new Set(tasksToUse.map(t => t.projectName).filter(Boolean));
+                    const targetUid = tasksToUse.length > 0 ? tasksToUse[0].ownerId : null;
+                    // อัปเดตให้เช็คจาก p.ownerEmail ด้วย ป้องกันกรณีที่โปรเจกต์ถูกสร้างแล้วแต่ยังไม่มีงาน
+                    visibleProjects = allProjects.filter(p => p.ownerId === targetUid || p.ownerEmail === globalEmailFilter || userProjectNames.has(p.name));
+                }
             } else {
-                const userProjectNames = new Set(allTasks.map(t => t.projectName).filter(Boolean));
+                const userProjectNames = new Set(tasksToUse.map(t => t.projectName).filter(Boolean));
                 visibleProjects = allProjects.filter(p => p.ownerId === currentUser.uid || userProjectNames.has(p.name));
             }
 
             // 2. หาวันที่รับงานแรกสุดของแต่ละโครงการ 
             const projectData = visibleProjects.map(p => {
-                const pTasks = allTasks.filter(t => t.projectName === p.name && t.receiveDate);
+                const pTasks = tasksToUse.filter(t => t.projectName === p.name && t.receiveDate);
                 let earliestDate = '';
                 if (pTasks.length > 0) {
                     pTasks.sort((a, b) => a.receiveDate.localeCompare(b.receiveDate));
@@ -1725,8 +1804,9 @@
                 const isWeekend = cellDate.getDay() === 0 || cellDate.getDay() === 6;
                 const dateString = `${year}-${String(month+1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 
-                const dayTasks = allTasks.filter(t => t.receiveDate === dateString);
-                const holidayMatch = allHolidays.find(h => h.holidayDate === dateString);
+                // ใช้ getTasksByFilter เพื่อให้กรองตามอีเมลที่ Admin เลือกด้วย
+                const dayTasks = getTasksByFilter().filter(t => t.receiveDate === dateString);
+                const holidayMatch = getHolidaysByFilter().find(h => h.holidayDate === dateString);
 
                 let tasksHtml = '';
                 if (holidayMatch) {
@@ -1902,7 +1982,7 @@
             title.innerHTML = `<i data-lucide="calendar" class="w-5 h-5"></i> ${formatDate(dateString)}`;
             content.innerHTML = '';
 
-            const dayHolidays = allHolidays.filter(h => h.holidayDate === dateString);
+            const dayHolidays = getHolidaysByFilter().filter(h => h.holidayDate === dateString);
             if (dayHolidays.length > 0) {
                 let holsHtml = '';
                 dayHolidays.forEach(h => {
@@ -1914,7 +1994,7 @@
                 content.innerHTML += `<div class="mb-5 flex flex-wrap gap-2">${holsHtml}</div>`;
             }
 
-            const dayTasks = allTasks.filter(t => t.receiveDate === dateString);
+            const dayTasks = getTasksByFilter().filter(t => t.receiveDate === dateString);
             
             if (dayTasks.length === 0) {
                 content.innerHTML += `<div class="text-center text-gray-400 py-8"><i data-lucide="coffee" class="w-10 h-10 mx-auto mb-2 opacity-50"></i><p>ไม่มีงานในวันนี้</p></div>`;
@@ -2057,7 +2137,8 @@
             const searchYear = document.getElementById('search-year')?.value;
             const searchText = searchInput?.value.toLowerCase() || '';
 
-            filteredTasks = allTasks.filter(task => {
+            // ใช้ getTasksByFilter เพื่อให้กรองตามอีเมลที่ Admin เลือกด้วย
+            filteredTasks = getTasksByFilter().filter(task => {
                 let matchTime = true;
                 if (timeType === 'day' && searchDate) matchTime = task.receiveDate === searchDate;
                 else if (timeType === 'month' && searchMonth) matchTime = task.receiveDate && task.receiveDate.startsWith(searchMonth);
@@ -2232,11 +2313,46 @@
             const { id: docId, ...taskData } = taskToRestore;
             document.getElementById('day-detail-modal')?.classList.add('hidden');
 
+            // --- เพิ่มระบบ Auto-Cleanup: เตรียมข้อมูลสำหรับตรวจสอบและลบโครงการอัตโนมัติ ---
+            const projectName = taskData.projectName;
+            let projectToDeleteId = null;
+            let projectToDeleteData = null;
+
+            if (projectName) {
+                // เช็คว่ามีงานอื่นที่ใช้ชื่อโครงการนี้อยู่อีกหรือไม่ (ไม่นับงานที่กำลังจะถูกลบ)
+                const remainingTasks = allTasks.filter(t => t.projectName === projectName && t.id !== id);
+                
+                // ถ้าไม่มีงานเหลืออยู่เลยในโครงการนี้ ให้ดึง ID โครงการมาเตรียมลบทิ้ง
+                if (remainingTasks.length === 0) {
+                    const projObj = allProjects.find(p => p.name === projectName);
+                    if (projObj) {
+                        projectToDeleteId = projObj.id;
+                        const { id: pId, ...pData } = projObj;
+                        projectToDeleteData = pData;
+                    }
+                }
+            }
+            // ----------------------------------------------------------------------
+
             try {
+                // 1. ลบงาน
                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_tasks', id));
+
+                // 2. ลบโครงการออกจากหน้าสรุป (ถ้าเข้าเงื่อนไขว่าไม่มีงานเหลือแล้ว)
+                if (projectToDeleteId) {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_projects', projectToDeleteId));
+                }
+
                 showNotification("ลบงานเรียบร้อยแล้ว", "success", async () => {
                     try {
+                        // กู้คืนงาน (Undo)
                         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_tasks', id), taskData);
+                        
+                        // กู้คืนโครงการที่ถูกลบไปอัตโนมัติ (Undo)
+                        if (projectToDeleteId && projectToDeleteData) {
+                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_projects', projectToDeleteId), projectToDeleteData);
+                        }
+                        
                         showNotification("ย้อนกลับการลบสำเร็จ", "success");
                     } catch (restoreError) {
                         showNotification("เกิดข้อผิดพลาดในการย้อนกลับ", "error");
@@ -2260,12 +2376,15 @@
         }
 
         function renderDashboard() {
-            if (allTasks.length === 0) return;
+            // ใช้ getTasksByFilter เพื่อให้กรองตามอีเมลที่ Admin เลือกด้วย
+            const tasksToUse = getTasksByFilter();
+
+            if (tasksToUse.length === 0) return;
             
             const yearSelect = document.getElementById('dash-year-select');
             if (yearSelect) {
                 const yearsSet = new Set();
-                allTasks.forEach(t => { if (t.receiveDate) yearsSet.add(t.receiveDate.substring(0, 4)); });
+                tasksToUse.forEach(t => { if (t.receiveDate) yearsSet.add(t.receiveDate.substring(0, 4)); });
                 const sortedYears = Array.from(yearsSet).sort().reverse();
                 const currentSelection = yearSelect.value || dashCurrentYear;
                 yearSelect.innerHTML = '<option value="all">ทุกปีทั้งหมด</option>';
@@ -2280,19 +2399,26 @@
                 }
             }
 
-            let dashTasks = allTasks;
+            let dashTasks = tasksToUse;
             if (dashCurrentYear !== 'all') dashTasks = dashTasks.filter(t => t.receiveDate && t.receiveDate.startsWith(dashCurrentYear));
             if (dashCurrentMonth !== 'all') dashTasks = dashTasks.filter(t => t.receiveDate && t.receiveDate.substring(5, 7) === dashCurrentMonth);
 
             const totalProjectsSet = new Set();
-            allTasks.forEach(t => { if(t.projectName) totalProjectsSet.add(t.projectName); });
+            tasksToUse.forEach(t => { if(t.projectName) totalProjectsSet.add(t.projectName); });
             
             // แยกสิทธิ์การแสดงผลจำนวนโครงการทั้งหมด
             if (currentUserRole === 'admin' || currentUserRole === 'monitor') {
-                // แอดมิน/มอนิเตอร์ ให้นับรวมโครงการในระบบที่ถูกสร้างไว้ (แม้จะยังไม่มีใครลงงาน) เข้าไปด้วย
-                allProjects.forEach(p => { if(p.name) totalProjectsSet.add(p.name); });
+                if (globalEmailFilter === 'all') {
+                    // แอดมิน/มอนิเตอร์ เลือกดูทั้งหมด ให้นับรวมโครงการในระบบที่ถูกสร้างไว้ (แม้จะยังไม่มีใครลงงาน) เข้าไปด้วย
+                    allProjects.forEach(p => { if(p.name) totalProjectsSet.add(p.name); });
+                } else {
+                    // แต่ถ้าเลือก Filter ใครคนใดคนนึง ก็ดึงข้อมูลโครงการจากงานของคนๆ นั้นแทน
+                    const userProjectNames = new Set(tasksToUse.map(t => t.projectName).filter(Boolean));
+                    const targetUid = tasksToUse.length > 0 ? tasksToUse[0].ownerId : null;
+                    const visibleProjects = allProjects.filter(p => p.ownerId === targetUid || userProjectNames.has(p.name));
+                    visibleProjects.forEach(p => { if(p.name) totalProjectsSet.add(p.name); });
+                }
             }
-            // *สำหรับ User ระบบจะใช้แค่ allTasks ด้านบน ซึ่งถูกกรองให้มีแค่งานของตัวเองอยู่แล้ว
 
             const filteredProjectsSet = new Set();
             dashTasks.forEach(t => { if(t.projectName) filteredProjectsSet.add(t.projectName); });
@@ -2450,7 +2576,8 @@
         });
 
         document.getElementById('btn-export-dash-pdf')?.addEventListener('click', () => {
-            if (allTasks.length === 0) return showNotification("ไม่มีข้อมูลให้ Export", "error");
+            const tasksToUse = getTasksByFilter();
+            if (tasksToUse.length === 0) return showNotification("ไม่มีข้อมูลให้ Export", "error");
             showNotification("กำลังเตรียมไฟล์ PDF แดชบอร์ด...", "success");
             const element = document.getElementById('view-dashboard');
             const controls = element.querySelector('.mb-6.bg-white');
@@ -2466,7 +2593,8 @@
         });
 
         document.getElementById('btn-export-dash-jpg')?.addEventListener('click', () => {
-            if (allTasks.length === 0) return showNotification("ไม่มีข้อมูลให้ Export", "error");
+            const tasksToUse = getTasksByFilter();
+            if (tasksToUse.length === 0) return showNotification("ไม่มีข้อมูลให้ Export", "error");
             showNotification("กำลังเตรียมไฟล์ภาพ JPG แดชบอร์ด...", "success");
             const element = document.getElementById('view-dashboard');
             const controls = element.querySelector('.mb-6.bg-white');
