@@ -1015,6 +1015,34 @@
             return dataList.filter(item => item.ownerId === currentUser.uid);
         }
 
+        // --- เพิ่มฟังก์ชันรวมรายชื่ออีเมลสำหรับ Dropdown ---
+        function populateEmailDropdowns() {
+            const emailFilterSelect = document.getElementById('global-user-filter');
+            if (!emailFilterSelect || (currentUserRole !== 'admin' && currentUserRole !== 'monitor')) return;
+
+            const currentVal = globalEmailFilter;
+            const emailsSet = new Set();
+
+            // 1. ดึงอีเมลจากงานทั้งหมดที่มีในระบบ
+            allTasks.forEach(t => { if(t.ownerEmail) emailsSet.add(t.ownerEmail); });
+            // 2. ดึงอีเมลจากรายชื่อ User ในระบบ (จากหน้าจัดการผู้ใช้)
+            allUsers.forEach(u => { if(u.email) emailsSet.add(u.email); });
+
+            let optionsHtml = '<option value="all">ดูข้อมูลทุกผู้ใช้งาน</option>';
+            Array.from(emailsSet).sort().forEach(email => {
+                optionsHtml += `<option value="${email}">${email}</option>`;
+            });
+            
+            emailFilterSelect.innerHTML = optionsHtml;
+            if (emailsSet.has(currentVal)) {
+                emailFilterSelect.value = currentVal;
+            } else {
+                globalEmailFilter = 'all';
+                emailFilterSelect.value = 'all';
+            }
+        }
+        // ---------------------------------------------
+
         // ===== ระบบดึงข้อมูลงาน/วันหยุดที่กรองตาม Email สำหรับ Admin/Monitor =====
         function getTasksByFilter() {
             if (globalEmailFilter === 'all') return allTasks;
@@ -1093,7 +1121,7 @@
                 loadHolidays();
                 loadOptions();
                 
-                if (currentUserRole === 'admin') {
+                if (currentUserRole === 'admin' || currentUserRole === 'monitor') {
                     loadUsersList();
                 }
                 
@@ -1159,25 +1187,8 @@
                 
                 allTasks = tasks; 
                 
-                // นำรายชื่ออีเมลที่พบในระบบมาแสดงใน Dropdown Filter (Admin/Monitor)
-                const emailFilterSelect = document.getElementById('global-user-filter');
-                if (emailFilterSelect && (currentUserRole === 'admin' || currentUserRole === 'monitor')) {
-                    const currentVal = globalEmailFilter;
-                    const emailsSet = new Set();
-                    tasks.forEach(t => { if(t.ownerEmail) emailsSet.add(t.ownerEmail); });
-                    
-                    let optionsHtml = '<option value="all">ดูข้อมูลทุกผู้ใช้งาน</option>';
-                    Array.from(emailsSet).sort().forEach(email => {
-                        optionsHtml += `<option value="${email}">${email}</option>`;
-                    });
-                    emailFilterSelect.innerHTML = optionsHtml;
-                    if (emailsSet.has(currentVal)) {
-                        emailFilterSelect.value = currentVal;
-                    } else {
-                        globalEmailFilter = 'all';
-                        emailFilterSelect.value = 'all';
-                    }
-                }
+                // อัปเดต Dropdown กรองผู้ใช้งาน
+                populateEmailDropdowns();
                 
                 const listYearSelect = document.getElementById('search-year');
                 const summaryYearSelect = document.getElementById('summary-search-year'); 
@@ -2313,34 +2324,32 @@
             const { id: docId, ...taskData } = taskToRestore;
             document.getElementById('day-detail-modal')?.classList.add('hidden');
 
-            // --- เพิ่มระบบ Auto-Cleanup: เตรียมข้อมูลสำหรับตรวจสอบและลบโครงการอัตโนมัติ ---
-            const projectName = taskData.projectName;
-            let projectToDeleteId = null;
-            let projectToDeleteData = null;
+            // --- ระบบ Auto-Cleanup: เตรียมลบโครงการที่ไม่มีงานเหลือแล้ว ---
+            const projectNameStr = (taskData.projectName || '').trim();
+            let projectsToDeleteData = [];
 
-            if (projectName) {
-                // เช็คว่ามีงานอื่นที่ใช้ชื่อโครงการนี้อยู่อีกหรือไม่ (ไม่นับงานที่กำลังจะถูกลบ)
-                const remainingTasks = allTasks.filter(t => t.projectName === projectName && t.id !== id);
+            if (projectNameStr) {
+                // หาว่ามีงานของโปรเจกต์นี้เหลืออยู่อีกไหม (ไม่นับงานที่กำลังจะลบ)
+                const remainingTasks = allTasks.filter(t => (t.projectName || '').trim() === projectNameStr && t.id !== id);
                 
-                // ถ้าไม่มีงานเหลืออยู่เลยในโครงการนี้ ให้ดึง ID โครงการมาเตรียมลบทิ้ง
                 if (remainingTasks.length === 0) {
-                    const projObj = allProjects.find(p => p.name === projectName);
-                    if (projObj) {
-                        projectToDeleteId = projObj.id;
-                        const { id: pId, ...pData } = projObj;
-                        projectToDeleteData = pData;
-                    }
+                    // ถ้าไม่มีงานเหลือเลย ให้ดึงข้อมูลโปรเจกต์ที่มีชื่อตรงกันเตรียมไว้ลบ
+                    const matchedProjects = allProjects.filter(p => (p.name || '').trim() === projectNameStr);
+                    projectsToDeleteData = matchedProjects.map(p => {
+                        const { id: pId, ...pData } = p;
+                        return { id: pId, data: pData };
+                    });
                 }
             }
-            // ----------------------------------------------------------------------
+            // --------------------------------------------------------
 
             try {
                 // 1. ลบงาน
                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_tasks', id));
 
-                // 2. ลบโครงการออกจากหน้าสรุป (ถ้าเข้าเงื่อนไขว่าไม่มีงานเหลือแล้ว)
-                if (projectToDeleteId) {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_projects', projectToDeleteId));
+                // 2. ลบโครงการออกจากหน้าสรุปทั้งหมด (ที่ไม่มีงานเหลือ)
+                for (const proj of projectsToDeleteData) {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_projects', proj.id));
                 }
 
                 showNotification("ลบงานเรียบร้อยแล้ว", "success", async () => {
@@ -2349,8 +2358,8 @@
                         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_tasks', id), taskData);
                         
                         // กู้คืนโครงการที่ถูกลบไปอัตโนมัติ (Undo)
-                        if (projectToDeleteId && projectToDeleteData) {
-                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_projects', projectToDeleteId), projectToDeleteData);
+                        for (const proj of projectsToDeleteData) {
+                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_projects', proj.id), proj.data);
                         }
                         
                         showNotification("ย้อนกลับการลบสำเร็จ", "success");
@@ -2650,7 +2659,7 @@
         // ระบบบริหารจัดการผู้ใช้ (Admin Only) - พร้อมระบบ Cleanup ขยะ
         // ==============================================
         function loadUsersList() {
-            if (currentUserRole !== 'admin') return;
+            if (currentUserRole !== 'admin' && currentUserRole !== 'monitor') return;
             const usersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'users');
             onSnapshot(usersCollection, (snapshot) => {
                 allUsers = [];
@@ -2684,7 +2693,13 @@
                         deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', docId));
                     }
                 });
-                renderUsersTable();
+                
+                if (currentUserRole === 'admin') {
+                    renderUsersTable();
+                }
+                
+                // อัปเดต Dropdown กรองผู้ใช้งานเมื่อมี User เข้ามาใหม่
+                populateEmailDropdowns();
             });
         }
 
