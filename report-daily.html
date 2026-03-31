@@ -1023,10 +1023,12 @@
             const currentVal = globalEmailFilter;
             const emailsSet = new Set();
 
-            // 1. ดึงอีเมลจากงานทั้งหมดที่มีในระบบ
-            allTasks.forEach(t => { if(t.ownerEmail) emailsSet.add(t.ownerEmail); });
-            // 2. ดึงอีเมลจากรายชื่อ User ในระบบ (จากหน้าจัดการผู้ใช้)
-            allUsers.forEach(u => { if(u.email) emailsSet.add(u.email); });
+            // ดึงเฉพาะอีเมลจากรายชื่อ User ในระบบ ที่มีสิทธิ์เป็น 'user' เท่านั้น
+            allUsers.forEach(u => { 
+                if(u.email && u.role === 'user') {
+                    emailsSet.add(u.email); 
+                }
+            });
 
             let optionsHtml = '<option value="all">ดูข้อมูลทุกผู้ใช้งาน</option>';
             Array.from(emailsSet).sort().forEach(email => {
@@ -2324,32 +2326,34 @@
             const { id: docId, ...taskData } = taskToRestore;
             document.getElementById('day-detail-modal')?.classList.add('hidden');
 
-            // --- ระบบ Auto-Cleanup: เตรียมลบโครงการที่ไม่มีงานเหลือแล้ว ---
-            const projectNameStr = (taskData.projectName || '').trim();
-            let projectsToDeleteData = [];
+            // --- ระบบ Auto-Cleanup: เตรียมข้อมูลสำหรับตรวจสอบและลบโครงการอัตโนมัติ ---
+            const projectName = taskData.projectName;
+            let projectToDeleteId = null;
+            let projectToDeleteData = null;
 
-            if (projectNameStr) {
-                // หาว่ามีงานของโปรเจกต์นี้เหลืออยู่อีกไหม (ไม่นับงานที่กำลังจะลบ)
-                const remainingTasks = allTasks.filter(t => (t.projectName || '').trim() === projectNameStr && t.id !== id);
+            if (projectName) {
+                // เช็คว่ามีงานอื่นที่ใช้ชื่อโครงการนี้อยู่อีกหรือไม่ (ไม่นับงานที่กำลังจะถูกลบ)
+                const remainingTasks = allTasks.filter(t => t.projectName === projectName && t.id !== id);
                 
+                // ถ้าไม่มีงานเหลืออยู่เลยในโครงการนี้ ให้ดึง ID โครงการมาเตรียมลบทิ้ง
                 if (remainingTasks.length === 0) {
-                    // ถ้าไม่มีงานเหลือเลย ให้ดึงข้อมูลโปรเจกต์ที่มีชื่อตรงกันเตรียมไว้ลบ
-                    const matchedProjects = allProjects.filter(p => (p.name || '').trim() === projectNameStr);
-                    projectsToDeleteData = matchedProjects.map(p => {
-                        const { id: pId, ...pData } = p;
-                        return { id: pId, data: pData };
-                    });
+                    const projObj = allProjects.find(p => p.name === projectName);
+                    if (projObj) {
+                        projectToDeleteId = projObj.id;
+                        const { id: pId, ...pData } = projObj;
+                        projectToDeleteData = pData;
+                    }
                 }
             }
-            // --------------------------------------------------------
+            // ----------------------------------------------------------------------
 
             try {
                 // 1. ลบงาน
                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_tasks', id));
 
-                // 2. ลบโครงการออกจากหน้าสรุปทั้งหมด (ที่ไม่มีงานเหลือ)
-                for (const proj of projectsToDeleteData) {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_projects', proj.id));
+                // 2. ลบโครงการออกจากหน้าสรุป (ถ้าเข้าเงื่อนไขว่าไม่มีงานเหลือแล้ว)
+                if (projectToDeleteId) {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_projects', projectToDeleteId));
                 }
 
                 showNotification("ลบงานเรียบร้อยแล้ว", "success", async () => {
@@ -2358,8 +2362,8 @@
                         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_tasks', id), taskData);
                         
                         // กู้คืนโครงการที่ถูกลบไปอัตโนมัติ (Undo)
-                        for (const proj of projectsToDeleteData) {
-                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_projects', proj.id), proj.data);
+                        if (projectToDeleteId && projectToDeleteData) {
+                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_projects', projectToDeleteId), projectToDeleteData);
                         }
                         
                         showNotification("ย้อนกลับการลบสำเร็จ", "success");
