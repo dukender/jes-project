@@ -1182,10 +1182,8 @@
                 tasks = filterDataByRole(tasks);
 
                 tasks.sort((a, b) => {
-                    const dateA = a.receiveDate || '';
-                    const dateB = b.receiveDate || '';
-                    if(dateA !== dateB) return dateB.localeCompare(dateA);
-                    return b.createdAt - a.createdAt;
+                    // เรียงตามวันที่สร้างเหมือนเดิม (ใหม่สุดขึ้นก่อน)
+                    return (b.createdAt || 0) - (a.createdAt || 0);
                 });
                 
                 allTasks = tasks; 
@@ -1394,6 +1392,8 @@
         window.selectTaskType = (name) => {
             if (!selectedTaskTypes.includes(name)) {
                 selectedTaskTypes.push(name);
+                // จัดเรียงรายการที่เลือกแล้วตามตัวอักษรทุกครั้งที่เพิ่ม
+                selectedTaskTypes.sort((a, b) => a.localeCompare(b, 'th'));
                 renderTaskTypeChips();
             }
             if(taskTypeInput) taskTypeInput.value = '';
@@ -2308,7 +2308,11 @@
             const projInputEl = document.getElementById('projectNameInput');
             if (projInputEl) projInputEl.value = task.projectName || '';
 
-            if (Array.isArray(task.taskType)) selectedTaskTypes = [...task.taskType];
+            if (Array.isArray(task.taskType)) {
+                selectedTaskTypes = [...task.taskType];
+                // จัดเรียงเมื่อโหลดข้อมูลมาแก้ไขด้วย
+                selectedTaskTypes.sort((a, b) => a.localeCompare(b, 'th'));
+            }
             else if (task.taskType && typeof task.taskType === 'string') selectedTaskTypes = [task.taskType];
             else selectedTaskTypes = [];
             renderTaskTypeChips();
