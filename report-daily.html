@@ -1864,7 +1864,8 @@
             const daysInMonth = new Date(year, month + 1, 0).getDate(); 
 
             for(let i = 0; i < firstDay; i++) {
-                grid.innerHTML += `<div class="bg-gray-50/30 border border-gray-100 rounded-lg p-1.5 min-h-[120px] opacity-50"></div>`;
+                // ล็อกความสูงด้วย h-[130px] แทน min-h
+                grid.innerHTML += `<div class="bg-gray-50/30 border border-gray-100 rounded-lg p-1.5 h-[130px] opacity-50"></div>`;
             }
 
             for(let day = 1; day <= daysInMonth; day++) {
@@ -1876,7 +1877,9 @@
                 const dayTasks = getTasksByFilter().filter(t => t.receiveDate === dateString);
                 const holidayMatch = getHolidaysByFilter().find(h => h.holidayDate === dateString);
 
-                let tasksHtml = '';
+                // --- ส่วนที่แก้ไข: สร้าง Array รวบรวมข้อมูลทั้งหมดใน 1 วันเพื่อจำกัดจำนวนการแสดงผล ---
+                let allItemsHtml = [];
+
                 if (holidayMatch) {
                     const isLeave = holidayMatch.holidayType === 'leave';
                     const badgeBg = isLeave ? 'bg-green-500' : 'bg-red-500';
@@ -1885,23 +1888,34 @@
                     const canDelete = currentUserRole === 'admin' || (currentUserRole === 'user' && holidayMatch.ownerId === currentUser.uid);
                     const delBtn = canDelete ? `<button onclick="event.stopPropagation(); deleteHoliday('${holidayMatch.id}')" class="opacity-0 group-hover/hol:opacity-100 text-white ${badgeTextHover} ml-1 transition-opacity"><i data-lucide="x" class="w-3 h-3"></i></button>` : '';
 
-                    tasksHtml += `
+                    allItemsHtml.push(`
                         <div class="text-[10px] font-bold ${badgeBg} text-white rounded px-1.5 py-0.5 mb-1.5 flex items-center justify-between group/hol">
                             <span class="truncate flex items-center gap-1"><i data-lucide="${iconName}" class="w-3 h-3"></i> ${holidayMatch.holidayName}</span>
                             ${delBtn}
                         </div>
-                    `;
+                    `);
                 }
 
                 dayTasks.forEach(t => {
                     const initial = t.responsibleName ? t.responsibleName.charAt(0).toUpperCase() : '?';
-                    tasksHtml += `
-                        <div class="text-xs bg-[#eef1ff] border border-[#d2dbfb] text-[#5b5fc7] rounded px-1.5 py-1 mb-1 truncate cursor-default hover:bg-[#d2dbfb] transition-colors flex items-center justify-between group" title="${t.taskName} (รับผิดชอบ: ${t.responsibleName || 'ไม่ระบุ'})">
+                    allItemsHtml.push(`
+                        <div class="text-[11px] bg-[#eef1ff] border border-[#d2dbfb] text-[#5b5fc7] rounded px-1.5 py-1 mb-1 truncate cursor-default hover:bg-[#d2dbfb] transition-colors flex items-center justify-between group" title="${t.taskName} (รับผิดชอบ: ${t.responsibleName || 'ไม่ระบุ'})">
                             <span class="truncate">${t.taskName}</span>
                             <span class="text-[9px] font-bold bg-[#5b5fc7] text-white w-3 h-3 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-1">${initial}</span>
                         </div>
-                    `;
+                    `);
                 });
+
+                let tasksHtml = '';
+                if (allItemsHtml.length > 4) {
+                    // ถ้าเกิน 4 ให้แสดงแค่ 3 อันแรก และเพิ่มป้ายบอกจำนวนที่เหลือ
+                    tasksHtml = allItemsHtml.slice(0, 3).join('');
+                    tasksHtml += `<div class="text-[10px] text-gray-500 font-bold mt-1 text-center bg-gray-100 border border-gray-200 rounded py-0.5">รายการอื่นอีก + ${allItemsHtml.length - 3}</div>`;
+                } else {
+                    // ถ้าไม่เกิน 4 ให้แสดงทั้งหมด
+                    tasksHtml = allItemsHtml.join('');
+                }
+                // ----------------------------------------------------------------------
 
                 const today = getThaiDate();
                 const isToday = cellDate.getDate() === today.getDate() && cellDate.getMonth() === today.getMonth() && cellDate.getFullYear() === today.getFullYear();
@@ -1936,11 +1950,11 @@
                 }
 
                 grid.innerHTML += `
-                    <div onclick="openDayModal('${dateString}')" class="${cellBgBorderClass} border rounded-lg p-1.5 min-h-[120px] flex flex-col transition-colors cursor-pointer group/cell relative">
+                    <div onclick="openDayModal('${dateString}')" class="${cellBgBorderClass} border rounded-lg p-1.5 h-[130px] flex flex-col transition-colors cursor-pointer group/cell relative">
                         <div class="flex justify-end mb-1">
                             <span class="${dayNumberClass} text-xs">${day}</span>
                         </div>
-                        <div class="flex-1 overflow-y-auto no-scrollbar pb-1">
+                        <div class="flex-1 overflow-hidden pb-1">
                             ${tasksHtml}
                         </div>
                         <div class="absolute inset-0 bg-white/50 backdrop-blur-[1px] opacity-0 group-hover/cell:opacity-100 flex items-center justify-center transition-opacity rounded-lg pointer-events-none">
