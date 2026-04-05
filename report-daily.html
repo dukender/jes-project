@@ -260,31 +260,43 @@
                             </div>
                         </div>
 
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col">
                             <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="tag" class="w-5 h-5 text-pink-500"></i> สัดส่วนตามประเภทงาน</h3>
-                            <div class="relative h-64 w-full pl-4 md:pl-10">
-                                <canvas id="chart-tasktype"></canvas>
+                            <div class="flex items-center flex-1 w-full">
+                                <div class="relative w-48 h-48 sm:w-52 sm:h-52 shrink-0 ml-2 md:ml-10">
+                                    <canvas id="chart-tasktype"></canvas>
+                                </div>
+                                <div id="legend-tasktype" class="flex-1 pl-4 md:pl-8 overflow-y-auto max-h-[200px] no-scrollbar flex flex-col gap-1.5"></div>
                             </div>
                         </div>
 
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col">
                             <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="briefcase" class="w-5 h-5 text-amber-500"></i> สัดส่วนตามชื่อลูกค้า</h3>
-                            <div class="relative h-64 w-full pl-4 md:pl-10">
-                                <canvas id="chart-customer"></canvas>
+                            <div class="flex items-center flex-1 w-full">
+                                <div class="relative w-48 h-48 sm:w-52 sm:h-52 shrink-0 ml-2 md:ml-10">
+                                    <canvas id="chart-customer"></canvas>
+                                </div>
+                                <div id="legend-customer" class="flex-1 pl-4 md:pl-8 overflow-y-auto max-h-[200px] no-scrollbar flex flex-col gap-1.5"></div>
                             </div>
                         </div>
 
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col">
                             <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="users" class="w-5 h-5 text-violet-500"></i> สัดส่วนตามชื่อผู้รับผิดชอบ</h3>
-                            <div class="relative h-64 w-full pl-4 md:pl-10">
-                                <canvas id="chart-responsible"></canvas>
+                            <div class="flex items-center flex-1 w-full">
+                                <div class="relative w-48 h-48 sm:w-52 sm:h-52 shrink-0 ml-2 md:ml-10">
+                                    <canvas id="chart-responsible"></canvas>
+                                </div>
+                                <div id="legend-responsible" class="flex-1 pl-4 md:pl-8 overflow-y-auto max-h-[200px] no-scrollbar flex flex-col gap-1.5"></div>
                             </div>
                         </div>
 
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col">
                             <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="arrow-right-left" class="w-5 h-5 text-rose-500"></i> สัดส่วนตามการมอบหมาย</h3>
-                            <div class="relative h-64 w-full pl-4 md:pl-10">
-                                <canvas id="chart-assignment"></canvas>
+                            <div class="flex items-center flex-1 w-full">
+                                <div class="relative w-48 h-48 sm:w-52 sm:h-52 shrink-0 ml-2 md:ml-10">
+                                    <canvas id="chart-assignment"></canvas>
+                                </div>
+                                <div id="legend-assignment" class="flex-1 pl-4 md:pl-8 overflow-y-auto max-h-[200px] no-scrollbar flex flex-col gap-1.5"></div>
                             </div>
                         </div>
                     </div>
@@ -2739,13 +2751,7 @@
                             if (activeElements.length > 0) handleChartClick(activeElements[0].index);
                         },
                         plugins: { 
-                            legend: { 
-                                position: 'right',
-                                onClick: function(e, legendItem) {
-                                    // รองรับการกดที่คำอธิบายขวามือ (Legend)
-                                    handleChartClick(legendItem.index);
-                                }
-                            } 
+                            legend: { display: false } // ปิด Legend ดั้งเดิมของ Chart.js เพื่อสร้างเองแยกต่างหาก
                         }, 
                         cutout: '65%' 
                     },
@@ -2757,7 +2763,7 @@
                             const meta = chart.getDatasetMeta(0);
                             if (!meta.data || meta.data.length === 0) return;
                             
-                            // ใช้แกน X, Y จากตัวกราฟโดนัทเพื่อให้อยู่ตรงกลางเป๊ะๆ แม้ Legend จะกินพื้นที่ด้านขวา
+                            // ใช้แกน X, Y จากตัวกราฟโดนัทเพื่อให้อยู่ตรงกลางเป๊ะๆ
                             const centerX = meta.data[0].x;
                             const centerY = meta.data[0].y;
                             
@@ -2773,28 +2779,49 @@
                             
                             ctx.restore();
                             
-                            // วาดตัวเลข
-                            ctx.font = "bold 2.5rem Sarabun, sans-serif";
-                            ctx.fillStyle = "#dc2626"; // โทนสีแดงเข้ม (เพื่อให้ตัวเลขเด่นชัด)
+                            // วาดตัวเลข (ปรับขนาดเล็กลงเล็กน้อยให้พอดีกับกรอบใหม่)
+                            ctx.font = "bold 2.2rem Sarabun, sans-serif";
+                            ctx.fillStyle = "#dc2626"; // โทนสีแดงเข้ม
                             ctx.textBaseline = "middle";
                             const textNumWidth = ctx.measureText(textNum).width;
-                            // ขยับตัวเลขขึ้นเล็กน้อยหากมีหน่วยต่อท้าย
-                            const numY = unitText ? centerY - 12 : centerY + 4;
+                            const numY = unitText ? centerY - 10 : centerY + 4;
                             ctx.fillText(textNum, centerX - (textNumWidth / 2), numY);
                             
                             // วาดหน่วย (ถ้ามี)
                             if (unitText) {
-                                ctx.font = "600 0.9rem Sarabun, sans-serif"; // ขนาดเล็กกว่าตัวเลข
-                                ctx.fillStyle = "#ef4444"; // โทนสีแดง (สว่างกว่าตัวเลขเล็กน้อยเพื่อลดความเด่นลง)
+                                ctx.font = "600 0.85rem Sarabun, sans-serif"; 
+                                ctx.fillStyle = "#ef4444"; 
                                 const unitWidth = ctx.measureText(unitText).width;
-                                // ขยับหน่วยลงมาไว้ใต้ตัวเลข
-                                ctx.fillText(unitText, centerX - (unitWidth / 2), centerY + 20);
+                                ctx.fillText(unitText, centerX - (unitWidth / 2), centerY + 18);
                             }
                             
                             ctx.save();
                         }
                     }]
                 });
+
+                // --- สร้าง HTML Legend แยกต่างหากเพื่อให้กราฟโดนัทไม่ถูกบีบ ---
+                const legendContainer = document.getElementById(`legend-${canvasId}`);
+                if (legendContainer) {
+                    legendContainer.innerHTML = '';
+                    finalKeys.forEach((label, index) => {
+                        const baseColor = originalColors[index];
+                        const isSelected = activeIndex === index;
+                        const opacityClass = (activeIndex !== -1 && !isSelected) ? 'opacity-30' : 'opacity-100';
+                        const textBold = isSelected ? 'font-bold text-gray-900' : 'font-medium text-gray-600';
+
+                        const div = document.createElement('div');
+                        div.className = `flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-1.5 rounded transition-all group ${opacityClass}`;
+                        div.onclick = () => handleChartClick(index);
+
+                        div.innerHTML = `
+                            <div class="w-4 h-4 rounded-sm shadow-sm shrink-0 flex items-center justify-center transition-transform ${isSelected ? 'scale-110 ring-2 ring-offset-1 ring-gray-200' : ''}" style="background-color: ${baseColor};">
+                            </div>
+                            <span class="text-sm flex-1 truncate ${textBold} group-hover:text-gray-900 transition-colors" title="${label}">${label}</span>
+                        `;
+                        legendContainer.appendChild(div);
+                    });
+                }
             };
 
             drawPieChart('responsible', counts.responsible, 'ผู้รับผิดชอบ', 'งาน');
