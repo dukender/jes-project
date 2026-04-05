@@ -2063,7 +2063,7 @@
             
             const dayTasks = getTasksByFilter().filter(t => t.receiveDate === dateString);
             
-            // --- ส่วนที่แก้ไข: เพิ่มจำนวนงานต่อท้ายวันที่ ---
+            // เพิ่มตัวเลขจำนวนงานสีแดง ไว้ที่หัวข้อตามรูปภาพ
             let taskCountText = '';
             if (dayTasks.length > 0) {
                 taskCountText = `<span class="text-red-500 ml-2 font-bold">( ${dayTasks.length} งาน )</span>`;
@@ -2087,8 +2087,8 @@
             if (dayTasks.length === 0) {
                 content.innerHTML += `<div class="text-center text-gray-400 py-8"><i data-lucide="coffee" class="w-10 h-10 mx-auto mb-2 opacity-50"></i><p>ไม่มีงานในวันนี้</p></div>`;
             } else {
-                // เปลี่ยนไปใช้ Grid Layout 2 คอลัมน์ เพื่อให้รองรับกรอบที่ขยายใหญ่ขึ้น
-                let tasksGridHtml = '<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">';
+                // เปลี่ยนไปใช้ 1 Grid (1 คอลัมน์) ตามที่คุณต้องการ
+                let tasksGridHtml = '<div class="grid grid-cols-1 gap-4">';
                 dayTasks.forEach((task, idx) => {
                     let taskTypeDisplay = Array.isArray(task.taskType) ? task.taskType.join(', ') : (task.taskType || '-');
                     let notesHtml = '';
@@ -2126,10 +2126,10 @@
                             <h4 class="font-bold text-gray-800 text-lg mb-1 group-hover:text-[#5b5fc7] transition-colors">${task.taskName}</h4>
                             <p class="text-sm text-gray-600 mb-2 flex items-center gap-1.5"><i data-lucide="briefcase" class="w-4 h-4 text-gray-400"></i> ${task.projectName || '-'}</p>
                             
-                            <div class="grid grid-cols-2 gap-y-2 gap-x-4 text-sm mt-3 bg-gray-50 p-3 rounded-md border border-gray-100">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-sm mt-3 bg-gray-50 p-3 rounded-md border border-gray-100">
                                 <div class="text-gray-500 flex items-center gap-1.5"><i data-lucide="tag" class="w-4 h-4"></i> ประเภท: <span class="text-gray-800 font-medium ml-1 truncate">${taskTypeDisplay}</span></div>
                                 <div class="text-gray-500 flex items-center gap-1.5"><i data-lucide="user" class="w-4 h-4"></i> รับผิดชอบ: <span class="text-gray-800 font-medium ml-1 truncate">${task.responsibleName || '-'}</span></div>
-                                <div class="text-gray-500 flex items-center gap-1.5 col-span-2"><i data-lucide="users" class="w-4 h-4"></i> ลูกค้า: <span class="text-gray-800 font-medium ml-1 truncate">${task.customerName || '-'}</span></div>
+                                <div class="text-gray-500 flex items-center gap-1.5 col-span-1 sm:col-span-2"><i data-lucide="users" class="w-4 h-4"></i> ลูกค้า: <span class="text-gray-800 font-medium ml-1 truncate">${task.customerName || '-'}</span></div>
                             </div>
                             
                             <div class="flex-1">
