@@ -266,7 +266,7 @@
                                 <div class="relative w-48 h-48 sm:w-52 sm:h-52 shrink-0 ml-2 md:ml-10">
                                     <canvas id="chart-tasktype"></canvas>
                                 </div>
-                                <div id="legend-tasktype" class="flex-1 pl-4 md:pl-8 overflow-y-auto max-h-[200px] no-scrollbar flex flex-col gap-1.5"></div>
+                                <div id="legend-tasktype" class="flex-1 pl-4 md:pl-8 overflow-y-auto max-h-[200px] no-scrollbar flex flex-col gap-0.5"></div>
                             </div>
                         </div>
 
@@ -276,7 +276,7 @@
                                 <div class="relative w-48 h-48 sm:w-52 sm:h-52 shrink-0 ml-2 md:ml-10">
                                     <canvas id="chart-customer"></canvas>
                                 </div>
-                                <div id="legend-customer" class="flex-1 pl-4 md:pl-8 overflow-y-auto max-h-[200px] no-scrollbar flex flex-col gap-1.5"></div>
+                                <div id="legend-customer" class="flex-1 pl-4 md:pl-8 overflow-y-auto max-h-[200px] no-scrollbar flex flex-col gap-0.5"></div>
                             </div>
                         </div>
 
@@ -286,7 +286,7 @@
                                 <div class="relative w-48 h-48 sm:w-52 sm:h-52 shrink-0 ml-2 md:ml-10">
                                     <canvas id="chart-responsible"></canvas>
                                 </div>
-                                <div id="legend-responsible" class="flex-1 pl-4 md:pl-8 overflow-y-auto max-h-[200px] no-scrollbar flex flex-col gap-1.5"></div>
+                                <div id="legend-responsible" class="flex-1 pl-4 md:pl-8 overflow-y-auto max-h-[200px] no-scrollbar flex flex-col gap-0.5"></div>
                             </div>
                         </div>
 
@@ -296,7 +296,7 @@
                                 <div class="relative w-48 h-48 sm:w-52 sm:h-52 shrink-0 ml-2 md:ml-10">
                                     <canvas id="chart-assignment"></canvas>
                                 </div>
-                                <div id="legend-assignment" class="flex-1 pl-4 md:pl-8 overflow-y-auto max-h-[200px] no-scrollbar flex flex-col gap-1.5"></div>
+                                <div id="legend-assignment" class="flex-1 pl-4 md:pl-8 overflow-y-auto max-h-[200px] no-scrollbar flex flex-col gap-0.5"></div>
                             </div>
                         </div>
                     </div>
@@ -2811,7 +2811,7 @@
                         const textBold = isSelected ? 'font-bold text-gray-900' : 'font-medium text-gray-600';
 
                         const div = document.createElement('div');
-                        div.className = `flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-1.5 rounded transition-all group ${opacityClass}`;
+                        div.className = `flex items-center gap-3 cursor-pointer hover:bg-gray-50 py-0.5 px-1.5 rounded transition-all group ${opacityClass}`;
                         div.onclick = () => handleChartClick(index);
 
                         div.innerHTML = `
