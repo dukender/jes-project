@@ -2784,7 +2784,32 @@
                 chartInstances['project'] = new Chart(ctxProj, {
                     type: 'bar',
                     data: { labels: finalProjKeys, datasets: [{ label: 'จำนวนงาน', data: finalProjValues, backgroundColor: '#14b8a6', borderRadius: 6 }] },
-                    options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, max: projXAxisMax, ticks: { stepSize: 1 } } } }
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        indexAxis: 'y', 
+                        layout: { padding: { right: 40 } }, // เพิ่มพื้นที่ว่างด้านขวาป้องกันเลขตกขอบ
+                        plugins: { legend: { display: false } }, 
+                        scales: { x: { beginAtZero: true, max: projXAxisMax, ticks: { stepSize: 1 } } } 
+                    },
+                    plugins: [{
+                        id: 'hBarLabels',
+                        afterDatasetsDraw(chart) {
+                            const { ctx, data } = chart;
+                            ctx.save();
+                            chart.getDatasetMeta(0).data.forEach((datapoint, index) => {
+                                const value = data.datasets[0].data[index];
+                                if (value > 0) {
+                                    ctx.font = 'bold 14px Sarabun, sans-serif';
+                                    ctx.fillStyle = '#0f766e'; // โทนสีเขียว Teal ที่เข้มขึ้น
+                                    ctx.textAlign = 'left';
+                                    ctx.textBaseline = 'middle';
+                                    ctx.fillText(value, datapoint.x + 8, datapoint.y); // วาดเลขถัดจากปลายแท่ง 8px
+                                }
+                            });
+                            ctx.restore();
+                        }
+                    }]
                 });
             }
 
