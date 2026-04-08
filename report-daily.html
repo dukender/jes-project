@@ -1549,7 +1549,7 @@
                     ...p,
                     status: currentStatus,
                     earliestDate: earliestDate,
-                    sortDate: earliestDate || '9999-99-99' // กรณีไม่มีงาน ให้ไปอยู่ท้ายสุด
+                    sortDate: earliestDate || '0000-00-00' // แก้ไข: กรณีไม่มีงาน ให้ไปอยู่ท้ายสุดเมื่อเรียงจากใหม่ไปเก่า
                 };
             });
 
@@ -1570,8 +1570,8 @@
                 return matchTime && matchText;
             });
 
-            // เรียงลำดับจากเก่าไปใหม่ตามวันที่รับงาน
-            searchedProjects.sort((a, b) => a.sortDate.localeCompare(b.sortDate));
+            // เรียงลำดับจากใหม่ไปเก่าตามวันที่รับงาน (วันที่ล่าสุดขึ้นก่อน)
+            searchedProjects.sort((a, b) => b.sortDate.localeCompare(a.sortDate));
 
             // 4. คำนวณสรุปตัวเลขสถานะ (Total, Progress, Won, Lost) ก่อนนำไปแสดงบน Cards
             let total = searchedProjects.length;
