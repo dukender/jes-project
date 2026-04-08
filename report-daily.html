@@ -1649,7 +1649,7 @@
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-4 py-4 text-center font-medium text-gray-500">${globalIndex}</td>
                             <td class="px-4 py-4 text-center text-sm text-gray-600">${p.earliestDate ? formatDate(p.earliestDate) : '-'}</td>
-                            <td class="px-6 py-4 font-bold text-gray-800">${p.name}</td>
+                            <td class="px-6 py-4 font-bold text-[#5b5fc7] cursor-pointer hover:underline" onclick="openProjectDetailModal('${p.name.replace(/'/g, "\\'")}')" title="คลิกเพื่อดูรายละเอียดงานในโครงการ">${p.name}</td>
                             <td class="px-4 py-4 text-center">${checkboxHTML('in_progress')}</td>
                             <td class="px-4 py-4 text-center">${checkboxHTML('won')}</td>
                             <td class="px-4 py-4 text-center">${checkboxHTML('lost')}</td>
@@ -2194,6 +2194,94 @@
             document.getElementById('day-detail-modal')?.classList.add('hidden');
         });
 
+        // เพิ่มฟังก์ชันเปิด Modal สำหรับแสดงรายละเอียดงานในโครงการ
+        window.openProjectDetailModal = (projectName) => {
+            const modal = document.getElementById('day-detail-modal');
+            const title = document.getElementById('day-detail-title');
+            const content = document.getElementById('day-detail-content');
+            
+            // กรองงานตามชื่อโครงการ
+            const projectTasks = getTasksByFilter().filter(t => t.projectName === projectName);
+            
+            // เพิ่มตัวเลขจำนวนงานสีแดง ไว้ที่หัวข้อตามรูปภาพ
+            let taskCountText = '';
+            if (projectTasks.length > 0) {
+                taskCountText = `<span class="text-red-500 ml-2 font-bold">( ${projectTasks.length} งาน )</span>`;
+            }
+
+            title.innerHTML = `<i data-lucide="folder-kanban" class="w-5 h-5"></i> โครงการ: ${projectName} ${taskCountText}`;
+            content.innerHTML = '';
+
+            if (projectTasks.length === 0) {
+                content.innerHTML += `<div class="text-center text-gray-400 py-8"><i data-lucide="inbox" class="w-10 h-10 mx-auto mb-2 opacity-50"></i><p>ไม่มีงานในโครงการนี้</p></div>`;
+            } else {
+                // จัดเรียงงานตามวันที่รับงาน (ใหม่สุดไปเก่าสุด)
+                projectTasks.sort((a, b) => (b.receiveDate || '').localeCompare(a.receiveDate || ''));
+                
+                let tasksGridHtml = '<div class="grid grid-cols-1 gap-4">';
+                projectTasks.forEach((task, idx) => {
+                    let taskTypeDisplay = Array.isArray(task.taskType) ? task.taskType.join(', ') : (task.taskType || '-');
+                    let notesHtml = '';
+                    if (task.notes && task.notes.length > 0) {
+                        const validNotes = task.notes.filter(n => n.text.trim() !== '' || n.completed);
+                        if(validNotes.length > 0) {
+                            notesHtml = `<div class="mt-3 pt-3 border-t border-gray-100 space-y-2">`;
+                            validNotes.forEach(note => {
+                                const checked = note.completed ? `<i data-lucide="check-square" class="w-4 h-4 text-[#5b5fc7]"></i>` : `<i data-lucide="square" class="w-4 h-4 text-gray-400"></i>`;
+                                const textStyle = 'text-gray-700'; 
+                                const timeBadge = note.completedAt ? `<span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded shrink-0">${note.completedAt}</span>` : '';
+                                notesHtml += `<div class="flex items-start gap-2 text-sm"><div class="mt-0.5">${checked}</div><div class="flex-1 ${textStyle}">${note.text}</div>${timeBadge}</div>`;
+                            });
+                            notesHtml += `</div>`;
+                        }
+                    }
+
+                    let actionBtns = '';
+                    if(currentUserRole === 'admin' || currentUserRole === 'user') {
+                        actionBtns = `
+                            <div class="flex gap-2 mt-4 pt-3 border-t border-gray-100">
+                                <button onclick="editTask('${task.id}')" class="flex-1 bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-50 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 shadow-sm">
+                                    <i data-lucide="edit-3" class="w-4 h-4"></i> แก้ไข
+                                </button>
+                                <button onclick="deleteTask('${task.id}')" class="flex-1 bg-white border border-red-200 text-red-600 px-3 py-1.5 rounded-md hover:bg-red-50 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 shadow-sm">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i> ลบ
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    // สร้าง Card โชว์งาน พร้อมวันที่ของงานที่มุมขวาบน
+                    tasksGridHtml += `
+                        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group flex flex-col">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-[#5b5fc7]"></div>
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="font-bold text-gray-800 text-lg group-hover:text-[#5b5fc7] transition-colors pr-2">${task.taskName}</h4>
+                                <span class="text-xs font-semibold bg-gray-100 text-gray-600 px-2 py-1 rounded shrink-0"><i data-lucide="calendar" class="w-3 h-3 inline mr-1"></i>${formatDate(task.receiveDate)}</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2 flex items-center gap-1.5"><i data-lucide="briefcase" class="w-4 h-4 text-gray-400"></i> ${task.projectName || '-'}</p>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-sm mt-3 bg-gray-50 p-3 rounded-md border border-gray-100">
+                                <div class="text-gray-500 flex items-center gap-1.5"><i data-lucide="tag" class="w-4 h-4"></i> ประเภท: <span class="text-gray-800 font-medium ml-1 truncate">${taskTypeDisplay}</span></div>
+                                <div class="text-gray-500 flex items-center gap-1.5"><i data-lucide="user" class="w-4 h-4"></i> รับผิดชอบ: <span class="text-gray-800 font-medium ml-1 truncate">${task.responsibleName || '-'}</span></div>
+                                <div class="text-gray-500 flex items-center gap-1.5 col-span-1 sm:col-span-2"><i data-lucide="users" class="w-4 h-4"></i> ลูกค้า: <span class="text-gray-800 font-medium ml-1 truncate">${task.customerName || '-'}</span></div>
+                            </div>
+                            
+                            <div class="flex-1">
+                                ${notesHtml}
+                            </div>
+                            <div class="mt-auto">
+                                ${actionBtns}
+                            </div>
+                        </div>
+                    `;
+                });
+                tasksGridHtml += '</div>';
+                content.innerHTML += tasksGridHtml;
+            }
+            lucide.createIcons();
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        };
 
         // ==============================================
         // ระบบรายการงานแบบตาราง (List View)
