@@ -741,7 +741,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, GoogleAuthProvider, OAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, setDoc, getDoc, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // 1. Firebase Config ของคุณ
         const firebaseConfig = {
@@ -757,6 +757,15 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         
+        // เปิดใช้งานระบบแคชออฟไลน์ (Offline Persistence) เพื่อประหยัดโควต้าการอ่าน
+        enableIndexedDbPersistence(db).catch((err) => {
+            if (err.code == 'failed-precondition') {
+                console.warn("เปิดเว็บหลายแท็บ ระบบแคชออฟไลน์จะทำงานเต็มที่แค่แท็บเดียว");
+            } else if (err.code == 'unimplemented') {
+                console.warn("เบราว์เซอร์นี้ไม่รองรับระบบแคชออฟไลน์ของ Firebase");
+            }
+        });
+
         // Providers สำหรับ Login
         const googleProvider = new GoogleAuthProvider();
         const microsoftProvider = new OAuthProvider('microsoft.com');
