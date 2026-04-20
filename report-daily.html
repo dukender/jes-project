@@ -2139,13 +2139,15 @@
                 // --- เพิ่มปุ่ม Action บนปฏิทิน (เพิ่มงาน / เพิ่มวันหยุด) ---
                 let cellActionBtns = '';
                 if (currentUserRole !== 'monitor') {
+                    // เปลี่ยนให้เรียงปุ่มเป็นแนวตั้ง (flex-col) บนหน้าจอเล็ก และแนวนอน (lg:flex-row) บนจอใหญ่ 
+                    // พร้อมลดระยะห่าง (gap) และ padding บนมือถือ เพื่อไม่ให้ล้นกรอบ
                     cellActionBtns = `
-                        <div class="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover/cell:opacity-100 transition-opacity z-10 relative">
-                            <button onclick="event.stopPropagation(); window.openAddTaskFromCalendar('${dateString}')" class="p-1 bg-indigo-50 text-[#5b5fc7] hover:bg-indigo-100 rounded transition-colors shadow-sm border border-indigo-100" title="เพิ่มงานในวันนี้">
-                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                        <div class="flex flex-col lg:flex-row items-start gap-0.5 lg:gap-1 opacity-100 sm:opacity-0 sm:group-hover/cell:opacity-100 transition-opacity z-10 relative">
+                            <button onclick="event.stopPropagation(); window.openAddTaskFromCalendar('${dateString}')" class="p-[3px] lg:p-1 bg-indigo-50 text-[#5b5fc7] hover:bg-indigo-100 rounded transition-colors shadow-sm border border-indigo-100" title="เพิ่มงานในวันนี้">
+                                <i data-lucide="plus" class="w-3 h-3 lg:w-3.5 lg:h-3.5"></i>
                             </button>
-                            <button onclick="event.stopPropagation(); window.openAddHolidayFromCalendar('${dateString}')" class="p-1 bg-red-50 text-red-500 hover:bg-red-100 rounded transition-colors shadow-sm border border-red-100" title="เพิ่มวันหยุด/ลาในวันนี้">
-                                <i data-lucide="calendar-off" class="w-3.5 h-3.5"></i>
+                            <button onclick="event.stopPropagation(); window.openAddHolidayFromCalendar('${dateString}')" class="p-[3px] lg:p-1 bg-red-50 text-red-500 hover:bg-red-100 rounded transition-colors shadow-sm border border-red-100" title="เพิ่มวันหยุด/ลาในวันนี้">
+                                <i data-lucide="calendar-off" class="w-3 h-3 lg:w-3.5 lg:h-3.5"></i>
                             </button>
                         </div>
                     `;
