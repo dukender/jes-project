@@ -2197,6 +2197,13 @@
             holidayModal?.classList.add('hidden');
         });
 
+        // --- เพิ่ม Event Listener สำหรับปิด Modal รายละเอียดวัน ---
+        document.getElementById('close-day-modal')?.addEventListener('click', () => {
+            document.getElementById('day-detail-modal')?.classList.add('hidden');
+            document.getElementById('day-detail-modal')?.classList.remove('flex');
+        });
+        // --------------------------------------------------------
+
         holidayForm?.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!currentUser || currentUserRole === 'monitor') return;
