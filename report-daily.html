@@ -2419,9 +2419,12 @@
                 else if (timeType === 'month' && searchMonth) matchTime = task.receiveDate && task.receiveDate.startsWith(searchMonth);
                 else if (timeType === 'year' && searchYear) matchTime = task.receiveDate && task.receiveDate.startsWith(searchYear);
                 
+                // แปลง taskType ให้เป็น string เพื่อค้นหา
+                const typeStr = Array.isArray(task.taskType) ? task.taskType.join(' ') : (task.taskType || '');
+
                 const searchString = [
-                    task.taskName, task.responsibleName, task.customerName, 
-                    task.customerPhone, task.workLocation, task.assignment
+                    task.taskName, task.projectName, task.responsibleName, task.customerName, 
+                    task.customerPhone, task.workLocation, task.assignment, typeStr
                 ].join(' ').toLowerCase();
                 
                 const notesString = (task.notes || []).map(n => n.text).join(' ').toLowerCase();
