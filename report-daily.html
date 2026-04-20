@@ -2296,10 +2296,27 @@
             if (dayHolidays.length > 0) {
                 let holsHtml = '';
                 dayHolidays.forEach(h => {
-                    const isLeave = h.holidayType === 'leave';
-                    const colorClass = isLeave ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200';
-                    const icon = isLeave ? 'user-minus' : 'tent';
-                    holsHtml += `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${colorClass}"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i> ${h.holidayName}</span>`;
+                    // กำหนดสีและไอคอนเริ่มต้น (วันหยุดบริษัท)
+                    let colorClass = 'bg-red-100 text-red-700 border-red-200';
+                    let icon = 'tent';
+                    let typeText = 'วันหยุดบริษัท/วันหยุดประจำปี';
+
+                    // แยกสีและไอคอนตามประเภทการลา เพื่อให้ตรงกับป้ายสรุปยอดคงเหลือ
+                    if (h.holidayType === 'vacation_leave') {
+                        colorClass = 'bg-blue-100 text-blue-700 border-blue-200'; 
+                        icon = 'plane-takeoff'; 
+                        typeText = 'ลาพักร้อน';
+                    } else if (h.holidayType === 'personal_leave' || h.holidayType === 'leave') {
+                        colorClass = 'bg-orange-100 text-orange-700 border-orange-200'; 
+                        icon = 'user-minus'; 
+                        typeText = 'ลากิจ';
+                    } else if (h.holidayType === 'sick_leave') {
+                        colorClass = 'bg-purple-100 text-purple-700 border-purple-200'; 
+                        icon = 'pill'; 
+                        typeText = 'ลาป่วย';
+                    }
+
+                    holsHtml += `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${colorClass}" title="ประเภท: ${typeText}"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i> ${h.holidayName}</span>`;
                 });
                 content.innerHTML += `<div class="mb-5 flex flex-wrap gap-2">${holsHtml}</div>`;
             }
