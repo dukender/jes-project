@@ -2010,15 +2010,31 @@
                     }
                 }
 
+                // --- เพิ่มปุ่ม Action บนปฏิทิน (เพิ่มงาน / เพิ่มวันหยุด) ---
+                let cellActionBtns = '';
+                if (currentUserRole !== 'monitor') {
+                    cellActionBtns = `
+                        <div class="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover/cell:opacity-100 transition-opacity z-10 relative">
+                            <button onclick="event.stopPropagation(); window.openAddTaskFromCalendar('${dateString}')" class="p-1 bg-indigo-50 text-[#5b5fc7] hover:bg-indigo-100 rounded transition-colors shadow-sm border border-indigo-100" title="เพิ่มงานในวันนี้">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); window.openAddHolidayFromCalendar('${dateString}')" class="p-1 bg-red-50 text-red-500 hover:bg-red-100 rounded transition-colors shadow-sm border border-red-100" title="เพิ่มวันหยุด/ลาในวันนี้">
+                                <i data-lucide="calendar-off" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+
                 grid.innerHTML += `
                     <div onclick="openDayModal('${dateString}')" class="${cellBgBorderClass} border rounded-lg p-1.5 h-[130px] flex flex-col transition-colors cursor-pointer group/cell relative">
-                        <div class="flex justify-end mb-1">
-                            <span class="${dayNumberClass} text-xs">${day}</span>
+                        <div class="flex justify-between items-start mb-1">
+                            ${cellActionBtns}
+                            <span class="${dayNumberClass} text-xs ml-auto shrink-0">${day}</span>
                         </div>
                         <div class="flex-1 overflow-hidden pb-1">
                             ${tasksHtml}
                         </div>
-                        <div class="absolute inset-0 bg-white/50 backdrop-blur-[1px] opacity-0 group-hover/cell:opacity-100 flex items-center justify-center transition-opacity rounded-lg pointer-events-none">
+                        <div class="absolute inset-0 bg-white/50 backdrop-blur-[1px] opacity-0 group-hover/cell:opacity-100 hidden sm:flex items-center justify-center transition-opacity rounded-lg pointer-events-none">
                             <span class="bg-[#5b5fc7] text-white text-xs font-bold px-3 py-1.5 rounded shadow-sm">ดูรายละเอียด</span>
                         </div>
                     </div>
@@ -2115,6 +2131,23 @@
             } catch(e) {
                 showNotification("เกิดข้อผิดพลาดในการลบ", "error");
             }
+        };
+
+        // เพิ่มฟังก์ชันเปิดฟอร์มจากหน้าปฏิทินโดยตรง
+        window.openAddTaskFromCalendar = (dateString) => {
+            currentEditTaskId = null;
+            resetFormToAddMode();
+            const recDate = document.getElementById('receiveDate');
+            if (recDate) recDate.value = dateString;
+            switchTab('manage');
+        };
+
+        window.openAddHolidayFromCalendar = (dateString) => {
+            const holidayForm = document.getElementById('holiday-form');
+            if (holidayForm) holidayForm.reset();
+            const dateInput = document.getElementById('holidayDate');
+            if (dateInput) dateInput.value = dateString;
+            document.getElementById('holiday-form-modal')?.classList.remove('hidden');
         };
 
         window.openDayModal = (dateString) => {
