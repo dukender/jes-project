@@ -13,6 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
     <script>
         tailwind.config = { theme: { extend: { fontFamily: { sans: ['Sarabun', 'sans-serif'] } } } }
     </script>
@@ -23,7 +24,6 @@
     </style>
 </head>
 <body class="text-gray-800 antialiased h-screen flex flex-col overflow-hidden">
-    <!-- 1. หน้าจอ Login -->
     <div id="view-login" class="fixed inset-0 bg-[#eef1ff] z-[200] flex flex-col items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 text-center border border-gray-100 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#5b5fc7] to-[#8b5cf6]"></div>
@@ -45,7 +45,6 @@
         </div>
     </div>
 
-    <!-- 2. หน้าแอปพลิเคชันหลัก -->
     <div id="main-app" class="hidden h-full flex flex-col overflow-hidden">
         <header class="bg-white border-b border-gray-200 shadow-sm z-10 shrink-0">
             <div class="max-w-[1400px] mx-auto px-4 h-16 flex items-center justify-between">
@@ -71,15 +70,11 @@
 
         <main class="flex-1 overflow-y-auto w-full">
             <div class="max-w-[1400px] mx-auto px-2 sm:px-4 py-4 sm:py-6">
-                <!-- แท็บระบบ -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 border-b border-gray-200 gap-4 sm:gap-0">
                     <div class="flex gap-2 sm:gap-6 px-2 overflow-x-auto no-scrollbar w-full sm:w-auto pb-2 sm:pb-0">
                         <button id="tab-dashboard" class="px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-semibold text-[#5b5fc7] border-b-2 border-[#5b5fc7] transition-colors flex items-center gap-2 whitespace-nowrap"><i data-lucide="pie-chart" class="w-5 h-5"></i> แดชบอร์ดสถิติ</button>
                         <button id="tab-project-summary" class="px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-semibold text-gray-500 hover:text-[#5b5fc7] transition-colors flex items-center gap-2 border-b-2 border-transparent whitespace-nowrap"><i data-lucide="layout-list" class="w-5 h-5"></i> สรุปโครงการ</button>
-                        
-                        <!-- NEW: ปุ่มแท็บสำหรับ Workflow -->
                         <button id="tab-workflow" class="px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-semibold text-gray-500 hover:text-[#5b5fc7] transition-colors flex items-center gap-2 border-b-2 border-transparent whitespace-nowrap"><i data-lucide="git-merge" class="w-5 h-5"></i> ขั้นตอนทำงาน</button>
-                        
                         <button id="tab-calendar" class="px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-semibold text-gray-500 hover:text-[#5b5fc7] transition-colors flex items-center gap-2 border-b-2 border-transparent whitespace-nowrap"><i data-lucide="calendar-days" class="w-5 h-5"></i> ปฏิทินงาน</button>
                         <button id="tab-list" class="px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-semibold text-gray-500 hover:text-[#5b5fc7] transition-colors flex items-center gap-2 border-b-2 border-transparent whitespace-nowrap"><i data-lucide="table" class="w-5 h-5"></i> รายการงานประจำวัน</button>
                         <button id="tab-users" class="hidden px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-semibold text-gray-500 hover:text-[#5b5fc7] transition-colors flex items-center gap-2 border-b-2 border-transparent whitespace-nowrap admin-only"><i data-lucide="user" class="w-5 h-5"></i> จัดการผู้ใช้</button>
@@ -100,9 +95,7 @@
                     </div>
                 </div>
 
-                <!-- 0. แดชบอร์ด -->
                 <div id="view-dashboard" class="block animate-fade-in">
-                    <!-- ... โค้ดแดชบอร์ดเดิม ... -->
                     <div class="flex flex-col sm:flex-row justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-200 gap-4">
                         <div class="flex items-center gap-2 flex-wrap">
                             <label class="font-bold text-gray-700 text-sm flex items-center gap-1"><i data-lucide="filter" class="w-4 h-4 text-[#5b5fc7]"></i> กรองตาม</label>
@@ -167,8 +160,6 @@
                             <div class="flex flex-col sm:flex-row items-center sm:items-start flex-1 w-full gap-4 sm:gap-0 mt-2 sm:mt-0"><div class="relative w-48 h-48 sm:w-52 sm:h-52 shrink-0 mx-auto sm:mx-0 sm:ml-2 md:ml-10"><canvas id="chart-assignment"></canvas></div><div id="legend-assignment" class="flex-1 w-full sm:w-auto pl-0 sm:pl-4 md:pl-8 overflow-y-auto max-h-[300px] no-scrollbar flex flex-col gap-0.5"></div></div>
                         </div>
                     </div>
-                </div>
-
                 <!-- 5. สรุปโครงการ -->
                 <div id="view-project-summary" class="hidden animate-fade-in pb-10">
                     <!-- ... โค้ดสรุปโครงการเดิม ... -->
@@ -207,18 +198,19 @@
                 </div>
 
                 <!-- NEW: 6. ขั้นตอนทำงาน (Workflow Tree) -->
-                <div id="view-workflow" class="hidden animate-fade-in pb-10">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden min-h-[600px] flex flex-col">
-                        <div class="p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gray-50/50">
+                <div id="view-workflow" class="hidden animate-fade-in pb-10 h-[calc(100vh-120px)] sm:h-[calc(100vh-140px)]">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden h-full flex flex-col">
+                        <div class="p-4 sm:p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gray-50/50 shrink-0">
                             <div>
                                 <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="git-merge" class="w-5 h-5 text-[#5b5fc7]"></i> โครงสร้างขั้นตอนการทำงาน (Workflow Tree)</h2>
                                 <p class="text-sm text-gray-500 mt-1 flex flex-wrap gap-1.5 items-center">
-                                    <span class="text-gray-400">ลำดับการดูข้อมูล:</span> 
-                                    <span class="bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded text-[10px] font-bold">เดือน/ปี</span> <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400"></i>
-                                    <span class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-[10px] font-bold">โครงการ</span> <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400"></i>
-                                    <span class="bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded text-[10px] font-bold">ประเภทงาน</span> <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400"></i>
-                                    <span class="bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-[10px] font-bold">รายละเอียด</span> <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400"></i>
-                                    <span class="bg-gray-200 text-gray-700 px-1.5 py-0.5 rounded text-[10px] font-bold">ลูกค้า</span>
+                                    <span class="text-gray-400">ลำดับโครงสร้าง (ขวาไปซ้าย):</span> 
+                                    <span class="bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded text-[10px] font-bold">สรุปรวม</span> <i data-lucide="chevron-left" class="w-3 h-3 text-gray-400"></i>
+                                    <span class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-[10px] font-bold">เดือน/ปี</span> <i data-lucide="chevron-left" class="w-3 h-3 text-gray-400"></i>
+                                    <span class="bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded text-[10px] font-bold">โครงการ</span> <i data-lucide="chevron-left" class="w-3 h-3 text-gray-400"></i>
+                                    <span class="bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded text-[10px] font-bold">ประเภทงาน</span> <i data-lucide="chevron-left" class="w-3 h-3 text-gray-400"></i>
+                                    <span class="bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-[10px] font-bold">รายละเอียด</span> <i data-lucide="chevron-left" class="w-3 h-3 text-gray-400"></i>
+                                    <span class="bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded text-[10px] font-bold">ลูกค้า</span>
                                 </p>
                             </div>
                             <div class="flex gap-2">
@@ -226,17 +218,14 @@
                                 <button onclick="collapseAllTree()" class="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 text-gray-600 transition-colors flex items-center gap-1.5 shadow-sm"><i data-lucide="minimize-2" class="w-4 h-4"></i> ยุบทั้งหมด</button>
                             </div>
                         </div>
-                        <div class="p-4 sm:p-8 overflow-x-auto flex-1 bg-[#fafbfc]">
-                            <div id="workflow-tree-container" class="pb-10 font-sans min-w-max">
-                                <!-- Tree Content Will Be Rendered Here -->
-                            </div>
+                        <div class="flex-1 w-full bg-[#fafbfc] relative overflow-hidden">
+                            <div id="workflow-tree-container" class="absolute inset-0 w-full h-full"></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 1. ปฏิทิน -->
                 <div id="view-calendar" class="hidden animate-fade-in">
-                    <!-- ... โค้ดปฏิทินเดิม ... -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                         <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
                             <div class="flex items-center gap-4"><h2 id="calendar-month-year" class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-2">เดือน ปี</h2></div>
@@ -260,9 +249,7 @@
                     </div>
                 </div>
 
-                <!-- 2. ตาราง List View -->
                 <div id="view-list" class="hidden animate-fade-in">
-                    <!-- ... โค้ดตารางรายการงานเดิม ... -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                         <div class="p-6 border-b border-gray-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-gray-50/50">
                             <div><h2 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="list-todo" class="w-5 h-5 text-[#5b5fc7]"></i> รายการงานทั้งหมด</h2><p class="text-sm text-gray-500 mt-1">แสดงข้อมูลทั้งหมด <span id="task-count" class="font-bold text-[#5b5fc7]">0</span> รายการ</p></div>
@@ -295,9 +282,7 @@
                     </div>
                 </div>
 
-                <!-- 4. หน้าจัดการผู้ใช้ -->
                 <div id="view-users" class="hidden animate-fade-in pb-10 admin-only">
-                    <!-- ... โค้ดหน้าจัดการผู้ใช้เดิม ... -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mx-auto relative">
                         <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-500 to-orange-400"></div>
                         <div class="p-4 sm:p-8">
@@ -323,9 +308,7 @@
                     </div>
                 </div>
 
-                <!-- 3. ฟอร์มเพิ่ม/แก้ไข -->
                 <div id="view-manage" class="hidden animate-fade-in pb-10">
-                    <!-- ... โค้ดหน้าฟอร์มเดิม ... -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden max-w-4xl mx-auto relative">
                         <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#5b5fc7] to-indigo-400"></div>
                         <div class="p-4 sm:p-8">
@@ -383,13 +366,11 @@
         </main>
     </div>
 
-    <!-- แจ้งเตือน -->
     <div id="toast" class="fixed top-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full opacity-0 z-[120] flex items-center gap-3">
         <span id="toast-icon"></span><span id="toast-message" class="font-medium text-sm"></span>
         <button id="toast-undo-btn" class="hidden ml-4 px-3 py-1 bg-white/20 hover:bg-white/30 text-white text-xs font-bold rounded transition-colors whitespace-nowrap">ย้อนกลับ</button>
     </div>
 
-    <!-- Modal เพิ่มวันหยุด -->
     <div id="holiday-form-modal" class="fixed inset-0 bg-black/50 hidden z-[110] flex items-center justify-center backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 flex flex-col overflow-hidden transform transition-all">
             <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-red-50">
@@ -410,7 +391,6 @@
         </div>
     </div>
 
-    <!-- Modal ดูรายละเอียด -->
     <div id="day-detail-modal" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 flex flex-col max-h-[85vh] overflow-hidden transform transition-all">
             <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
@@ -458,6 +438,8 @@
 
         let currentUser = null, currentUserRole = 'user', unsubscribeTasks = null, allTasks = [], filteredTasks = [], currentCalendarDate = getThaiDate(), currentEditTaskId = null, currentNotes = [], allHolidays = [], unsubscribeHolidays = null, unsubscribeUser = null, currentUserData = null, allUsers = [], presenceInterval = null, allProjects = [], allTaskTypes = [], selectedTaskTypes = []; 
         let chartInstances = { time: null, responsible: null, customer: null, assignment: null, project: null, tasktype: null };
+        let workflowChartInstance = null; // ตัวแปรสำหรับเก็บกราฟ ECharts ของ Workflow
+        
         let dashCurrentYear = getThaiDate().getFullYear().toString(), dashCurrentMonth = 'all', dashCurrentProject = 'all', dashAvailableProjects = [], dashTimeView = 'month';
         let dashCrossFilters = { responsible: null, customer: null, assignment: null, tasktype: null };
         let globalEmailFilter = 'all';
@@ -521,7 +503,11 @@
             else if (activeTabId === 'project-summary') { viewProjectSummary?.classList.remove('hidden'); viewProjectSummary?.classList.add('block'); document.getElementById('tab-project-summary')?.classList.add('text-[#5b5fc7]', 'border-[#5b5fc7]'); document.getElementById('tab-project-summary')?.classList.remove('text-gray-500', 'border-transparent'); renderProjectSummary(); }
             else if (activeTabId === 'manage') { viewManage?.classList.remove('hidden'); viewManage?.classList.add('block'); document.getElementById('tab-manage')?.classList.add('text-[#5b5fc7]', 'border-[#5b5fc7]'); document.getElementById('tab-manage')?.classList.remove('text-gray-500', 'border-transparent'); document.getElementById('form-title').innerText = currentEditTaskId ? "แก้ไขรายละเอียดงาน" : "เพิ่มรายละเอียดงานใหม่"; }
             else if (activeTabId === 'users') { viewUsers?.classList.remove('hidden'); viewUsers?.classList.add('block'); document.getElementById('tab-users')?.classList.add('text-[#5b5fc7]', 'border-[#5b5fc7]'); document.getElementById('tab-users')?.classList.remove('text-gray-500', 'border-transparent'); }
-            else if (activeTabId === 'workflow') { viewWorkflow?.classList.remove('hidden'); viewWorkflow?.classList.add('block'); document.getElementById('tab-workflow')?.classList.add('text-[#5b5fc7]', 'border-[#5b5fc7]'); document.getElementById('tab-workflow')?.classList.remove('text-gray-500', 'border-transparent'); renderWorkflowTree(); }
+            else if (activeTabId === 'workflow') { 
+                viewWorkflow?.classList.remove('hidden'); viewWorkflow?.classList.add('block'); document.getElementById('tab-workflow')?.classList.add('text-[#5b5fc7]', 'border-[#5b5fc7]'); document.getElementById('tab-workflow')?.classList.remove('text-gray-500', 'border-transparent'); 
+                // จำเป็นต้องรอให้ DOM แสดงผลเสร็จก่อนค่อยเรนเดอร์ ECharts เพื่อให้ได้ขนาดที่ถูกต้อง
+                setTimeout(() => renderWorkflowTree(), 50); 
+            }
             lucide.createIcons();
         }
 
@@ -1431,203 +1417,182 @@
         };
 
         // ==========================================
-        // ฟังก์ชันสำหรับจัดการ Workflow Tree แบบ Minimal
+        // ฟังก์ชันสำหรับจัดการ Workflow Tree (ECharts)
         // ==========================================
+        let workflowChartInstance = null;
+        let currentTreeDepth = 2; // ระดับเริ่มต้นเมื่อโหลด (สรุปรวม > เดือน > โครงการ)
+
+        function buildEChartsData(tasks) {
+            let monthCounts = {};
+            tasks.forEach(t => {
+               if(!t.receiveDate) return;
+               const [yearStr, monthStr] = t.receiveDate.split('-');
+               const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+               const monthYear = `${thaiMonths[parseInt(monthStr, 10) - 1]} ${parseInt(yearStr, 10) + 543}`;
+               monthCounts[monthYear] = (monthCounts[monthYear] || 0) + 1;
+            });
+
+            const root = {
+                name: 'สรุปรวมงาน',
+                label: { backgroundColor: '#5b5fc7', color: '#fff', padding: [10, 16], borderRadius: 6, fontWeight: 'bold', fontSize: 14 },
+                children: []
+            };
+            const monthMap = new Map();
+
+            // จัดกลุ่มข้อมูล
+            tasks.forEach(task => {
+                if (!task.receiveDate) return;
+                const [yearStr, monthStr] = task.receiveDate.split('-');
+                const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+                const monthYear = `${thaiMonths[parseInt(monthStr, 10) - 1]} ${parseInt(yearStr, 10) + 543}`;
+                const proj = task.projectName || 'ไม่ได้ระบุโครงการ';
+                let types = Array.isArray(task.taskType) ? task.taskType : (task.taskType ? [task.taskType] : ['ไม่ระบุประเภทงาน']);
+                if (types.length === 0) types = ['ไม่ระบุประเภทงาน'];
+                const detail = task.taskName || 'ไม่ระบุรายละเอียดงาน';
+                const customer = task.customerName || 'ไม่ระบุชื่อลูกค้า';
+
+                if (!monthMap.has(monthYear)) monthMap.set(monthYear, new Map());
+                const projMap = monthMap.get(monthYear);
+
+                if (!projMap.has(proj)) projMap.set(proj, new Map());
+                const typeMap = projMap.get(proj);
+
+                types.forEach(type => {
+                    if (!typeMap.has(type)) typeMap.set(type, new Map());
+                    const detailMap = typeMap.get(type);
+
+                    if (!detailMap.has(detail)) detailMap.set(detail, new Set());
+                    detailMap.get(detail).add(customer);
+                });
+            });
+
+            const truncate = (str, len) => str.length > len ? str.substring(0, len) + '...' : str;
+
+            // สร้างโครงสร้าง JSON สำหรับ ECharts
+            monthMap.forEach((projMap, monthKey) => {
+                const mCount = monthCounts[monthKey] || 0;
+                const monthNode = {
+                    name: `${monthKey}\n(${mCount} งาน)`,
+                    label: { backgroundColor: '#6366f1', color: '#fff', padding: [8, 12], borderRadius: 6, lineHeight: 18, align: 'center', fontSize: 13 },
+                    children: []
+                };
+                projMap.forEach((typeMap, projKey) => {
+                    const projNode = {
+                        name: truncate(projKey, 35),
+                        tooltip: { formatter: projKey },
+                        label: { backgroundColor: '#14b8a6', color: '#fff', padding: [6, 10], borderRadius: 4, fontSize: 12 },
+                        children: []
+                    };
+                    typeMap.forEach((detailMap, typeKey) => {
+                        const typeNode = {
+                            name: typeKey,
+                            label: { backgroundColor: '#0ea5e9', color: '#fff', padding: [5, 8], borderRadius: 4, fontSize: 11 },
+                            children: []
+                        };
+                        detailMap.forEach((customersSet, detailKey) => {
+                            const detailNode = {
+                                name: truncate(detailKey, 25),
+                                tooltip: { formatter: detailKey },
+                                label: { backgroundColor: '#f59e0b', color: '#fff', padding: [4, 8], borderRadius: 4, fontSize: 11 },
+                                children: []
+                            };
+                            customersSet.forEach(custKey => {
+                                detailNode.children.push({
+                                    name: truncate(custKey, 20),
+                                    tooltip: { formatter: custKey },
+                                    label: { backgroundColor: '#64748b', color: '#fff', padding: [4, 8], borderRadius: 4, fontSize: 10 },
+                                });
+                            });
+                            typeNode.children.push(detailNode);
+                        });
+                        projNode.children.push(typeNode);
+                    });
+                    monthNode.children.push(projNode);
+                });
+                root.children.push(monthNode);
+            });
+
+            return root;
+        }
+
         function renderWorkflowTree() {
             const container = document.getElementById('workflow-tree-container');
             if (!container) return;
 
-            // ดึงข้อมูลที่ผ่านการกรองแล้ว (อิงจาก Role หรือช่องค้นหา)
             const tasksToUse = filteredTasks && filteredTasks.length > 0 ? filteredTasks : getTasksByFilter();
             
             if (tasksToUse.length === 0) {
-                container.innerHTML = '<div class="text-center text-gray-400 py-10 flex flex-col items-center"><i data-lucide="folder-open" class="w-10 h-10 mb-2 opacity-30"></i><p>ไม่มีข้อมูลสำหรับสร้างโครงสร้าง Tree</p></div>';
+                if(workflowChartInstance) { workflowChartInstance.dispose(); workflowChartInstance = null; }
+                container.innerHTML = '<div class="text-center text-gray-400 h-full flex flex-col items-center justify-center"><i data-lucide="git-merge" class="w-12 h-12 mb-4 opacity-30"></i><p class="text-lg font-medium">ไม่มีข้อมูลสำหรับสร้างโครงสร้าง Tree</p></div>';
                 lucide.createIcons();
                 return;
             }
 
-            // 1. จัดกลุ่มข้อมูล (Grouping Data) ตามลำดับชั้นที่กำหนด
-            const treeData = {};
-            const sortedTasks = [...tasksToUse].sort((a,b) => (b.receiveDate || '').localeCompare(a.receiveDate || ''));
-
-            sortedTasks.forEach(task => {
-                if (!task.receiveDate) return;
-                
-                // เดือน/ปี
-                const [yearStr, monthStr] = task.receiveDate.split('-');
-                const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-                const monthName = thaiMonths[parseInt(monthStr, 10) - 1];
-                const thaiYear = parseInt(yearStr, 10) + 543;
-                const monthYear = `${monthName} ${thaiYear}`;
-
-                // โครงการ
-                const proj = task.projectName || 'ไม่ได้ระบุโครงการ';
-                
-                // ประเภทงาน
-                let types = Array.isArray(task.taskType) ? task.taskType : (task.taskType ? [task.taskType] : ['ไม่ระบุประเภทงาน']);
-                if (types.length === 0) types = ['ไม่ระบุประเภทงาน'];
-                
-                // รายละเอียดงาน
-                const detail = task.taskName || 'ไม่ระบุรายละเอียดงาน';
-                
-                // ลูกค้า
-                const customer = task.customerName || 'ไม่ระบุชื่อลูกค้า';
-
-                // สร้าง Object ซ้อนกัน
-                if (!treeData[monthYear]) treeData[monthYear] = {};
-                if (!treeData[monthYear][proj]) treeData[monthYear][proj] = {};
-
-                types.forEach(type => {
-                    if (!treeData[monthYear][proj][type]) treeData[monthYear][proj][type] = {};
-                    if (!treeData[monthYear][proj][type][detail]) treeData[monthYear][proj][type][detail] = new Set();
-                    treeData[monthYear][proj][type][detail].add(customer);
-                });
-            });
-
-            // 2. ฟังก์ชันสร้าง HTML แบบ Recursive
-            function buildHtml(data, level) {
-                let html = '';
-                const keys = Object.keys(data);
-                
-                keys.forEach((key, index) => {
-                    const isLast = index === keys.length - 1;
-                    const children = data[key];
-                    const isLeaf = level === 4 || (children instanceof Set) || !children;
-                    const hasChildren = !isLeaf && Object.keys(children).length > 0;
-                    
-                    // ตั้งค่าสีและไอคอนตามระดับชั้น (Minimal Theme)
-                    let bgClass = "bg-white", borderClass = "border-gray-200", textClass = "text-gray-700", iconClass = "text-gray-400", iconName = "folder", labelText = "";
-                    
-                    if (level === 0) { 
-                        bgClass = "bg-[#5b5fc7]/10"; borderClass="border-[#5b5fc7]/30"; textClass="text-[#5b5fc7] font-bold"; iconClass="text-[#5b5fc7]"; iconName="calendar-days"; labelText="เดือน/ปี"; 
-                    } else if (level === 1) { 
-                        bgClass = "bg-blue-50/50"; borderClass="border-blue-200"; textClass="text-blue-800"; iconClass="text-blue-500"; iconName="briefcase"; labelText="โครงการ"; 
-                    } else if (level === 2) { 
-                        bgClass = "bg-teal-50/50"; borderClass="border-teal-200"; textClass="text-teal-800"; iconClass="text-teal-500"; iconName="tag"; labelText="ประเภทงาน"; 
-                    } else if (level === 3) { 
-                        bgClass = "bg-amber-50/50"; borderClass="border-amber-200"; textClass="text-amber-800"; iconClass="text-amber-500"; iconName="file-text"; labelText="รายละเอียดงาน"; 
-                    } else { 
-                        bgClass = "bg-gray-50/50"; borderClass="border-gray-200"; textClass="text-gray-600"; iconClass="text-gray-400"; iconName="user"; labelText="ลูกค้า"; 
-                    }
-
-                    const nodeId = `tree-node-${Math.random().toString(36).substr(2, 9)}`;
-                    
-                    // กำหนดค่าเริ่มต้น: โชว์แค่ เดือน/ปี (Level 0) และ โครงการ (Level 1)
-                    // หมายความว่า Level 0 ต้อง Expanded (เพื่อให้เห็น Level 1)
-                    // Level 1 ต้อง Collapsed (ซ่อน Level 2 ลงไป)
-                    const isExpandedInitial = level < 1; 
-                    const childContainerClass = isExpandedInitial ? "block" : "hidden";
-                    const chevronIcon = isExpandedInitial ? "chevron-down" : "chevron-right";
-
-                    html += `<div class="relative group/treenode mt-2">`;
-                    
-                    // สร้างเส้นแนวนอน (เส้นเชื่อมจากต้นไม้หลัก)
-                    if (level > 0) {
-                        html += `<div class="absolute -left-4 top-[1.4rem] w-4 border-t-2 border-gray-300 border-dashed z-0"></div>`;
-                    }
-
-                    // กล่องข้อความ (Node Card)
-                    html += `
-                        <div class="flex items-start z-10 relative">
-                            <div onclick="${hasChildren ? `toggleTree('${nodeId}', this)` : ''}" class="${hasChildren ? 'cursor-pointer hover:shadow-md' : ''} flex items-center gap-3 px-3 py-2 rounded-lg ${bgClass} border shadow-sm transition-all max-w-[85vw] sm:max-w-md md:max-w-xl w-max">
-                                <div class="p-1.5 rounded-md bg-white border border-gray-100/50 shadow-sm">
-                                    <i data-lucide="${iconName}" class="w-4 h-4 ${iconClass}"></i>
-                                </div>
-                                <div class="flex flex-col">
-                                    <span class="text-[9px] uppercase font-bold text-gray-400 leading-none mb-0.5 tracking-wider">${labelText}</span>
-                                    <span class="text-sm ${textClass} break-words whitespace-normal leading-tight">${key}</span>
-                                </div>
-                                ${hasChildren ? `
-                                    <div class="ml-4 flex items-center gap-1.5 pl-3 border-l border-black/10">
-                                        <span class="text-[10px] font-bold ${textClass} bg-black/5 px-2 py-0.5 rounded-full">${Object.keys(children).length}</span>
-                                        <i data-lucide="${chevronIcon}" class="w-4 h-4 ${iconClass} toggle-icon transition-transform"></i>
-                                    </div>
-                                ` : ''}
-                            </div>
-                        </div>
-                    `;
-
-                    // ส่วนของ Children (ลูกของ Node นี้)
-                    if (hasChildren) {
-                        // ใส่ border-l เพื่อทำเป็นเส้นแนวตั้ง
-                        html += `
-                        <div id="${nodeId}" class="${childContainerClass} ml-5 pl-4 border-l-2 border-gray-300 border-dashed pb-2 pt-1 transition-all duration-300 origin-top">
-                        `;
-                        if (level === 3) { 
-                            // Level 4 เป็นลูกค้าระดับสุดท้าย (Leaf)
-                            children.forEach(cust => {
-                                html += buildHtml({[cust]: null}, level + 1);
-                            });
-                        } else {
-                            html += buildHtml(children, level + 1);
-                        }
-                        html += `</div>`;
-                    }
-                    html += `</div>`;
-                });
-                return html;
+            // เคลียร์ข้อความแจ้งเตือนถ้ามีข้อมูลแล้ว
+            if (container.innerHTML.includes('ไม่มีข้อมูลสำหรับสร้างโครงสร้าง Tree')) {
+                container.innerHTML = '';
             }
 
-            container.innerHTML = `<div class="pt-2 pl-4">${buildHtml(treeData, 0)}</div>`;
-            lucide.createIcons();
+            if (!workflowChartInstance) {
+                workflowChartInstance = echarts.init(container);
+                window.addEventListener('resize', () => { if (workflowChartInstance) workflowChartInstance.resize(); });
+            }
+
+            const treeData = buildEChartsData(tasksToUse);
+
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    triggerOn: 'mousemove',
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    borderColor: '#e2e8f0',
+                    textStyle: { color: '#1e293b', fontFamily: 'Sarabun' },
+                    extraCssText: 'box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border-radius: 8px;',
+                    formatter: function (params) {
+                        return params.data.tooltip ? params.data.tooltip.formatter : params.name.replace('\n', ' ');
+                    }
+                },
+                series: [
+                    {
+                        type: 'tree',
+                        data: [treeData],
+                        orient: 'RL', // Right to Left (ขวาไปซ้าย ตามรูปภาพตัวอย่าง)
+                        top: '5%',
+                        left: '12%',
+                        bottom: '5%',
+                        right: '12%',
+                        symbolSize: 8,
+                        symbol: 'circle',
+                        itemStyle: { color: '#cbd5e1', borderColor: '#94a3b8' },
+                        edgeShape: 'curve',
+                        edgeForkPosition: '50%',
+                        initialTreeDepth: currentTreeDepth,
+                        lineStyle: { color: '#cbd5e1', width: 2, curveness: 0.5 },
+                        label: {
+                            position: 'left', // ข้อความอยู่ด้านซ้ายของจุด
+                            verticalAlign: 'middle',
+                            align: 'right', // ชิดขวาภายในกล่อง เพื่อให้สวยงามเวลาเรียงกัน
+                            fontFamily: 'Sarabun',
+                            distance: 8
+                        },
+                        expandAndCollapse: true,
+                        animationDuration: 550,
+                        animationDurationUpdate: 750
+                    }
+                ]
+            };
+
+            workflowChartInstance.setOption(option);
         }
 
-        // ฟังก์ชันสำหรับ สลับ ยุบ/ขยาย โหนด
-        window.toggleTree = (nodeId, element) => {
-            const target = document.getElementById(nodeId);
-            if (!target) return;
-            
-            const isHidden = target.classList.contains('hidden');
-            const iconEl = element.querySelector('.toggle-icon');
-            
-            if (isHidden) {
-                target.classList.remove('hidden');
-                if(iconEl) {
-                    iconEl.setAttribute('data-lucide', 'chevron-down');
-                    iconEl.classList.replace('lucide-chevron-right', 'lucide-chevron-down');
-                }
-            } else {
-                target.classList.add('hidden');
-                if(iconEl) {
-                    iconEl.setAttribute('data-lucide', 'chevron-right');
-                    iconEl.classList.replace('lucide-chevron-down', 'lucide-chevron-right');
-                }
-            }
-            lucide.createIcons();
-        };
-
-        // ฟังก์ชันขยายทั้งหมด
         window.expandAllTree = () => {
-            document.querySelectorAll('#workflow-tree-container .hidden').forEach(el => el.classList.remove('hidden'));
-            document.querySelectorAll('#workflow-tree-container .toggle-icon').forEach(icon => {
-                icon.setAttribute('data-lucide', 'chevron-down');
-            });
-            lucide.createIcons();
+            currentTreeDepth = -1; // -1 คือขยายทุกระดับ
+            renderWorkflowTree();
         };
 
-        // ฟังก์ชันยุบทั้งหมด (กลับไปสู่ค่าเริ่มต้น: เดือน/ปี > โครงการ)
         window.collapseAllTree = () => {
-            // ซ่อน node ที่ระดับลึกกว่า 1 (ซ่อน level 2, 3, 4)
-            const allContainers = document.querySelectorAll('#workflow-tree-container div[id^="tree-node-"]');
-            allContainers.forEach(el => el.classList.add('hidden'));
-            
-            // เปลี่ยนไอคอนทั้งหมดเป็นชี้ขวา
-            document.querySelectorAll('#workflow-tree-container .toggle-icon').forEach(icon => {
-                icon.setAttribute('data-lucide', 'chevron-right');
-            });
-
-            // เปิดเฉพาะ Level 1 (ลูกของ เดือน/ปี)
-            const rootContainers = document.querySelectorAll('#workflow-tree-container > div > div > div[id^="tree-node-"]');
-            rootContainers.forEach(el => {
-                el.classList.remove('hidden');
-                const parentToggle = el.previousElementSibling.querySelector('.cursor-pointer');
-                if(parentToggle) {
-                    const icon = parentToggle.querySelector('.toggle-icon');
-                    if(icon) icon.setAttribute('data-lucide', 'chevron-down');
-                }
-            });
-
-            lucide.createIcons();
+            currentTreeDepth = 2; // ยุบกลับมาที่ระดับเดือนและโครงการ
+            renderWorkflowTree();
         };
 
     </script>
