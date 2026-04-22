@@ -1513,10 +1513,25 @@
             return root;
         }
 
+        document.getElementById('workflow-search-input')?.addEventListener('input', () => { renderWorkflowTree(); });
+
         window.renderWorkflowTree = () => {
             const container = document.getElementById('workflow-tree-container');
             if (!container) return;
-            const tasksToUse = filteredTasks && filteredTasks.length > 0 ? filteredTasks : getTasksByFilter();
+            
+            let baseTasksForWorkflow = filteredTasks && filteredTasks.length > 0 ? filteredTasks : getTasksByFilter();
+            let tasksToUse = [];
+            
+            const wSearch = document.getElementById('workflow-search-input')?.value.toLowerCase().trim() || '';
+            if (wSearch) {
+                tasksToUse = baseTasksForWorkflow.filter(t => {
+                    const typeStr = Array.isArray(t.taskType) ? t.taskType.join(' ') : (t.taskType || '');
+                    const searchString = [t.taskName, t.projectName, t.customerName, t.responsibleName, typeStr].join(' ').toLowerCase();
+                    return searchString.includes(wSearch);
+                });
+            } else {
+                tasksToUse = baseTasksForWorkflow;
+            }
             
             if (tasksToUse.length === 0) {
                 if(workflowChartInstance) { workflowChartInstance.dispose(); workflowChartInstance = null; }
