@@ -160,9 +160,9 @@
                             <div class="flex flex-col sm:flex-row items-center sm:items-start flex-1 w-full gap-4 sm:gap-0 mt-2 sm:mt-0"><div class="relative w-48 h-48 sm:w-52 sm:h-52 shrink-0 mx-auto sm:mx-0 sm:ml-2 md:ml-10"><canvas id="chart-assignment"></canvas></div><div id="legend-assignment" class="flex-1 w-full sm:w-auto pl-0 sm:pl-4 md:pl-8 overflow-y-auto max-h-[300px] no-scrollbar flex flex-col gap-0.5"></div></div>
                         </div>
                     </div>
-                <!-- 5. สรุปโครงการ -->
+                </div>
+
                 <div id="view-project-summary" class="hidden animate-fade-in pb-10">
-                    <!-- ... โค้ดสรุปโครงการเดิม ... -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4 border-b border-gray-100 pb-5">
                             <div><h2 class="text-xl font-bold text-gray-800 flex items-center gap-2"><i data-lucide="layout-list" class="w-6 h-6 text-[#5b5fc7]"></i> สรุปรายชื่อโครงการทั้งหมด</h2><p class="text-sm text-gray-500 mt-1">แสดงข้อมูล <span id="summary-display-count" class="font-bold text-[#5b5fc7]">0</span> รายการ</p></div>
@@ -197,7 +197,6 @@
                     </div>
                 </div>
 
-                <!-- NEW: 6. ขั้นตอนทำงาน (Workflow Tree) -->
                 <div id="view-workflow" class="hidden animate-fade-in pb-10 h-[calc(100vh-120px)] sm:h-[calc(100vh-140px)]">
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden h-full flex flex-col">
                         <div class="p-4 sm:p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gray-50/50 shrink-0">
@@ -224,7 +223,6 @@
                     </div>
                 </div>
 
-                <!-- 1. ปฏิทิน -->
                 <div id="view-calendar" class="hidden animate-fade-in">
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                         <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
@@ -416,8 +414,6 @@
         };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        
-        // แก้ไข: ใช้ getFirestore มาตรฐาน ป้องกันสคริปต์พังจากข้อจำกัดของเบราว์เซอร์หรือ Iframe
         const db = getFirestore(app);
 
         const googleProvider = new GoogleAuthProvider();
@@ -435,7 +431,8 @@
 
         let currentUser = null, currentUserRole = 'user', unsubscribeTasks = null, allTasks = [], filteredTasks = [], currentCalendarDate = getThaiDate(), currentEditTaskId = null, currentNotes = [], allHolidays = [], unsubscribeHolidays = null, unsubscribeUser = null, currentUserData = null, allUsers = [], presenceInterval = null, allProjects = [], allTaskTypes = [], selectedTaskTypes = []; 
         let chartInstances = { time: null, responsible: null, customer: null, assignment: null, project: null, tasktype: null };
-        let workflowChartInstance = null; // ตัวแปรสำหรับเก็บกราฟ ECharts ของ Workflow
+        let workflowChartInstance = null;
+        let currentTreeDepth = 2;
         
         let dashCurrentYear = getThaiDate().getFullYear().toString(), dashCurrentMonth = 'all', dashCurrentProject = 'all', dashAvailableProjects = [], dashTimeView = 'month';
         let dashCrossFilters = { responsible: null, customer: null, assignment: null, tasktype: null };
@@ -502,12 +499,11 @@
             else if (activeTabId === 'users') { viewUsers?.classList.remove('hidden'); viewUsers?.classList.add('block'); document.getElementById('tab-users')?.classList.add('text-[#5b5fc7]', 'border-[#5b5fc7]'); document.getElementById('tab-users')?.classList.remove('text-gray-500', 'border-transparent'); }
             else if (activeTabId === 'workflow') { 
                 viewWorkflow?.classList.remove('hidden'); viewWorkflow?.classList.add('block'); document.getElementById('tab-workflow')?.classList.add('text-[#5b5fc7]', 'border-[#5b5fc7]'); document.getElementById('tab-workflow')?.classList.remove('text-gray-500', 'border-transparent'); 
-                // จำเป็นต้องรอให้ DOM แสดงผลเสร็จก่อนค่อยเรนเดอร์ ECharts เพื่อให้ได้ขนาดที่ถูกต้อง
                 setTimeout(() => renderWorkflowTree(), 50); 
             }
             lucide.createIcons();
         }
-        window.switchTab = switchTab; // เพิ่มบรรทัดนี้เพื่อให้ onclick="switchTab(...)" ใน HTML ทำงานได้
+        window.switchTab = switchTab;
 
         document.getElementById('tab-dashboard')?.addEventListener('click', () => switchTab('dashboard'));
         document.getElementById('tab-calendar')?.addEventListener('click', () => switchTab('calendar'));
@@ -1399,11 +1395,20 @@
         }
 
         document.getElementById('user-role-form')?.addEventListener('submit', async (e) => {
-            e.preventDefault(); if (currentUserRole !== 'admin') return;
-            const btn = document.getElementById('btn-save-user'), email = document.getElementById('manageUserEmail').value.toLowerCase().trim(), role = document.getElementById('manageUserRole').value;
-            if (!email) return showNotification("กรุณาระบุอีเมล", "error"); if (email === 'dukender7188@gmail.com' && role !== 'admin') return showNotification("ไม่สามารถเปลี่ยนสิทธิ์ของ Super Admin ได้", "error");
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> บันทึก...`; btn.disabled = true;
-            try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', email), { email: email, role: role, createdAt: Date.now() }, { merge: true }); showNotification(`บันทึกสิทธิ์ [${role}] ให้กับ ${email} เรียบร้อยแล้ว`); document.getElementById('user-role-form').reset(); } catch (err) { showNotification("เกิดข้อผิดพลาดในการบันทึกสิทธิ์", "error"); } finally { btn.innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> บันทึกสิทธิ์`; btn.disabled = false; lucide.createIcons(); }
+            e.preventDefault();
+            if (currentUserRole !== 'admin') return showNotification("คุณไม่มีสิทธิ์จัดการผู้ใช้งาน", "error");
+            const emailInput = document.getElementById('manageUserEmail').value.toLowerCase().trim();
+            const roleInput = document.getElementById('manageUserRole').value;
+            const btn = document.getElementById('btn-save-user');
+            if (emailInput === 'dukender7188@gmail.com' && roleInput !== 'admin') return showNotification("ไม่สามารถลดสิทธิ์ผู้ดูแลระบบสูงสุดได้", "error");
+            
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> กำลังบันทึก...`; btn.disabled = true;
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', emailInput), { email: emailInput, role: roleInput, updatedAt: Date.now() }, { merge: true });
+                showNotification(`บันทึกสิทธิ์สำหรับ ${emailInput} สำเร็จ`);
+                document.getElementById('user-role-form').reset();
+            } catch (error) { showNotification("เกิดข้อผิดพลาดในการบันทึก", "error"); } 
+            finally { btn.innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> บันทึกสิทธิ์`; btn.disabled = false; lucide.createIcons(); }
         });
 
         window.editUserRole = (email, role) => { if (email === 'dukender7188@gmail.com') return; document.getElementById('manageUserEmail').value = email; document.getElementById('manageUserRole').value = role; document.getElementById('manageUserEmail').focus(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
@@ -1417,9 +1422,6 @@
         // ==========================================
         // ฟังก์ชันสำหรับจัดการ Workflow Tree (ECharts)
         // ==========================================
-        let workflowChartInstance = null;
-        let currentTreeDepth = 2; // ระดับเริ่มต้นเมื่อโหลด (สรุปรวม > เดือน > โครงการ)
-
         function buildEChartsData(tasks) {
             let monthCounts = {};
             tasks.forEach(t => {
@@ -1437,7 +1439,6 @@
             };
             const monthMap = new Map();
 
-            // จัดกลุ่มข้อมูล
             tasks.forEach(task => {
                 if (!task.receiveDate) return;
                 const [yearStr, monthStr] = task.receiveDate.split('-');
@@ -1466,7 +1467,6 @@
 
             const truncate = (str, len) => str.length > len ? str.substring(0, len) + '...' : str;
 
-            // สร้างโครงสร้าง JSON สำหรับ ECharts
             monthMap.forEach((projMap, monthKey) => {
                 const mCount = monthCounts[monthKey] || 0;
                 const monthNode = {
@@ -1513,10 +1513,9 @@
             return root;
         }
 
-        function renderWorkflowTree() {
+        window.renderWorkflowTree = () => {
             const container = document.getElementById('workflow-tree-container');
             if (!container) return;
-
             const tasksToUse = filteredTasks && filteredTasks.length > 0 ? filteredTasks : getTasksByFilter();
             
             if (tasksToUse.length === 0) {
@@ -1526,10 +1525,7 @@
                 return;
             }
 
-            // เคลียร์ข้อความแจ้งเตือนถ้ามีข้อมูลแล้ว
-            if (container.innerHTML.includes('ไม่มีข้อมูลสำหรับสร้างโครงสร้าง Tree')) {
-                container.innerHTML = '';
-            }
+            if (container.innerHTML.includes('ไม่มีข้อมูลสำหรับสร้างโครงสร้าง Tree')) { container.innerHTML = ''; }
 
             if (!workflowChartInstance) {
                 workflowChartInstance = echarts.init(container);
@@ -1537,62 +1533,30 @@
             }
 
             const treeData = buildEChartsData(tasksToUse);
-
             const option = {
                 tooltip: {
-                    trigger: 'item',
-                    triggerOn: 'mousemove',
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                    borderColor: '#e2e8f0',
-                    textStyle: { color: '#1e293b', fontFamily: 'Sarabun' },
-                    extraCssText: 'box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border-radius: 8px;',
-                    formatter: function (params) {
-                        return params.data.tooltip ? params.data.tooltip.formatter : params.name.replace('\n', ' ');
-                    }
+                    trigger: 'item', triggerOn: 'mousemove', backgroundColor: 'rgba(255, 255, 255, 0.95)', borderColor: '#e2e8f0',
+                    textStyle: { color: '#1e293b', fontFamily: 'Sarabun' }, extraCssText: 'box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border-radius: 8px;',
+                    formatter: function (params) { return params.data.tooltip ? params.data.tooltip.formatter : params.name.replace('\n', ' '); }
                 },
                 series: [
                     {
-                        type: 'tree',
-                        data: [treeData],
-                        orient: 'RL', // Right to Left (ขวาไปซ้าย ตามรูปภาพตัวอย่าง)
-                        top: '5%',
-                        left: '12%',
-                        bottom: '5%',
-                        right: '12%',
-                        symbolSize: 8,
-                        symbol: 'circle',
-                        itemStyle: { color: '#cbd5e1', borderColor: '#94a3b8' },
-                        edgeShape: 'curve',
-                        edgeForkPosition: '50%',
-                        initialTreeDepth: currentTreeDepth,
+                        type: 'tree', data: [treeData], orient: 'RL', top: '5%', left: '12%', bottom: '5%', right: '12%',
+                        symbolSize: 8, symbol: 'circle', itemStyle: { color: '#cbd5e1', borderColor: '#94a3b8' },
+                        edgeShape: 'curve', edgeForkPosition: '50%', initialTreeDepth: currentTreeDepth,
                         lineStyle: { color: '#cbd5e1', width: 2, curveness: 0.5 },
-                        label: {
-                            position: 'left', // ข้อความอยู่ด้านซ้ายของจุด
-                            verticalAlign: 'middle',
-                            align: 'right', // ชิดขวาภายในกล่อง เพื่อให้สวยงามเวลาเรียงกัน
-                            fontFamily: 'Sarabun',
-                            distance: 8
-                        },
-                        expandAndCollapse: true,
-                        animationDuration: 550,
-                        animationDurationUpdate: 750
+                        label: { position: 'left', verticalAlign: 'middle', align: 'right', fontFamily: 'Sarabun', distance: 8 },
+                        expandAndCollapse: true, animationDuration: 550, animationDurationUpdate: 750
                     }
                 ]
             };
-
             workflowChartInstance.setOption(option);
-        }
-
-        window.expandAllTree = () => {
-            currentTreeDepth = -1; // -1 คือขยายทุกระดับ
-            renderWorkflowTree();
         };
 
-        window.collapseAllTree = () => {
-            currentTreeDepth = 2; // ยุบกลับมาที่ระดับเดือนและโครงการ
-            renderWorkflowTree();
-        };
+        window.expandAllTree = () => { currentTreeDepth = -1; renderWorkflowTree(); };
+        window.collapseAllTree = () => { currentTreeDepth = 2; renderWorkflowTree(); };
 
+        lucide.createIcons();
     </script>
 </body>
 </html>
