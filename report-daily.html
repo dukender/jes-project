@@ -6,7 +6,6 @@
     <title>Daily Task Log - Professional Edition</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -15,9 +14,14 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
     <script>
-        tailwind.config = { theme: { extend: { fontFamily: { sans: ['Sarabun', 'sans-serif'] } } } }
+        tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Google Sans"', '"Noto Sans Thai"', 'sans-serif'] } } } }
     </script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap');
+        @font-face {
+            font-family: 'Google Sans';
+            src: url('https://fonts.gstatic.com/s/productsans/v5/HYvgU2fE2nRJvZ5JFAumwegdm0LZdjqr5-oayXSOefg.woff2') format('woff2');
+        }
         body { background-color: #f8f9fc; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -199,7 +203,7 @@
 
                 <div id="view-workflow" class="hidden animate-fade-in pb-10 h-[calc(100vh-120px)] sm:h-[calc(100vh-140px)]">
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden h-full flex flex-col">
-                        <div class="p-4 sm:p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gray-50/50 shrink-0">
+                        <div class="p-4 sm:p-6 border-b border-gray-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-gray-50/50 shrink-0">
                             <div>
                                 <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="git-merge" class="w-5 h-5 text-[#5b5fc7]"></i> โครงสร้างขั้นตอนการทำงาน (Workflow Tree)</h2>
                                 <p class="text-sm text-gray-500 mt-1 flex flex-wrap gap-1.5 items-center">
@@ -212,9 +216,17 @@
                                     <span class="bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded text-[10px] font-bold">ลูกค้า</span>
                                 </p>
                             </div>
-                            <div class="flex gap-2">
-                                <button onclick="expandAllTree()" class="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 text-gray-600 transition-colors flex items-center gap-1.5 shadow-sm"><i data-lucide="maximize-2" class="w-4 h-4"></i> ขยายทั้งหมด</button>
-                                <button onclick="collapseAllTree()" class="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 text-gray-600 transition-colors flex items-center gap-1.5 shadow-sm"><i data-lucide="minimize-2" class="w-4 h-4"></i> ยุบทั้งหมด</button>
+                            <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto mt-2 lg:mt-0">
+                                <div class="relative w-full sm:flex-1 min-w-[150px]"><i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i><input type="text" id="workflow-search-input" placeholder="ค้นหาข้อความ..." class="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#5b5fc7] transition-shadow"></div>
+                                <select id="workflow-search-time-type" class="px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#5b5fc7] transition-shadow text-gray-600 bg-white flex-1 sm:flex-none"><option value="day">รายวัน</option><option value="month">รายเดือน</option><option value="year">รายปี</option></select>
+                                <input type="date" id="workflow-search-date" class="px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#5b5fc7] transition-shadow text-gray-600 block">
+                                <input type="month" id="workflow-search-month" class="px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#5b5fc7] transition-shadow text-gray-600 hidden">
+                                <select id="workflow-search-year" class="px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#5b5fc7] transition-shadow text-gray-600 hidden min-w-[120px]"><option value="">ทุกปีทั้งหมด</option></select>
+                                <button id="btn-workflow-reset-search" class="p-2 bg-gray-50 text-gray-500 hover:text-gray-800 hover:bg-gray-200 border border-gray-200 rounded-md transition-colors"><i data-lucide="rotate-ccw" class="w-4 h-4"></i></button>
+                                <div class="flex gap-2 border-l border-gray-200 pl-2 ml-1">
+                                    <button onclick="expandAllTree()" class="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 text-gray-600 transition-colors flex items-center gap-1.5 shadow-sm"><i data-lucide="maximize-2" class="w-4 h-4"></i> ขยาย</button>
+                                    <button onclick="collapseAllTree()" class="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 text-gray-600 transition-colors flex items-center gap-1.5 shadow-sm"><i data-lucide="minimize-2" class="w-4 h-4"></i> ยุบ</button>
+                                </div>
                             </div>
                         </div>
                         <div class="flex-1 w-full bg-[#fafbfc] relative overflow-hidden">
@@ -434,6 +446,10 @@
         let workflowChartInstance = null;
         let currentTreeDepth = 1;
         
+        // ตัวแปรแยกสำหรับหน้า Workflow
+        let filteredWorkflowTasks = [];
+        let isWorkflowSearching = false;
+        
         let dashCurrentYear = getThaiDate().getFullYear().toString(), dashCurrentMonth = 'all', dashCurrentProject = 'all', dashAvailableProjects = [], dashTimeView = 'month';
         let dashCrossFilters = { responsible: null, customer: null, assignment: null, tasktype: null };
         let globalEmailFilter = 'all';
@@ -499,7 +515,7 @@
             else if (activeTabId === 'users') { viewUsers?.classList.remove('hidden'); viewUsers?.classList.add('block'); document.getElementById('tab-users')?.classList.add('text-[#5b5fc7]', 'border-[#5b5fc7]'); document.getElementById('tab-users')?.classList.remove('text-gray-500', 'border-transparent'); }
             else if (activeTabId === 'workflow') { 
                 viewWorkflow?.classList.remove('hidden'); viewWorkflow?.classList.add('block'); document.getElementById('tab-workflow')?.classList.add('text-[#5b5fc7]', 'border-[#5b5fc7]'); document.getElementById('tab-workflow')?.classList.remove('text-gray-500', 'border-transparent'); 
-                setTimeout(() => renderWorkflowTree(), 50); 
+                setTimeout(() => filterAndRenderWorkflow(), 50); 
             }
             lucide.createIcons();
         }
@@ -568,7 +584,7 @@
             if (viewCalendar && !viewCalendar.classList.contains('hidden')) renderCalendar();
             if (viewList && !viewList.classList.contains('hidden')) filterAndRenderTasks();
             if (viewProjectSummary && !viewProjectSummary.classList.contains('hidden')) renderProjectSummary();
-            if (viewWorkflow && !viewWorkflow.classList.contains('hidden')) renderWorkflowTree();
+            if (viewWorkflow && !viewWorkflow.classList.contains('hidden')) filterAndRenderWorkflow();
         });
 
         document.getElementById('btn-login-google')?.addEventListener('click', async () => { try { await signInWithPopup(auth, googleProvider); } catch (e) { if (e.code !== 'auth/popup-closed-by-user') showNotification("เกิดข้อผิดพลาดในการล็อกอิน: " + e.message, "error"); } });
@@ -626,7 +642,7 @@
                 tasks.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                 allTasks = tasks; 
                 populateEmailDropdowns();
-                const listYearSelect = document.getElementById('search-year'), summaryYearSelect = document.getElementById('summary-search-year'); 
+                const listYearSelect = document.getElementById('search-year'), summaryYearSelect = document.getElementById('summary-search-year'), workflowYearSelect = document.getElementById('workflow-search-year'); 
                 if (listYearSelect) {
                     const yearsSet = new Set(); tasks.forEach(t => { if (t.receiveDate) yearsSet.add(t.receiveDate.substring(0, 4)); });
                     const sortedYears = Array.from(yearsSet).sort().reverse();
@@ -640,11 +656,16 @@
                         sortedYears.forEach(y => summaryYearSelect.innerHTML += `<option value="${y}">${y}</option>`);
                         if(sortedYears.includes(sumCurrentVal)) summaryYearSelect.value = sumCurrentVal;
                     }
+                    if (workflowYearSelect) {
+                        const wfCurrentVal = workflowYearSelect.value;
+                        workflowYearSelect.innerHTML = '<option value="">ทุกปีทั้งหมด</option>';
+                        sortedYears.forEach(y => workflowYearSelect.innerHTML += `<option value="${y}">${y}</option>`);
+                        if(sortedYears.includes(wfCurrentVal)) workflowYearSelect.value = wfCurrentVal;
+                    }
                 }
-                filterAndRenderTasks(); renderCalendar();   
+                filterAndRenderTasks(); filterAndRenderWorkflow(); renderCalendar();   
                 if (viewDashboard && !viewDashboard.classList.contains('hidden')) renderDashboard(); 
                 if (viewProjectSummary && !viewProjectSummary.classList.contains('hidden')) renderProjectSummary();
-                if (viewWorkflow && !viewWorkflow.classList.contains('hidden')) renderWorkflowTree();
             }, (error) => { statusEl.textContent = 'เกิดข้อผิดพลาดในการดึงข้อมูล'; statusEl.className = 'text-red-500 font-bold'; });
         }
 
@@ -1126,11 +1147,58 @@
                 return matchTime && (searchText ? `${searchString} ${notesString}`.includes(searchText) : true);
             });
             renderTasks(filteredTasks);
-            
-            // อัปเดต Workflow Tree ด้วยเสมอเมื่อมีการกรองข้อมูล
-            if (viewWorkflow && !viewWorkflow.classList.contains('hidden')) renderWorkflowTree();
         }
 
+        // ==========================================
+        // ฟังก์ชันสำหรับค้นหาและกรองในหน้า Workflow Tree (แยกอิสระ)
+        // ==========================================
+        function filterAndRenderWorkflow() {
+            const searchInput = document.getElementById('workflow-search-input'), 
+                  timeType = document.getElementById('workflow-search-time-type')?.value || 'day', 
+                  searchDate = document.getElementById('workflow-search-date')?.value, 
+                  searchMonth = document.getElementById('workflow-search-month')?.value, 
+                  searchYear = document.getElementById('workflow-search-year')?.value, 
+                  searchText = searchInput?.value.toLowerCase() || '';
+            
+            isWorkflowSearching = !!(searchText || searchDate || searchMonth || searchYear);
+
+            filteredWorkflowTasks = getTasksByFilter().filter(task => {
+                let matchTime = true;
+                if (timeType === 'day' && searchDate) matchTime = task.receiveDate === searchDate; 
+                else if (timeType === 'month' && searchMonth) matchTime = task.receiveDate && task.receiveDate.startsWith(searchMonth); 
+                else if (timeType === 'year' && searchYear) matchTime = task.receiveDate && task.receiveDate.startsWith(searchYear);
+                
+                const typeStr = Array.isArray(task.taskType) ? task.taskType.join(' ') : (task.taskType || ''), 
+                      searchString = [task.taskName, task.projectName, task.responsibleName, task.customerName, task.customerPhone, task.workLocation, task.assignment, typeStr].join(' ').toLowerCase(), 
+                      notesString = (task.notes || []).map(n => n.text).join(' ').toLowerCase();
+                
+                return matchTime && (searchText ? `${searchString} ${notesString}`.includes(searchText) : true);
+            });
+            renderWorkflowTree();
+        }
+
+        // Event Listeners สำหรับหน้า Workflow
+        document.getElementById('workflow-search-time-type')?.addEventListener('change', (e) => {
+            const type = e.target.value, dateInput = document.getElementById('workflow-search-date'), monthInput = document.getElementById('workflow-search-month'), yearInput = document.getElementById('workflow-search-year');
+            if(dateInput) { if(type === 'day') { dateInput.classList.remove('hidden'); dateInput.classList.add('block'); } else { dateInput.classList.add('hidden'); dateInput.classList.remove('block'); } }
+            if(monthInput) { if(type === 'month') { monthInput.classList.remove('hidden'); monthInput.classList.add('block'); } else { monthInput.classList.add('hidden'); monthInput.classList.remove('block'); } }
+            if(yearInput) { if(type === 'year') { yearInput.classList.remove('hidden'); yearInput.classList.add('block'); } else { yearInput.classList.add('hidden'); yearInput.classList.remove('block'); } }
+            if (dateInput) dateInput.value = ''; if (monthInput) monthInput.value = ''; if (yearInput) yearInput.value = '';
+            filterAndRenderWorkflow();
+        });
+
+        document.getElementById('workflow-search-input')?.addEventListener('input', filterAndRenderWorkflow);
+        document.getElementById('workflow-search-date')?.addEventListener('change', filterAndRenderWorkflow);
+        document.getElementById('workflow-search-month')?.addEventListener('change', filterAndRenderWorkflow);
+        document.getElementById('workflow-search-year')?.addEventListener('change', filterAndRenderWorkflow);
+        document.getElementById('btn-workflow-reset-search')?.addEventListener('click', () => {
+            const searchInput = document.getElementById('workflow-search-input'), timeType = document.getElementById('workflow-search-time-type');
+            if (searchInput) searchInput.value = '';
+            if (timeType) { timeType.value = 'day'; timeType.dispatchEvent(new Event('change')); }
+            filterAndRenderWorkflow();
+        });
+
+        // Event Listeners สำหรับหน้า List
         document.getElementById('search-time-type')?.addEventListener('change', (e) => {
             const type = e.target.value, dateInput = document.getElementById('search-date'), monthInput = document.getElementById('search-month'), yearInput = document.getElementById('search-year');
             if(dateInput) { if(type === 'day') { dateInput.classList.remove('hidden'); dateInput.classList.add('block'); } else { dateInput.classList.add('hidden'); dateInput.classList.remove('block'); } }
@@ -1516,7 +1584,7 @@
         window.renderWorkflowTree = () => {
             const container = document.getElementById('workflow-tree-container');
             if (!container) return;
-            const tasksToUse = filteredTasks && filteredTasks.length > 0 ? filteredTasks : getTasksByFilter();
+            const tasksToUse = isWorkflowSearching ? filteredWorkflowTasks : getTasksByFilter();
             
             if (tasksToUse.length === 0) {
                 if(workflowChartInstance) { workflowChartInstance.dispose(); workflowChartInstance = null; }
@@ -1536,7 +1604,7 @@
             const option = {
                 tooltip: {
                     trigger: 'item', triggerOn: 'mousemove', backgroundColor: 'rgba(255, 255, 255, 0.95)', borderColor: '#e2e8f0',
-                    textStyle: { color: '#1e293b', fontFamily: 'Sarabun' }, extraCssText: 'box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border-radius: 8px;',
+                    textStyle: { color: '#1e293b', fontFamily: '"Google Sans", "Noto Sans Thai", sans-serif' }, extraCssText: 'box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border-radius: 8px;',
                     formatter: function (params) { return params.data.tooltip ? params.data.tooltip.formatter : params.name.replace('\n', ' '); }
                 },
                 series: [
@@ -1545,7 +1613,7 @@
                         symbolSize: 8, symbol: 'circle', itemStyle: { color: '#cbd5e1', borderColor: '#94a3b8' },
                         edgeShape: 'curve', edgeForkPosition: '50%', initialTreeDepth: currentTreeDepth,
                         lineStyle: { color: '#cbd5e1', width: 2, curveness: 0.5 },
-                        label: { position: 'left', verticalAlign: 'middle', align: 'right', fontFamily: 'Sarabun', distance: 8 },
+                        label: { position: 'left', verticalAlign: 'middle', align: 'right', fontFamily: '"Google Sans", "Noto Sans Thai", sans-serif', distance: 8 },
                         leaves: { label: { position: 'right', verticalAlign: 'middle', align: 'left', distance: 8 } },
                         expandAndCollapse: true, animationDuration: 550, animationDurationUpdate: 750
                     }
