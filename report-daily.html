@@ -893,6 +893,7 @@
         // --- Logic สำหรับหน้า สรุปผู้รับผิดชอบ (Responsible Summary) ---
         let currentRespFilteredData = [];
         let currentRespFilter = 'all';
+
         window.setResponsibleFilter = (name) => { 
             currentRespFilter = currentRespFilter === name ? 'all' : name; 
             renderResponsibleSummary(); 
@@ -988,7 +989,14 @@
                 }
             });
 
-            const tableData = Object.values(projectMap).sort((a, b) => b.taskCount - a.taskCount);
+            // เรียงลำดับตาม 'วันที่รับงานล่าสุด' จากใหม่ไปเก่า (Descending)
+            const tableData = Object.values(projectMap).sort((a, b) => {
+                if (a.latestDate !== b.latestDate) {
+                    return (b.latestDate || '').localeCompare(a.latestDate || '');
+                }
+                return b.taskCount - a.taskCount;
+            });
+            
             currentRespFilteredData = tableData;
 
             // 3. Render Table
@@ -998,9 +1006,10 @@
             } else {
                 tableData.forEach((row, index) => {
                     const isNoProject = row.projectName === 'ไม่ได้ระบุโครงการ';
+                    // นำเอฟเฟกต์ลิงก์ออกเพื่อไม่ให้กดชื่อโครงการได้
                     const projectNameHtml = isNoProject ? 
                         `<span class="text-gray-500 italic">${row.projectName}</span>` : 
-                        `<span class="font-bold text-[#5b5fc7] cursor-pointer hover:underline" onclick="openProjectDetailModal('${row.projectName.replace(/'/g, "\\'")}')">${row.projectName}</span>`;
+                        `<span class="font-bold text-gray-800">${row.projectName}</span>`;
                     
                     tbody.innerHTML += `
                         <tr class="hover:bg-gray-50 transition-colors">
@@ -1040,8 +1049,20 @@
         // Export สำหรับหน้าสรุปผู้รับผิดชอบ
         document.getElementById('btn-resp-export-excel')?.addEventListener('click', () => {
             if (currentRespFilteredData.length === 0) return showNotification("ไม่มีข้อมูลให้ Export", "error");
-            const exportData = currentRespFilteredData.map((r, idx) => ({ 'ลำดับ': idx + 1, 'วันที่รับงานล่าสุด': r.latestDate ? formatDate(r.latestDate) : '-', 'ชื่อโครงการ': r.projectName, 'ชื่อผู้รับผิดชอบ': r.responsibleName, 'จำนวนงาน (งาน)': r.taskCount }));
+            const exportData = currentRespFilteredData.map((r, idx) => ({ 
+                'ลำดับ': idx + 1, 
+                'วันที่รับงานล่าสุด': r.latestDate ? formatDate(r.latestDate) : '-', 
+                'ชื่อโครงการ': r.projectName, 
+                'ชื่อผู้รับผิดชอบ': r.responsibleName, 
+                'จำนวนงาน (งาน)': r.taskCount 
+            }));
             const worksheet = XLSX.utils.json_to_sheet(exportData), workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, worksheet, "Responsible Summary"); XLSX.writeFile(workbook, `Responsible_Summary_${getThaiDateString()}.xlsx`); showNotification("Export Excel สำเร็จ");
+        });
+
+        document.getElementById('btn-resp-export-pdf')?.addEventListener('click', () => {
+            if (currentRespFilteredData.length === 0) return showNotification("ไม่มีข้อมูลให้ Export", "error");
+            showNotification("กำลังเตรียมไฟล์ PDF...", "success"); const element = document.getElementById('responsible-summary-table');
+            html2pdf().set({ margin: 0.4, filename: `Responsible_Summary_${getThaiDateString()}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }).from(element).save().then(() => showNotification("Export PDF สำเร็จ"));
         });
         // --- จบ Logic หน้าสรุปผู้รับผิดชอบ ---
 
