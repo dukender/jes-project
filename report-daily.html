@@ -214,7 +214,7 @@
                                 <div class="relative w-full sm:flex-1 min-w-[150px]">
                                     <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                                     <!-- เปลี่ยน Placeholder ตรงนี้ -->
-                                    <input type="text" id="resp-search-input" placeholder="ค้นหาข้อความ..." class="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#5b5fc7] transition-shadow">
+                                    <input type="text" id="resp-search-input" placeholder="ค้นหาชื่อผู้รับผิดชอบ..." class="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#5b5fc7] transition-shadow">
                                 </div>
                                 <select id="resp-search-time-type" class="px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#5b5fc7] transition-shadow text-gray-600 bg-white flex-1 sm:flex-none">
                                     <option value="day">รายวัน</option><option value="month">รายเดือน</option><option value="year">รายปี</option>
@@ -948,9 +948,9 @@
                     const isSelected = currentRespFilter === r.name;
                     const ringClass = isSelected ? 'ring-2 ring-[#5b5fc7] ring-offset-2 scale-[1.02] shadow-md border-[#5b5fc7]/50' : 'border-indigo-100 hover:shadow-md hover:border-[#5b5fc7]/40';
                     container.innerHTML += `
-                        <div onclick="setResponsibleFilter('${r.name.replace(/'/g, "\\'")}')" class="bg-indigo-50/50 py-2 px-2.5 rounded-xl border text-center transition-all flex flex-col justify-center min-h-[68px] cursor-pointer ${ringClass}">
-                            <p class="text-sm font-bold text-[#5b5fc7] truncate w-full leading-normal pb-0.5" title="${r.name}">${r.name}</p>
-                            <div class="flex items-baseline justify-center gap-1.5 mt-0.5">
+                        <div onclick="setResponsibleFilter('${r.name.replace(/'/g, "\\'")}')" class="bg-indigo-50/50 py-1.5 px-2 rounded-xl border text-center transition-all flex flex-col justify-center cursor-pointer ${ringClass}">
+                            <p class="text-sm font-bold text-[#5b5fc7] truncate w-full leading-relaxed" title="${r.name}">${r.name}</p>
+                            <div class="flex items-baseline justify-center gap-1.5 -mt-1">
                                 <span class="text-xl font-black text-gray-800 leading-none">${r.count}</span>
                                 <span class="text-[10px] font-semibold text-gray-500 leading-none">( ${r.percent}% )</span>
                             </div>
