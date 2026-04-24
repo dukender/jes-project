@@ -242,10 +242,11 @@
                             <table class="w-full text-left text-sm whitespace-nowrap border border-gray-100 rounded-lg overflow-hidden" id="responsible-summary-table">
                                 <thead class="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
                                     <tr>
-                                        <th class="px-4 py-4 font-semibold text-center w-16">อันดับ</th>
+                                        <th class="px-4 py-4 font-semibold text-center w-16">ลำดับ</th>
+                                        <th class="px-4 py-4 font-semibold text-center w-28">วันที่รับงานล่าสุด</th>
+                                        <th class="px-6 py-4 font-semibold">ชื่อโครงการ</th>
                                         <th class="px-6 py-4 font-semibold">ชื่อผู้รับผิดชอบ</th>
                                         <th class="px-4 py-4 font-semibold text-center w-32">จำนวนงาน (งาน)</th>
-                                        <th class="px-4 py-4 font-semibold text-center w-32">สัดส่วน (%)</th>
                                     </tr>
                                 </thead>
                                 <tbody id="responsible-summary-body" class="divide-y divide-gray-100 bg-white">
@@ -891,6 +892,12 @@
 
         // --- Logic สำหรับหน้า สรุปผู้รับผิดชอบ (Responsible Summary) ---
         let currentRespFilteredData = [];
+        let currentRespFilter = 'all';
+
+        window.setResponsibleFilter = (name) => { 
+            currentRespFilter = currentRespFilter === name ? 'all' : name; 
+            renderResponsibleSummary(); 
+        };
         
         function renderResponsibleSummary() {
             const container = document.getElementById('responsible-cards-container');
@@ -934,8 +941,6 @@
                 percent: totalTasksCount > 0 ? Math.round((respCounts[name] / totalTasksCount) * 100) : 0
             })).sort((a, b) => b.count - a.count);
 
-            currentRespFilteredData = respData;
-            
             const displayCountEl = document.getElementById('resp-display-count');
             if(displayCountEl) displayCountEl.textContent = respData.length;
 
@@ -945,8 +950,10 @@
                  container.innerHTML = `<div class="col-span-full text-center py-8 text-gray-500 bg-gray-50 rounded-lg border border-gray-100">ไม่พบข้อมูลผู้รับผิดชอบตามเงื่อนไข</div>`;
             } else {
                 respData.forEach(r => {
+                    const isSelected = currentRespFilter === r.name;
+                    const ringClass = isSelected ? 'ring-2 ring-[#5b5fc7] ring-offset-2 scale-[1.02] shadow-md border-[#5b5fc7]/50' : 'border-indigo-100 hover:shadow-md hover:border-[#5b5fc7]/40';
                     container.innerHTML += `
-                        <div class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 text-center hover:shadow-md hover:border-[#5b5fc7]/40 transition-all flex flex-col justify-center min-h-[96px]">
+                        <div onclick="setResponsibleFilter('${r.name.replace(/'/g, "\\'")}')" class="bg-indigo-50/50 p-4 rounded-xl border text-center transition-all flex flex-col justify-center min-h-[96px] cursor-pointer ${ringClass}">
                             <p class="text-[15px] font-bold text-[#5b5fc7] truncate w-full mb-1 leading-tight" title="${r.name}">${r.name}</p>
                             <div class="flex items-baseline justify-center gap-1.5 mt-auto">
                                 <span class="text-2xl font-black text-gray-800 leading-none">${r.count}</span>
@@ -957,18 +964,60 @@
                 });
             }
 
-            // 2. Render Table
+            // 2. Prepare Data for Table (Filter by currentRespFilter & Group by Project)
+            let tableTasks = filteredTasks;
+            if (currentRespFilter !== 'all') {
+                tableTasks = filteredTasks.filter(t => (t.responsibleName || 'ไม่ระบุ') === currentRespFilter);
+            }
+
+            const projectMap = {};
+            tableTasks.forEach(t => {
+                const pName = t.projectName || 'ไม่ได้ระบุโครงการ';
+                const rName = t.responsibleName || 'ไม่ระบุ';
+                const key = pName + '|' + rName;
+                if (!projectMap[key]) {
+                    projectMap[key] = {
+                        projectName: pName,
+                        responsibleName: rName,
+                        taskCount: 0,
+                        latestDate: t.receiveDate || ''
+                    };
+                }
+                projectMap[key].taskCount++;
+                if (t.receiveDate && t.receiveDate > projectMap[key].latestDate) {
+                    projectMap[key].latestDate = t.receiveDate;
+                }
+            });
+
+            // เรียงลำดับตาม 'วันที่รับงานล่าสุด' จากใหม่ไปเก่า (Descending)
+            const tableData = Object.values(projectMap).sort((a, b) => {
+                if (a.latestDate !== b.latestDate) {
+                    return (b.latestDate || '').localeCompare(a.latestDate || '');
+                }
+                return b.taskCount - a.taskCount;
+            });
+            
+            currentRespFilteredData = tableData;
+
+            // 3. Render Table
             tbody.innerHTML = '';
-            if (respData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-gray-400 font-medium bg-gray-50/50">ไม่พบข้อมูลตารางตามเงื่อนไขที่เลือก</td></tr>`;
+            if (tableData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-gray-400 font-medium bg-gray-50/50">ไม่พบข้อมูลโครงการตามเงื่อนไขที่เลือก</td></tr>`;
             } else {
-                respData.forEach((r, index) => {
+                tableData.forEach((row, index) => {
+                    const isNoProject = row.projectName === 'ไม่ได้ระบุโครงการ';
+                    // นำเอฟเฟกต์ลิงก์ออกเพื่อไม่ให้กดชื่อโครงการได้
+                    const projectNameHtml = isNoProject ? 
+                        `<span class="text-gray-500 italic">${row.projectName}</span>` : 
+                        `<span class="font-bold text-gray-800">${row.projectName}</span>`;
+                    
                     tbody.innerHTML += `
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-4 py-3 text-center font-medium text-gray-500">${index + 1}</td>
-                            <td class="px-6 py-3 font-bold text-gray-800">${r.name}</td>
-                            <td class="px-4 py-3 text-center font-semibold text-gray-700">${r.count}</td>
-                            <td class="px-4 py-3 text-center text-sm text-gray-500">${r.percent}%</td>
+                            <td class="px-4 py-3 text-center text-sm text-gray-600">${row.latestDate ? formatDate(row.latestDate) : '-'}</td>
+                            <td class="px-6 py-3">${projectNameHtml}</td>
+                            <td class="px-6 py-3 font-medium text-gray-800">${row.responsibleName}</td>
+                            <td class="px-4 py-3 text-center font-semibold text-gray-700">${row.taskCount}</td>
                         </tr>
                     `;
                 });
@@ -993,13 +1042,20 @@
         document.getElementById('btn-resp-reset-search')?.addEventListener('click', () => {
             const searchInput = document.getElementById('resp-search-input'), timeType = document.getElementById('resp-search-time-type');
             if (searchInput) searchInput.value = ''; if (timeType) { timeType.value = 'day'; timeType.dispatchEvent(new Event('change')); }
+            currentRespFilter = 'all';
             renderResponsibleSummary();
         });
 
         // Export สำหรับหน้าสรุปผู้รับผิดชอบ
         document.getElementById('btn-resp-export-excel')?.addEventListener('click', () => {
             if (currentRespFilteredData.length === 0) return showNotification("ไม่มีข้อมูลให้ Export", "error");
-            const exportData = currentRespFilteredData.map((r, idx) => ({ 'อันดับ': idx + 1, 'ชื่อผู้รับผิดชอบ': r.name, 'จำนวนงาน (งาน)': r.count, 'สัดส่วน (%)': `${r.percent}%` }));
+            const exportData = currentRespFilteredData.map((r, idx) => ({ 
+                'ลำดับ': idx + 1, 
+                'วันที่รับงานล่าสุด': r.latestDate ? formatDate(r.latestDate) : '-', 
+                'ชื่อโครงการ': r.projectName, 
+                'ชื่อผู้รับผิดชอบ': r.responsibleName, 
+                'จำนวนงาน (งาน)': r.taskCount 
+            }));
             const worksheet = XLSX.utils.json_to_sheet(exportData), workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, worksheet, "Responsible Summary"); XLSX.writeFile(workbook, `Responsible_Summary_${getThaiDateString()}.xlsx`); showNotification("Export Excel สำเร็จ");
         });
 
